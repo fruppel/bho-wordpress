@@ -42,8 +42,10 @@ require_once BHO_LADDER_DIR . 'includes/strings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-api.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-settings.php';
+require_once BHO_LADDER_DIR . 'includes/class-bho-overview.php';
 
 BHO_Settings::boot();
+BHO_Overview::boot();
 
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
 

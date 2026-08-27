@@ -117,7 +117,7 @@ final class BHO_Render
                 $html .= $tournament === null ? '' : '</ul>';
                 $tournament = $game['tournament'];
                 $html .= '<h3 class="bho-group">' . esc_html((string) $tournament)
-                    . ' <span>' . esc_html($this->day((string) $game['startDate'])) . '</span></h3><ul class="bho-games">';
+                    . ' <span>' . esc_html(self::formatDay((string) $game['startDate'])) . '</span></h3><ul class="bho-games">';
             }
 
             $html .= $this->game($game);
@@ -223,8 +223,8 @@ final class BHO_Render
 
         foreach ($running as $tournament) {
             $html .= '<p class="bho-running-name">' . esc_html((string) $tournament['name'])
-                . ' <span>' . esc_html($this->day((string) $tournament['startDate'])
-                . ' – ' . $this->day((string) $tournament['endDate'])) . '</span>'
+                . ' <span>' . esc_html(self::formatDay((string) $tournament['startDate'])
+                . ' – ' . self::formatDay((string) $tournament['endDate'])) . '</span>'
                 . ' <a href="' . esc_url((string) $tournament['url']) . '" target="_blank" rel="noopener">'
                 . esc_html($this->t['herald']) . '</a></p>';
         }
@@ -339,7 +339,7 @@ final class BHO_Render
     }
 
     /** dd.mm.yy, the way the application prints it — one club, one way of writing a date. */
-    private function day(string $ymd): string
+    public static function formatDay(string $ymd): string
     {
         $parts = explode('-', $ymd);
 

@@ -50,6 +50,20 @@ final class BHO_Api
         return $this->get($season === null ? '/api/ladder' : '/api/ladder?season=' . $season);
     }
 
+    /**
+     * Every season and what counts towards it. Read-only, like everything here.
+     *
+     * Changing the assignment stays in the ladder's own admin area: it would need a credential with
+     * write access sitting in this database, and this is a WordPress on shared hosting — the most
+     * attacked software in the whole arrangement — for a job somebody does five times a year.
+     *
+     * @return array<string,mixed>|WP_Error
+     */
+    public function seasons(): array|WP_Error
+    {
+        return $this->get('/api/seasons');
+    }
+
     /** @return array<string,mixed>|WP_Error */
     public function player(int $id): array|WP_Error
     {

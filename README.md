@@ -22,6 +22,13 @@ engines and script blockers see it, and one answer is cached for everybody inste
 visitor. The ladder is recomputed from every game on each request over there, so that last one is not
 a detail.
 
+`Settings → BHO Saisons` shows which tournaments count towards which season, and names the ones
+counting towards nothing — a state somebody has to be able to notice rather than discover when a table
+looks short. It is **read-only**: assigning happens in the ladder's own admin area, and the screen
+links there. Two write paths to one dataset means the rules that hold it together — exactly one
+current season, one season per tournament — either live in two places or drift apart. It also spares
+this WordPress a credential with write access, which on shared hosting is the last place to keep one.
+
 `Settings → BHO Ladder` holds the address of the ladder and how long an answer is kept (five minutes by
 default; the table only changes when somebody presses Import). If the ladder cannot be reached, the
 last good answer is served for up to a day with a line saying so — a day-old table beats an error
@@ -67,6 +74,7 @@ bho-ladder/
   includes/class-bho-api.php  the two endpoints, cached, with a stale fallback
   includes/class-bho-render.php  all the HTML, everything escaped on the way out
   includes/class-bho-settings.php  the settings page
+  includes/class-bho-overview.php  the read-only seasons screen in wp-admin
   includes/strings.php        German, English and Spanish
   assets/ladder.css           only what a theme cannot know: rank tints, podium, flag frame
   assets/flags/               271 country flags (flag-icons, MIT)

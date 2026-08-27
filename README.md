@@ -60,6 +60,25 @@ the wrong place to argue. Places stay with their players, so a table sorted by g
 first. The sort travels into a player's page and back out of it, so coming back lands on the table
 that was left.
 
+## Installing it on a site that is not this one
+
+`make zip` builds `bho-ladder-<version>.zip` from the committed files, with `bho-ladder/` as the folder
+inside it — which is the folder WordPress installs, and the folder an update has to land in to replace
+the plugin rather than sit down beside it. GitHub's own "Source code (zip)" cannot be installed: it
+holds the repository, so the plugin would end up one level down. First installation is that zip under
+*Plugins → Add New → Upload Plugin*.
+
+After that the site updates itself. The plugin names an `Update URI` in its header, which gives it
+core's `update_plugins_github.com` filter; `BHO_Updates` answers it with the newest release's tag and
+the zip attached to it, cached for six hours against GitHub's sixty-requests-an-hour limit for
+anonymous callers. The plugins screen then offers the update like any other, and the button is the
+button everybody already knows.
+
+Releasing is `git tag v0.3.0 && git push --tags`. The workflow refuses a tag that disagrees with the
+plugin header, because WordPress compares the header against what the update check reported: a tag
+ahead of the header would offer an update that installs, still calls itself the old version, and is
+offered again forever.
+
 ## Colours it does not own
 
 `assets/ladder.css` sets no font, no text colour and no background — those come from the site. What it

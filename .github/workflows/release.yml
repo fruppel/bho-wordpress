@@ -1,0 +1,47 @@
+# Attaches an installable zip to a release, because the one GitHub generates cannot be installed:
+# its archive holds `bho-wordpress-<tag>/bho-ladder/…`, and WordPress installs whatever folder is at
+# the root of the zip. Ours has `bho-ladder/` there, which is also the folder it has to land in for an
+# update to replace the plugin rather than sit down beside it.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    name: Package and release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: The tag and the plugin header must agree
+        run: |
+          header=$(sed -n 's/^ \* Version: *//p' bho-ladder/bho-ladder.php | tr -d ' \r')
+          constant=$(sed -n "s/^define('BHO_LADDER_VERSION', '\(.*\)');/\1/p" bho-ladder/bho-ladder.php)
+          tag="${GITHUB_REF_NAME#v}"
+          echo "header=$header constant=$constant tag=$tag"
+          # WordPress compares the header against what the update endpoint reports. A tag ahead of the
+          # header would offer an update that, once installed, still calls itself the old version and
+          # is therefore offered again forever.
+          test "$header" = "$tag" || { echo "::error::Plugin header says $header, tag says $tag"; exit 1; }
+          test "$constant" = "$tag" || { echo "::error::BHO_LADDER_VERSION says $constant, tag says $tag"; exit 1; }
+
+      - name: Build the zip
+        run: |
+          git archive --format=zip --prefix=bho-ladder/ \
+            -o "bho-ladder-${GITHUB_REF_NAME#v}.zip" HEAD:bho-ladder
+          unzip -l "bho-ladder-${GITHUB_REF_NAME#v}.zip" | tail -1
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            "bho-ladder-${GITHUB_REF_NAME#v}.zip"

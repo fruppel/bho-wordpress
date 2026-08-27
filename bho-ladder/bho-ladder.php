@@ -3,11 +3,12 @@
  * Plugin Name:       BHO Ladder
  * Plugin URI:        https://github.com/fruppel/bho-wordpress
  * Description:       Draws the Black Hydra Open ladder on a WordPress page, with a detail page per player. Reads the BHO API server-side and caches it.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Black Hydra Open
  * License:           MIT
+ * Update URI:        https://github.com/fruppel/bho-wordpress
  * Text Domain:       bho-ladder
  *
  * The ladder itself lives in a separate application (Symfony + two Vue apps). This plugin does not
@@ -24,7 +25,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 
-define('BHO_LADDER_VERSION', '0.1.0');
+define('BHO_LADDER_VERSION', '0.2.0');
 define('BHO_LADDER_FILE', __FILE__);
 define('BHO_LADDER_DIR', plugin_dir_path(__FILE__));
 define('BHO_LADDER_URL', plugin_dir_url(__FILE__));
@@ -56,9 +57,11 @@ require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
 require_once BHO_LADDER_DIR . 'includes/nav.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-settings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-overview.php';
+require_once BHO_LADDER_DIR . 'includes/class-bho-updates.php';
 
 BHO_Settings::boot();
 BHO_Overview::boot();
+BHO_Updates::boot();
 
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
 add_shortcode('bho_recent_games', 'bho_recent_games_shortcode');

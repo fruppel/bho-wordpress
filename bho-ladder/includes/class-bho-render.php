@@ -268,7 +268,6 @@ final class BHO_Render
                 (int) ($params['counted'] ?? 0),
                 (int) ($params['expected'] ?? 0),
             ),
-            'inseparableTopThree' => sprintf($this->t['note_inseparable'], $params['tournament'] ?? ''),
             // A code this plugin has no sentence for is skipped rather than printed: the application
             // can add one before the plugin is updated, and a raw key on the page helps nobody.
             default => '',
@@ -277,6 +276,13 @@ final class BHO_Render
         return $text === '' ? '' : '<p class="bho-note">' . esc_html($text) . '</p>';
     }
 
+    /**
+     * A trophy for the first three places, the number for everyone else.
+     *
+     * Places are shared and the count after them jumps, so a table can hold three firsts and no
+     * second at all — three gold trophies, which is what sharing a place means. It can also hold a
+     * third with no second above it, and 4 to 11 all reading "5".
+     */
     private function placement(int $position): string
     {
         if ($position > 3) {

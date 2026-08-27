@@ -52,7 +52,6 @@ function bho_ladder_strings(): array
             'second' => 'Zweiter Platz',
             'third' => 'Dritter Platz',
             'note_provisional' => '%1$s: %2$d von etwa %3$d Spielen gezählt — die Platzierungen und die Bonuspunkte daraus sind vorläufig.',
-            'note_inseparable' => '%s: Zwei Spieler in den Top 3 lassen sich weder über den Turnier Score noch über SoS oder Siegpunkte trennen.',
         ],
         'en' => [
             'ladder' => 'Ladder',
@@ -87,7 +86,6 @@ function bho_ladder_strings(): array
             'second' => 'Second place',
             'third' => 'Third place',
             'note_provisional' => '%1$s: %2$d of about %3$d games counted, so its placings — and the bonus points from them — are provisional.',
-            'note_inseparable' => '%s: two players in the top three cannot be separated by score, SoS or victory points.',
         ],
         'es' => [
             'ladder' => 'Ladder',
@@ -122,7 +120,6 @@ function bho_ladder_strings(): array
             'second' => 'Segundo puesto',
             'third' => 'Tercer puesto',
             'note_provisional' => '%1$s: se han contado %2$d de unas %3$d partidas, así que sus puestos —y los puntos de bonificación que salen de ellos— son provisionales.',
-            'note_inseparable' => '%s: dos jugadores del top 3 no se pueden separar ni por puntuación, ni por SoS, ni por puntos de victoria.',
         ],
     ];
 

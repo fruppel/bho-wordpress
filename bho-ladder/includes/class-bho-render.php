@@ -239,12 +239,18 @@ final class BHO_Render
         $one = (bool) ($game['one']['excluded'] ?? false) ? ' bho-excluded' : '';
         $two = (bool) ($game['two']['excluded'] ?? false) ? ' bho-excluded' : '';
 
+        // Each side carries its own half of the score. Between the names on a wide screen it reads as
+        // one score with the dash in the middle, and on a phone, where the two players go on separate
+        // lines, each keeps the number that is his — a score stranded on a third line belonged to
+        // neither of them.
         return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
             . $this->day($game['playedOn'] ?? null)
             . '<span class="bho-side' . $one . '">' . $this->flag($game['one']['country'] ?? null) . ' '
-            . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
-            . $this->score($game['one']['score'], $game['two']['score'])
-            . '<span class="bho-side bho-right' . $two . '">' . $this->change($game['two']['change']) . ' '
+            . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . ' '
+            . $this->scoreBox($game['one']['score']) . '</span>'
+            . '<span class="bho-score-sep" aria-hidden="true">–</span>'
+            . '<span class="bho-side bho-right' . $two . '">' . $this->scoreBox($game['two']['score'])
+            . ' ' . $this->change($game['two']['change']) . ' '
             . $this->playerLink($game['two']) . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
             . ($withEvent ? '<span class="bho-event">' . esc_html((string) $game['tournament']) . '</span>' : '')
             . '</li>';
@@ -303,11 +309,14 @@ final class BHO_Render
      */
     private function score(int|string $one, int|string $two): string
     {
-        return '<span class="bho-score">'
-            . '<span class="bho-score-box">' . esc_html((string) $one) . '</span>'
-            . '<span class="bho-score-sep">–</span>'
-            . '<span class="bho-score-box">' . esc_html((string) $two) . '</span>'
-            . '</span>';
+        return '<span class="bho-score">' . $this->scoreBox($one)
+            . '<span class="bho-score-sep">–</span>' . $this->scoreBox($two) . '</span>';
+    }
+
+    /** Two digits wide whichever number goes in it, which is what lines a column of them up. */
+    private function scoreBox(int|string $value): string
+    {
+        return '<span class="bho-score-box">' . esc_html((string) $value) . '</span>';
     }
 
     /**

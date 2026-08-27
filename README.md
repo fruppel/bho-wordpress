@@ -19,7 +19,12 @@ The latest games used to live inside `[bho_ladder]`. They are their own shortcod
 endpoint now, so the club can put them anywhere — the demo site has them below the table. Rows past
 `show` are folded into a `<details>`, which means they are in the HTML and the browser does the
 hiding: no JavaScript of ours, and one request either way. The summary is ordered last inside that
-`<details>`, so the control stays under the list rather than splitting it in two.
+`<details>`, so the control stays under the list rather than splitting it in two, and both labels are
+rendered with the CSS showing one — "mehr anzeigen" closed, "weniger anzeigen" open.
+
+The stylesheet is versioned by its own modification time rather than by the plugin version. With the
+plugin version, editing the CSS kept the same `?ver=` and every browser that had been on the page kept
+the file it already had — which looked exactly like the change not having been made.
 
 On a player's own page the block renders nothing: that page is already a list of games, and this one
 underneath would be the same rows again, most of them about somebody else.

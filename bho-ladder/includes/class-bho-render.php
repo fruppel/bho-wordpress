@@ -193,7 +193,11 @@ final class BHO_Render
         if ($rest !== []) {
             // The summary is ordered *after* the rows it reveals (see the CSS), so the control sits
             // under the list at all times instead of splitting it in two.
-            $html .= '<details class="bho-more"><summary>' . esc_html($this->t['show_more'])
+            // Both labels are rendered and the CSS shows one, so the text follows the state without
+            // a line of JavaScript — the same reason the fold is a <details> at all.
+            $html .= '<details class="bho-more"><summary>'
+                . '<span class="bho-when-closed">' . esc_html($this->t['show_more']) . '</span>'
+                . '<span class="bho-when-open">' . esc_html($this->t['show_less']) . '</span>'
                 . '</summary><ul class="bho-recent">';
             foreach ($rest as $game) {
                 $html .= $this->recentRow($game);

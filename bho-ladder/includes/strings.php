@@ -21,6 +21,7 @@ function bho_ladder_strings(): array
     $all = [
         'de' => [
             'show_more' => 'mehr anzeigen',
+            'show_less' => 'weniger anzeigen',
             'all_games' => 'Alle Spiele ansehen →',
             'games_total' => '%1$d Spiele · Seite %2$d von %3$d',
             'day' => 'Datum',
@@ -66,6 +67,7 @@ function bho_ladder_strings(): array
         ],
         'en' => [
             'show_more' => 'show more',
+            'show_less' => 'show less',
             'all_games' => 'See every game →',
             'games_total' => '%1$d games · page %2$d of %3$d',
             'day' => 'Date',
@@ -111,6 +113,7 @@ function bho_ladder_strings(): array
         ],
         'es' => [
             'show_more' => 'ver más',
+            'show_less' => 'ver menos',
             'all_games' => 'Ver todas las partidas →',
             'games_total' => '%1$d partidas · página %2$d de %3$d',
             'day' => 'Fecha',

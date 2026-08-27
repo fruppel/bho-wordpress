@@ -110,9 +110,24 @@ function bho_all_games_shortcode(array|string $atts = []): string
 /** The stylesheet is loaded here rather than per shortcode: a page may hold several of them. */
 function bho_ladder_renderer(): BHO_Render
 {
-    wp_enqueue_style('bho-ladder', BHO_LADDER_URL . 'assets/ladder.css', [], BHO_LADDER_VERSION);
+    wp_enqueue_style('bho-ladder', BHO_LADDER_URL . 'assets/ladder.css', [], bho_ladder_style_version());
 
     return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings());
+}
+
+/**
+ * The stylesheet's own modification time, not the plugin version.
+ *
+ * With the plugin version, an edit to the CSS keeps the same `?ver=` and every browser that has been
+ * on the page keeps the file it already has — which is exactly what happened, and looked like the
+ * change had not been made. The plugin version only moves on a release; the file moves whenever it
+ * is edited, which is when the cache has to be dropped.
+ */
+function bho_ladder_style_version(): string
+{
+    $time = @filemtime(BHO_LADDER_DIR . 'assets/ladder.css');
+
+    return $time ? (string) $time : BHO_LADDER_VERSION;
 }
 
 function bho_ladder_player_in_url(): int

@@ -354,6 +354,9 @@
 }
 
 .bho-more summary:hover { color: currentColor; }
+.bho-more .bho-when-open,
+.bho-more[open] .bho-when-closed { display: none; }
+.bho-more[open] .bho-when-open { display: inline; }
 .bho-more[open] summary { margin-top: 0.2rem; }
 .bho-more .bho-recent { margin-top: 0; margin-bottom: 0; }
 

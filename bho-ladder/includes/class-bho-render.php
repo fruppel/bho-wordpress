@@ -48,8 +48,6 @@ final class BHO_Render
         }
 
         $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries);
-        $html .= '<p class="bho-foot">'
-            . esc_html(sprintf($this->t['players_count'], count($entries))) . '</p>';
         $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
 
         return $html . '</div>';
@@ -128,6 +126,7 @@ final class BHO_Render
             . '<th class="bho-num bho-w-rating">' . esc_html($this->t['rating']) . '</th>'
             . '<th class="bho-w-rank">' . esc_html($this->t['rank']) . '</th>'
             . '<th class="bho-num bho-w-record">' . esc_html($this->t['record']) . '</th>'
+            . '<th class="bho-num bho-w-games bho-wide">' . esc_html($this->t['games']) . '</th>'
             . '<th class="bho-num bho-w-events bho-wide">' . esc_html($this->t['events']) . '</th>'
             . '</tr></thead><tbody>';
 
@@ -147,6 +146,7 @@ final class BHO_Render
                     $entry['draws'],
                     $entry['losses'],
                 )) . '</td>'
+                . '<td class="bho-num bho-w-games bho-wide">' . esc_html((string) $entry['games']) . '</td>'
                 . '<td class="bho-num bho-w-events bho-wide">' . esc_html((string) $entry['tournaments']) . '</td>'
                 . '</tr>';
         }

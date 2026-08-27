@@ -90,11 +90,12 @@
 .bho-table th.bho-w-rating, .bho-table td.bho-w-rating { width: 5.5rem; }
 .bho-table th.bho-w-rank,   .bho-table td.bho-w-rank   { width: 4.5rem; }
 .bho-table th.bho-w-record, .bho-table td.bho-w-record { width: 6rem; }
+.bho-table th.bho-w-games,  .bho-table td.bho-w-games  { width: 4.5rem; }
 .bho-table th.bho-w-events, .bho-table td.bho-w-events { width: 5rem; }
 
 .bho-table td.bho-rating { font-weight: 700; }
 
-/* Events is the column to lose first on a phone: it is the least of the six. */
+/* Games and events go first on a phone: the record column already carries both, one as its sum. */
 @media (max-width: 40rem) {
   .bho-wide { display: none; }
   .bho-table th, .bho-table td { padding: 0.6rem 0.4rem; }

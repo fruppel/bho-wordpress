@@ -83,6 +83,12 @@ function bho_ladder_shortcode(array|string $atts = []): string
  */
 function bho_recent_games_shortcode(array|string $atts = []): string
 {
+    // Nothing on a player's own page: it is already a list of games, and the block underneath it
+    // would be the same rows a second time, most of them about somebody else.
+    if (bho_ladder_player_in_url() > 0) {
+        return '';
+    }
+
     $atts = shortcode_atts(['show' => '3', 'more' => '10'], $atts, 'bho_recent_games');
 
     return bho_ladder_renderer()->recentGames((int) $atts['show'], (int) $atts['more']);

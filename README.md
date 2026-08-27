@@ -18,7 +18,11 @@ plugin: a breaking change over there means `/api/v2/` and a plugin update, in th
 The latest games used to live inside `[bho_ladder]`. They are their own shortcode and their own
 endpoint now, so the club can put them anywhere — the demo site has them below the table. Rows past
 `show` are folded into a `<details>`, which means they are in the HTML and the browser does the
-hiding: no JavaScript of ours, and one request either way.
+hiding: no JavaScript of ours, and one request either way. The summary is ordered last inside that
+`<details>`, so the control stays under the list rather than splitting it in two.
+
+On a player's own page the block renders nothing: that page is already a list of games, and this one
+underneath would be the same rows again, most of them about somebody else.
 
 `[bho_all_games]` is a wide table with previous/next paging. Point the *Seite „Alle Spiele"* setting at
 the page holding it and the latest-games block links there; leave it unset and the link stays away.

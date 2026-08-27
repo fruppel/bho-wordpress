@@ -20,7 +20,7 @@ function bho_ladder_strings(): array
 {
     $all = [
         'de' => [
-            'show_more' => '%d weitere anzeigen',
+            'show_more' => 'mehr anzeigen',
             'all_games' => 'Alle Spiele ansehen →',
             'games_total' => '%1$d Spiele · Seite %2$d von %3$d',
             'day' => 'Datum',
@@ -42,7 +42,7 @@ function bho_ladder_strings(): array
             'running_many' => 'Laufende Turniere',
             'running_note' => 'Diese Ergebnisse bewegen sich noch, solange Spiele eintreffen, und die Turnierpunkte gibt es erst, wenn ein Turnier vorbei ist.',
             'herald' => 'Tabletop Herald ↗',
-            'latest' => 'Neueste Spiele',
+            'latest' => 'Letzte Spiele',
             'empty' => 'Bisher wurde nichts importiert.',
             'unavailable' => 'Die Ladder ist gerade nicht erreichbar.',
             'stale' => 'Zuletzt bekannter Stand — die Ladder war beim Aktualisieren nicht erreichbar.',
@@ -65,7 +65,7 @@ function bho_ladder_strings(): array
             'note_provisional' => '%1$s: %2$d von etwa %3$d Spielen gezählt — die Platzierungen und die Bonuspunkte daraus sind vorläufig.',
         ],
         'en' => [
-            'show_more' => 'Show %d more',
+            'show_more' => 'show more',
             'all_games' => 'See every game →',
             'games_total' => '%1$d games · page %2$d of %3$d',
             'day' => 'Date',
@@ -110,7 +110,7 @@ function bho_ladder_strings(): array
             'note_provisional' => '%1$s: %2$d of about %3$d games counted, so its placings — and the bonus points from them — are provisional.',
         ],
         'es' => [
-            'show_more' => 'Ver %d más',
+            'show_more' => 'ver más',
             'all_games' => 'Ver todas las partidas →',
             'games_total' => '%1$d partidas · página %2$d de %3$d',
             'day' => 'Fecha',

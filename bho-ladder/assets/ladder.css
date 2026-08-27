@@ -333,7 +333,17 @@
  * The fold is a <details>, so the rows past the third are in the HTML and the browser does the
  * hiding. A link that reloaded the page would cost a round trip for something already fetched.
  */
-.bho-more { margin: 0.2rem 0 0; }
+/*
+ * A flex column with the summary ordered last, so the control sits under the rows whether it is open
+ * or closed. A <details> puts its summary first, which left it wedged between two lists.
+ */
+.bho-more {
+  display: flex;
+  flex-direction: column;
+  margin: 0.2rem 0 0;
+}
+
+.bho-more summary { order: 2; }
 
 .bho-more summary {
   display: inline-block;
@@ -344,7 +354,7 @@
 }
 
 .bho-more summary:hover { color: currentColor; }
-.bho-more[open] summary { margin-bottom: 0.2rem; }
+.bho-more[open] summary { margin-top: 0.2rem; }
 .bho-more .bho-recent { margin-top: 0; margin-bottom: 0; }
 
 .bho-quiet { color: var(--bho-quiet); }

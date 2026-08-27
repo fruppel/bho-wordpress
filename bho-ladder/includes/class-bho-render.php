@@ -191,8 +191,9 @@ final class BHO_Render
 
         $rest = array_slice($games, $show);
         if ($rest !== []) {
-            $html .= '<details class="bho-more"><summary>'
-                . esc_html(sprintf($this->t['show_more'], count($rest)))
+            // The summary is ordered *after* the rows it reveals (see the CSS), so the control sits
+            // under the list at all times instead of splitting it in two.
+            $html .= '<details class="bho-more"><summary>' . esc_html($this->t['show_more'])
                 . '</summary><ul class="bho-recent">';
             foreach ($rest as $game) {
                 $html .= $this->recentRow($game);
@@ -209,9 +210,11 @@ final class BHO_Render
     private function recentRow(array $game): string
     {
         return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
-            . '<span class="bho-side">' . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
+            . '<span class="bho-side">' . $this->flag($game['one']['country'] ?? null) . ' '
+            . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
             . '<span class="bho-score">' . esc_html($game['one']['score'] . '–' . $game['two']['score']) . '</span>'
-            . '<span class="bho-side bho-right">' . $this->change($game['two']['change']) . ' ' . $this->playerLink($game['two']) . '</span>'
+            . '<span class="bho-side bho-right">' . $this->change($game['two']['change']) . ' '
+            . $this->playerLink($game['two']) . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
             . '</li>';
     }
 

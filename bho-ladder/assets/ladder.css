@@ -278,15 +278,30 @@
 .bho-right { justify-content: flex-end; }
 .bho-score {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
   flex: none;
-  min-width: 4.5rem;
   color: var(--bho-quiet);
 }
 
-.bho-score-a { flex: 1 1 0; text-align: right; }
-.bho-score-b { flex: 1 1 0; text-align: left; }
-.bho-score-sep { padding: 0 0.15rem; }
+/*
+ * `ch` off the box's own monospace font, so two digits fit exactly. Padding and border are added by
+ * hand because a theme's `box-sizing: border-box` counts them inside `min-width` — with a plain 2ch
+ * a one-digit box came out 9px narrower than its neighbour, which was the whole complaint.
+ */
+.bho-score-box {
+  min-width: calc(2ch + 0.6rem + 2px);
+  padding: 0.05rem 0.3rem;
+  border: 1px solid var(--bho-line-strong);
+  border-radius: 4px;
+  background: var(--bho-panel);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.bho-score-sep { color: var(--bho-faint); }
 
 .bho-opponent {
   display: flex;
@@ -381,9 +396,13 @@
 /* Truncated, not wrapped: a long event name would otherwise double the height of every row. */
 .bho-all td.bho-wide { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bho-all th.bho-w-round, .bho-all td.bho-w-round { width: 3rem; }
-.bho-all th.bho-w-score { width: 5rem; text-align: center; }
-.bho-all td.bho-w-score { width: 5rem; }
-.bho-all td.bho-w-score .bho-score { min-width: 100%; }
+/*
+ * Wide enough for the two boxes plus the dash between them. `table-layout: fixed` does not grow a
+ * column that is too narrow — it lets the content run into the next one, and on a phone the second
+ * box sat on top of the opponent's name.
+ */
+.bho-all th.bho-w-score,
+.bho-all td.bho-w-score { width: 5.5rem; text-align: center; }
 
 /*
  * `table-layout: fixed` so the declared widths hold and the two name columns share what is left.
@@ -420,7 +439,6 @@
 @media (max-width: 30rem) {
   .bho-all th.bho-w-round, .bho-all td.bho-w-round { display: none; }
   .bho-all th.bho-w-day, .bho-all td.bho-w-day { width: 4.6rem; }
-  .bho-all th.bho-w-score, .bho-all td.bho-w-score { width: 4.2rem; }
   .bho-all .bho-flag { display: none; }
 }
 

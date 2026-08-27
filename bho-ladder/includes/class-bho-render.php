@@ -264,7 +264,11 @@ final class BHO_Render
 
         foreach ($games as $game) {
             $html .= '<tr' . ($game['excluded'] ? ' class="bho-excluded"' : '') . '>'
-                . '<td class="bho-w-day bho-quiet">' . esc_html(self::formatDay((string) $game['startDate'])) . '</td>'
+                // The day it was played when we know it, the tournament's start date when we do not —
+                // which is every game imported before the column existed.
+                . '<td class="bho-w-day bho-quiet">' . esc_html(self::formatDay(
+                    (string) ($game['playedOn'] ?? $game['startDate']),
+                )) . '</td>'
                 . '<td class="bho-wide bho-quiet">' . esc_html((string) $game['tournament']) . '</td>'
                 . '<td class="bho-w-round bho-num bho-quiet">' . esc_html((string) $game['round']) . '</td>'
                 . '<td class="bho-name-cell">' . $this->side($game['one']) . '</td>'
@@ -277,18 +281,18 @@ final class BHO_Render
     }
 
     /**
-     * A score as three parts rather than one string.
+     * A score as two boxes rather than one string.
      *
-     * The dash is what the eye scans down a column of results, and `18–4` above `6–16` puts it in a
-     * different place on every row. Left number right-aligned, right number left-aligned, dash in the
-     * middle: then the column has a spine.
+     * `18–4` and `6–16` are different shapes, so a column of them read as a jumble however the parts
+     * were aligned. Two boxes of one width — two digits wide, whether the score needs them or not —
+     * give the column a grid, and unlike a padded `04` they invent no score nobody played.
      */
     private function score(int|string $one, int|string $two): string
     {
         return '<span class="bho-score">'
-            . '<span class="bho-score-a">' . esc_html((string) $one) . '</span>'
+            . '<span class="bho-score-box">' . esc_html((string) $one) . '</span>'
             . '<span class="bho-score-sep">–</span>'
-            . '<span class="bho-score-b">' . esc_html((string) $two) . '</span>'
+            . '<span class="bho-score-box">' . esc_html((string) $two) . '</span>'
             . '</span>';
     }
 

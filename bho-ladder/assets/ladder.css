@@ -475,33 +475,6 @@
  * hiding. A link that reloaded the page would cost a round trip for something already fetched.
  */
 /*
- * A flex column with the summary ordered last, so the control sits under the rows whether it is open
- * or closed. A <details> puts its summary first, which left it wedged between two lists.
- */
-.bho-more {
-  display: flex;
-  flex-direction: column;
-  margin: 0.2rem 0 0;
-}
-
-.bho-more summary { order: 2; }
-
-.bho-more summary {
-  display: inline-block;
-  padding: 0.3rem 0;
-  font-size: 0.8rem;
-  color: var(--bho-quiet);
-  cursor: pointer;
-}
-
-.bho-more summary:hover { color: currentColor; }
-.bho-more .bho-when-open,
-.bho-more[open] .bho-when-closed { display: none; }
-.bho-more[open] .bho-when-open { display: inline; }
-.bho-more[open] summary { margin-top: 0.2rem; }
-.bho-more .bho-recent { margin-top: 0; margin-bottom: 0; }
-
-/*
  * A player per line on a phone, under the round and the day.
  *
  * One line cannot hold both: 390 pixels minus the round, the day and the score leave about 140 for a

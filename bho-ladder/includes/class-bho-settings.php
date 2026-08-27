@@ -181,8 +181,8 @@ final class BHO_Settings
                 an; es braucht also keine zweite Seite und keine Permalink-Umstellung.
             </p>
             <p>
-                <code>[bho_recent_games]</code> — die letzten Spiele, wo du willst. Standard sind drei,
-                aufklappbar auf zehn: <code>[bho_recent_games show="3" more="10"]</code>.
+                <code>[bho_recent_games]</code> — die letzten Spiele, wo du willst. Standard sind acht,
+                darunter der Link auf alle: <code>[bho_recent_games show="8"]</code>.
             </p>
             <p>
                 <code>[bho_all_games]</code> — alle Spiele der Saison, seitenweise, in denselben
@@ -204,7 +204,7 @@ final class BHO_Settings
             <pre>[bho_ladder rules="0"]
 
 &lt;div class="bho-columns"&gt;
-&lt;div&gt;[bho_recent_games show="3" more="10"]&lt;/div&gt;
+&lt;div&gt;[bho_recent_games show="8"]&lt;/div&gt;
 &lt;div&gt;[bho_rules]&lt;/div&gt;
 &lt;/div&gt;</pre>
         </div>

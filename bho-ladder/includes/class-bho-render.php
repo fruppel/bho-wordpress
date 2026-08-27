@@ -179,14 +179,13 @@ final class BHO_Render
     /**
      * The last few games, as a block that can stand anywhere on the site.
      *
-     * `$more` rows are fetched and the ones past `$show` are folded into a `<details>`. A link that
-     * reloaded the page would work too, but this is one request either way and the browser does the
-     * folding — no JavaScript of ours, and the rows are in the HTML for anything that reads it.
+     * What is shown is all there is: the fold that used to hold a second helping is gone, and the
+     * link under the list goes to every game there is instead. Two ways of seeing more of the same
+     * list, one of them ending in a page that shows all of it anyway, was one too many.
      */
-    public function recentGames(int $show, int $more): string
+    public function recentGames(int $show): string
     {
-        $wanted = max($show, $more);
-        $data = $this->api->games(1, max($wanted, 1));
+        $data = $this->api->games(1, max($show, 1));
 
         if (is_wp_error($data)) {
             return $this->wrap($this->notice($this->t['unavailable']));
@@ -203,26 +202,10 @@ final class BHO_Render
         }
 
         $html .= '<ul class="bho-recent">';
-        foreach (array_slice($games, 0, $show) as $game) {
+        foreach ($games as $game) {
             $html .= $this->recentRow($game);
         }
         $html .= '</ul>';
-
-        $rest = array_slice($games, $show);
-        if ($rest !== []) {
-            // The summary is ordered *after* the rows it reveals (see the CSS), so the control sits
-            // under the list at all times instead of splitting it in two.
-            // Both labels are rendered and the CSS shows one, so the text follows the state without
-            // a line of JavaScript — the same reason the fold is a <details> at all.
-            $html .= '<details class="bho-more"><summary>'
-                . '<span class="bho-when-closed">' . esc_html($this->t['show_more']) . '</span>'
-                . '<span class="bho-when-open">' . esc_html($this->t['show_less']) . '</span>'
-                . '</summary><ul class="bho-recent">';
-            foreach ($rest as $game) {
-                $html .= $this->recentRow($game);
-            }
-            $html .= '</ul></details>';
-        }
 
         $html .= $this->allGamesLink();
 

@@ -71,7 +71,7 @@ fi
 wp post update "$PAGE" --post_content='[bho_ladder rules="0"]
 
 <div class="bho-columns">
-<div>[bho_recent_games show="3" more="10"]</div>
+<div>[bho_recent_games show="8"]</div>
 <div>[bho_rules]</div>
 </div>' >/dev/null
 wp post update "$GAMES" --post_content='[bho_all_games per="25"]' >/dev/null

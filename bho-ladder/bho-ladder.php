@@ -96,8 +96,7 @@ function bho_rules_shortcode(array|string $atts = []): string
  * `[bho_recent_games]` — the last few games, wherever it is placed.
  *
  * Attributes:
- *   show="3"   how many to list at rest
- *   more="10"  how many the "show more" link opens; 0 leaves the link out
+ *   show="8"   how many to list; the link under them goes to every game there is
  */
 function bho_recent_games_shortcode(array|string $atts = []): string
 {
@@ -107,9 +106,9 @@ function bho_recent_games_shortcode(array|string $atts = []): string
         return '';
     }
 
-    $atts = shortcode_atts(['show' => '3', 'more' => '10'], $atts, 'bho_recent_games');
+    $atts = shortcode_atts(['show' => '8'], $atts, 'bho_recent_games');
 
-    return bho_ladder_renderer()->recentGames((int) $atts['show'], (int) $atts['more']);
+    return bho_ladder_renderer()->recentGames((int) $atts['show']);
 }
 
 /**

@@ -12,7 +12,7 @@ plugin: a breaking change over there means `/api/v2/` and a plugin update, in th
 [bho_ladder]                              the standings, with the rules under them
 [bho_ladder limit="10"]                   a top-ten teaser for a front page
 [bho_ladder rules="0"]                    the standings alone, rules placed elsewhere
-[bho_recent_games show="3" more="10"]     the latest games, wherever you put them
+[bho_recent_games show="8"]               the latest games, wherever you put them
 [bho_all_games per="25"]                  every game of the season, paginated
 [bho_rules]                               start rating, points, bonus, rank classes
 ```
@@ -26,17 +26,15 @@ the rules are read once where the results are read again.
 [bho_ladder rules="0"]
 
 <div class="bho-columns">
-<div>[bho_recent_games show="3" more="10"]</div>
+<div>[bho_recent_games show="8"]</div>
 <div>[bho_rules]</div>
 </div>
 ```
 
 The latest games used to live inside `[bho_ladder]`. They are their own shortcode and their own
-endpoint now, so the club can put them anywhere — the demo site has them below the table. Rows past
-`show` are folded into a `<details>`, which means they are in the HTML and the browser does the
-hiding: no JavaScript of ours, and one request either way. The summary is ordered last inside that
-`<details>`, so the control stays under the list rather than splitting it in two, and both labels are
-rendered with the CSS showing one — "mehr anzeigen" closed, "weniger anzeigen" open.
+endpoint now, so the club can put them anywhere — the demo site has them below the table. What is
+listed is all the block holds: a fold that opened a few more rows, under a link to a page showing every
+game, was two ways of asking for the same thing.
 
 The stylesheet is versioned by its own modification time rather than by the plugin version. With the
 plugin version, editing the CSS kept the same `?ver=` and every browser that had been on the page kept

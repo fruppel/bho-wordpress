@@ -41,6 +41,15 @@ define('BHO_LADDER_PLAYER_PARAM', 'bho_player');
 /** Which page of the all-games table is being looked at. Same reasoning as the player parameter. */
 define('BHO_LADDER_PAGE_PARAM', 'bho_page');
 
+/**
+ * Which column the standings are sorted by, `-` for the other direction: `?bho_sort=-games`.
+ *
+ * In the URL rather than in a script, so a sorted table is a link somebody can send. It costs nothing
+ * either: the standings arrive complete in one answer, so the sorting is a PHP function on an array
+ * the page already holds.
+ */
+define('BHO_LADDER_SORT_PARAM', 'bho_sort');
+
 require_once BHO_LADDER_DIR . 'includes/strings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-api.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
@@ -75,7 +84,7 @@ function bho_ladder_shortcode(array|string $atts = []): string
 
     return $player > 0
         ? $render->player($player)
-        : $render->ladder((int) $atts['limit'], $atts['rules'] !== '0');
+        : $render->ladder((int) $atts['limit'], $atts['rules'] !== '0', bho_ladder_sort_in_url());
 }
 
 /**
@@ -157,6 +166,14 @@ function bho_ladder_player_in_url(): int
 function bho_ladder_page_in_url(): int
 {
     return max(isset($_GET[BHO_LADDER_PAGE_PARAM]) ? absint(wp_unslash($_GET[BHO_LADDER_PAGE_PARAM])) : 1, 1);
+}
+
+/** The raw value; BHO_Render decides which columns it knows and ignores the rest. */
+function bho_ladder_sort_in_url(): string
+{
+    return isset($_GET[BHO_LADDER_SORT_PARAM])
+        ? sanitize_text_field(wp_unslash($_GET[BHO_LADDER_SORT_PARAM]))
+        : '';
 }
 
 /**

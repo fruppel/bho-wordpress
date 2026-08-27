@@ -181,6 +181,11 @@ final class BHO_Settings
                 an; es braucht also keine zweite Seite und keine Permalink-Umstellung.
             </p>
             <p>
+                Ein Klick auf eine Spaltenüberschrift sortiert die Tabelle und hängt
+                <code>?<?php echo esc_html(BHO_LADDER_SORT_PARAM); ?>=games</code> an, ein zweiter
+                dreht die Richtung um. Die sortierte Ansicht ist damit ein Link, den man verschicken kann.
+            </p>
+            <p>
                 <code>[bho_recent_games]</code> — die letzten Spiele, wo du willst. Standard sind acht,
                 darunter der Link auf alle: <code>[bho_recent_games show="8"]</code>.
             </p>

@@ -22,7 +22,7 @@ final class BHO_Render
         private readonly array $t,
     ) {}
 
-    public function ladder(int $limit, bool $withRules = true): string
+    public function ladder(int $limit, bool $withRules = true, string $sort = ''): string
     {
         $data = $this->api->ladder();
 
@@ -47,7 +47,10 @@ final class BHO_Render
             return $html . $this->notice($this->t['empty']) . '</div>';
         }
 
-        $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries);
+        // Sorted before the slice, so a teaser of ten is the top ten of whatever is being sorted by
+        // rather than the first ten of the standings, re-ordered among themselves.
+        $entries = $this->sorted($entries, $sort);
+        $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries, $sort);
 
         if ($withRules) {
             $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
@@ -140,24 +143,34 @@ final class BHO_Render
     }
 
     /** @param array<int,array<string,mixed>> $entries */
-    private function table(array $entries): string
+    private function table(array $entries, string $sort = ''): string
     {
         $html = '<table class="bho-table"><thead><tr>'
-            . '<th class="bho-pos">#</th>'
-            . '<th>' . esc_html($this->t['player']) . '</th>'
-            . '<th class="bho-num bho-w-rating">' . esc_html($this->t['rating']) . '</th>'
+            . $this->head('place', '#', 'bho-pos', $sort)
+            . $this->head('name', $this->t['player'], '', $sort)
+            . $this->head('rating', $this->t['rating'], 'bho-num bho-w-rating', $sort)
             . '<th class="bho-w-rank">' . esc_html($this->t['rank']) . '</th>'
             . '<th class="bho-num bho-w-record">' . esc_html($this->t['record']) . '</th>'
-            . '<th class="bho-num bho-w-games bho-wide">' . esc_html($this->t['games']) . '</th>'
-            . '<th class="bho-num bho-w-events bho-wide">' . esc_html($this->t['events']) . '</th>'
+            . $this->head('games', $this->t['games'], 'bho-num bho-w-games bho-wide', $sort)
+            . $this->head('events', $this->t['events'], 'bho-num bho-w-events bho-wide', $sort)
             . '</tr></thead><tbody>';
+
+        // Carried into the player's link and back out of it again, so a reader who sorted by games,
+        // looked somebody up and came back is still looking at the table they left.
+        [$key, $descending] = $this->readSort($sort);
+        $keep = $key === null || $key === 'place'
+            ? []
+            : [BHO_LADDER_SORT_PARAM => ($descending ? '-' : '') . $key];
 
         foreach ($entries as $entry) {
             $position = (int) $entry['position'];
             $html .= '<tr class="bho-row bho-place-' . esc_attr((string) min($position, 4)) . '">'
                 . '<td class="bho-pos">' . $this->placement($position) . '</td>'
                 . '<td class="bho-name"><a href="'
-                . esc_url(add_query_arg(BHO_LADDER_PLAYER_PARAM, (int) $entry['id'], get_permalink()))
+                . esc_url(add_query_arg(
+                    array_merge([BHO_LADDER_PLAYER_PARAM => (int) $entry['id']], $keep),
+                    get_permalink(),
+                ))
                 . '">' . $this->flag($entry['country'] ?? null)
                 . '<span>' . esc_html((string) $entry['name']) . '</span></a></td>'
                 . '<td class="bho-num bho-w-rating bho-rating">' . esc_html((string) $entry['rating']) . '</td>'
@@ -174,6 +187,88 @@ final class BHO_Render
         }
 
         return $html . '</tbody></table>';
+    }
+
+    /**
+     * The columns a reader can sort by, and which way round each one starts.
+     *
+     * Rank is not among them: it is the rating in a badge, so a column of its own would be a second
+     * button doing the same thing. Nor is the record, where "best" is a question the club has an
+     * answer to — the Turnier Score — and a column head is the wrong place to argue it.
+     */
+    private const SORTABLE = [
+        'place' => 'asc',
+        'name' => 'asc',
+        'rating' => 'desc',
+        'games' => 'desc',
+        'events' => 'desc',
+    ];
+
+    /**
+     * @param array<int,array<string,mixed>> $entries
+     * @return array<int,array<string,mixed>>
+     */
+    private function sorted(array $entries, string $sort): array
+    {
+        [$key, $descending] = $this->readSort($sort);
+
+        if ($key === null || $key === 'place') {
+            return $entries;
+        }
+
+        $of = static fn(array $entry): string|int => match ($key) {
+            // Case-folded, or every lowercase handle sorts after every uppercase one.
+            'name' => mb_strtolower((string) $entry['name']),
+            'events' => (int) $entry['tournaments'],
+            default => (int) $entry[$key],
+        };
+
+        usort($entries, static function (array $a, array $b) use ($of, $descending): int {
+            // The standings' own order breaks every tie, so a column of equal numbers stays in the
+            // order the reader already knows rather than in whatever order the sort happened to make.
+            return ($descending ? $of($b) <=> $of($a) : $of($a) <=> $of($b))
+                ?: (int) $a['position'] <=> (int) $b['position'];
+        });
+
+        return $entries;
+    }
+
+    /**
+     * @return array{0: string|null, 1: bool} the column and whether it is descending
+     */
+    private function readSort(string $sort): array
+    {
+        $descending = str_starts_with($sort, '-');
+        $key = ltrim($sort, '-');
+
+        if (!isset(self::SORTABLE[$key])) {
+            return [null, false];
+        }
+
+        return [$key, $descending];
+    }
+
+    /** A column head that is a link to its own sorting, with the arrow of the state it is in. */
+    private function head(string $key, string $label, string $class, string $sort): string
+    {
+        [$active, $descending] = $this->readSort($sort);
+        $isActive = $active === $key || ($active === null && $key === 'place');
+
+        // Clicking the column you are already sorted by turns it round; a fresh column starts the way
+        // that column is usually read — names from A, numbers from the top.
+        $next = $isActive
+            ? ($descending ? $key : '-' . $key)
+            : (self::SORTABLE[$key] === 'desc' ? '-' . $key : $key);
+
+        $url = add_query_arg(BHO_LADDER_SORT_PARAM, $next, get_permalink());
+        $arrow = $isActive ? ($descending ? '↓' : '↑') : '';
+
+        return '<th class="' . esc_attr(trim($class . ($isActive ? ' bho-sorted' : ''))) . '"'
+            . ($isActive ? ' aria-sort="' . ($descending ? 'descending' : 'ascending') . '"' : '')
+            . '><a href="' . esc_url($url) . '" title="'
+            . esc_attr(sprintf($this->t['sort_by'], $label)) . '">' . esc_html($label)
+            . ($arrow !== '' ? '<span class="bho-arrow" aria-hidden="true">' . $arrow . '</span>' : '')
+            . '</a></th>';
     }
 
     /**

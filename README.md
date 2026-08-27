@@ -51,6 +51,15 @@ holding it and the latest-games block links there; leave it unset and the link s
 Clicking a player stays on the same page and appends `?bho_player=…`. No second page to create, and
 no permalink setting to change — which matters, because blackhydra.org runs on plain permalinks.
 
+The standings sort by clicking a column head, which appends `?bho_sort=games`, `-games` for the other
+direction. In the URL and not in a script: a sorted table is then a link somebody can send, and it
+costs nothing, because the standings arrive complete in one answer and the sorting is a function on an
+array the page already holds. Rank and the W–D–L record are not sortable — rank is the rating in a
+badge, and "best record" is a question the club answers with the Turnier Score, which a column head is
+the wrong place to argue. Places stay with their players, so a table sorted by games still says who is
+first. The sort travels into a player's page and back out of it, so coming back lands on the table
+that was left.
+
 ## Colours it does not own
 
 `assets/ladder.css` sets no font, no text colour and no background — those come from the site. What it

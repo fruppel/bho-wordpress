@@ -79,6 +79,22 @@
 .bho-table th.bho-num,
 .bho-table td.bho-num { text-align: right; }
 
+/*
+ * A column head that sorts is a link, and looks like the head it replaced until it is hovered: a row
+ * of blue underlined words above the standings would read as navigation, which is what the menu is.
+ */
+.bho-table thead a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bho-table thead a:hover { color: var(--bho-strong, currentColor); text-decoration: underline; }
+.bho-table th.bho-sorted { color: currentColor; }
+.bho-arrow { font-size: 0.85em; opacity: 0.8; }
+
 .bho-table th.bho-pos,
 .bho-table td.bho-pos {
   width: 2.6rem;

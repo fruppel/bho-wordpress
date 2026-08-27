@@ -1,0 +1,229 @@
+/*
+ * Only what a theme cannot know about.
+ *
+ * No font, no text colour, no background: those come from the site, which is the whole point of
+ * rendering into it rather than into an iframe. Borders are mixed from the inherited colour, so the
+ * table looks right on a dark theme and on a light one without this file knowing which it is on.
+ */
+
+.bho-ladder {
+  --bho-line: color-mix(in srgb, currentColor 14%, transparent);
+  --bho-quiet: color-mix(in srgb, currentColor 62%, transparent);
+  --bho-panel: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.bho-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0 0;
+}
+
+.bho-table th,
+.bho-table td {
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--bho-line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.bho-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bho-quiet);
+  font-weight: 500;
+}
+
+.bho-num { text-align: right; font-variant-numeric: tabular-nums; }
+.bho-pos { width: 2rem; color: var(--bho-quiet); font-variant-numeric: tabular-nums; }
+
+/* Events is the column to lose first on a phone: it is the least of the six. */
+@media (max-width: 40rem) {
+  .bho-wide { display: none; }
+}
+
+.bho-name a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bho-name a:hover span { text-decoration: underline; }
+.bho-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The podium, tinted the way the medals are. Subtle enough to survive a light theme. */
+.bho-place-1 { background: color-mix(in srgb, #f5c542 9%, transparent); }
+.bho-place-2 { background: color-mix(in srgb, #9aa7b8 9%, transparent); }
+.bho-place-3 { background: color-mix(in srgb, #cd7f32 8%, transparent); }
+
+.bho-trophy { width: 18px; height: 18px; display: block; }
+.bho-place-1 .bho-trophy { color: #e0a800; }
+.bho-place-2 .bho-trophy { color: #9aa7b8; }
+.bho-place-3 .bho-trophy { color: #cd7f32; }
+
+/*
+ * A white hairline and rounded corners: without them the black stripe of the German flag runs into a
+ * dark background and the flag reads as two stripes.
+ */
+.bho-flag {
+  width: 16px;
+  height: 12px;
+  flex: none;
+  border-radius: 3px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.bho-rank {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.bho-rank-warmaster { color: #d19a00; background: color-mix(in srgb, #d19a00 14%, transparent); }
+.bho-rank-aplus     { color: #d24b4b; background: color-mix(in srgb, #d24b4b 14%, transparent); }
+.bho-rank-a         { color: #d1741f; background: color-mix(in srgb, #d1741f 14%, transparent); }
+.bho-rank-b         { color: #2f9e6b; background: color-mix(in srgb, #2f9e6b 14%, transparent); }
+.bho-rank-c         { color: #2b83c4; background: color-mix(in srgb, #2b83c4 14%, transparent); }
+.bho-rank-d         { color: var(--bho-quiet); background: var(--bho-panel); }
+.bho-rank-dminus    { color: var(--bho-quiet); background: var(--bho-panel); }
+
+.bho-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0.9rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--bho-line);
+  font-size: 0.78rem;
+}
+
+.bho-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; }
+.bho-legend-item > span { color: var(--bho-quiet); font-variant-numeric: tabular-nums; }
+
+.bho-foot { margin: 0.75rem 0 0; font-size: 0.8rem; color: var(--bho-quiet); }
+
+.bho-note,
+.bho-notice {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: var(--bho-panel);
+  border: 1px solid var(--bho-line);
+  font-size: 0.87rem;
+}
+
+.bho-running {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--bho-line);
+  border-radius: 10px;
+}
+
+.bho-running h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bho-quiet);
+}
+
+.bho-dot { width: 7px; height: 7px; border-radius: 50%; background: #2f9e6b; flex: none; }
+.bho-running-name { margin: 0.5rem 0 0; font-weight: 600; }
+.bho-running-name span { font-weight: 400; color: var(--bho-quiet); }
+.bho-running-name a { font-weight: 400; }
+.bho-running .bho-foot { margin-top: 0.6rem; font-size: 0.78rem; }
+
+.bho-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 1.75rem 0 0.25rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--bho-line);
+  font-size: 0.95rem;
+}
+
+.bho-group span { font-size: 0.78rem; font-weight: 400; color: var(--bho-quiet); }
+
+.bho-recent,
+.bho-games { list-style: none; margin: 0; padding: 0; }
+
+.bho-recent li,
+.bho-games li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--bho-line);
+  font-size: 0.9rem;
+}
+
+.bho-round { width: 1.7rem; flex: none; color: var(--bho-quiet); font-variant-numeric: tabular-nums; }
+.bho-side { display: flex; align-items: baseline; gap: 0.4rem; flex: 1 1 0; min-width: 0; }
+/* Names are not underlined here either — a list of eight links reads as a wall of rules otherwise. */
+.bho-side a { color: inherit; text-decoration: none; font-weight: 600; }
+.bho-side a:hover { text-decoration: underline; }
+.bho-right { justify-content: flex-end; }
+.bho-score { flex: none; font-variant-numeric: tabular-nums; color: var(--bho-quiet); }
+
+.bho-opponent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+  min-width: 0;
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bho-opponent span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bho-opponent:hover span { text-decoration: underline; }
+
+/* Wide enough for the longest word any of the three languages puts here ("Niederlage"). */
+.bho-result { width: 5.5rem; flex: none; text-align: right; font-weight: 600; }
+.bho-win { color: #2f9e6b; }
+.bho-draw { color: var(--bho-quiet); }
+.bho-loss { color: #d24b4b; }
+
+.bho-delta { width: 2.6rem; flex: none; text-align: right; }
+.bho-after { width: 3rem; flex: none; text-align: right; font-size: 0.8rem; color: var(--bho-quiet); font-variant-numeric: tabular-nums; }
+
+/* Its own line: two kill team names and a "vs" cannot be a column next to anything else. */
+.bho-teams { flex: 1 0 100%; padding-left: 2.3rem; font-size: 0.78rem; color: var(--bho-quiet); }
+.bho-teams em { font-style: normal; opacity: 0.7; }
+
+.bho-change { font-weight: 700; font-variant-numeric: tabular-nums; }
+.bho-up { color: #2f9e6b; }
+.bho-down { color: #d24b4b; }
+.bho-flat, .bho-none { color: var(--bho-quiet); }
+
+.bho-back { margin: 0 0 0.75rem; font-size: 0.85rem; }
+
+.bho-player-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+.bho-player-head h2 { display: flex; align-items: center; gap: 0.6rem; margin: 0; line-height: 1.2; }
+.bho-player-head h2 .bho-flag { width: 24px; height: 18px; }
+.bho-player-rating { margin: 0; text-align: right; line-height: 1.2; }
+.bho-player-rating strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+.bho-player-rating span { font-size: 0.78rem; color: var(--bho-quiet); }

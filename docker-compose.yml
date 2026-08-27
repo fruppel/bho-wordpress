@@ -1,0 +1,76 @@
+# A WordPress to look at the plugin in, and nothing else.
+#
+# Set up to resemble blackhydra.org rather than a clean install: plain permalinks (`?page_id=7`), the
+# same theme, PHP 8.3. That is the point of having it — a plugin that only works on pretty permalinks
+# would look fine here and break there.
+#
+# The ladder itself is NOT in here. It runs in the bho repository on port 8085, and this stack reaches
+# it through host.docker.internal, the same way the real site will reach it over the internet.
+services:
+  wordpress:
+    image: wordpress:php8.3-apache
+    container_name: bho-wp
+    restart: unless-stopped
+    ports:
+      - "8087:80"
+    environment:
+      WORDPRESS_DB_HOST: database
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      # Warnings and notices belong on the screen while a plugin is being written.
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG_DISPLAY', true);
+    volumes:
+      - wordpress:/var/www/html
+      # The plugin is mounted, not copied: edit a file, reload the page.
+      - ./bho-ladder:/var/www/html/wp-content/plugins/bho-ladder
+    extra_hosts:
+      # host-gateway also works on Linux, where host.docker.internal is not there by default.
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mariadb:11.4
+    container_name: bho-wp-database
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Runs once, on `make install`, and then exits. Everything it does is repeatable, so running it
+  # again on an installed site is harmless.
+  cli:
+    image: wordpress:cli-php8.3
+    container_name: bho-wp-cli
+    profiles: ["tools"]
+    user: "33:33"
+    environment:
+      WORDPRESS_DB_HOST: database
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      # Where the ladder answers, as seen from inside this container.
+      BHO_API: ${BHO_API:-http://host.docker.internal:8085}
+    volumes:
+      - wordpress:/var/www/html
+      - ./bho-ladder:/var/www/html/wp-content/plugins/bho-ladder
+      - ./tools:/tools:ro
+    depends_on:
+      - wordpress
+
+volumes:
+  wordpress:
+  database:

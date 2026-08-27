@@ -22,7 +22,7 @@ final class BHO_Render
         private readonly array $t,
     ) {}
 
-    public function ladder(int $limit): string
+    public function ladder(int $limit, bool $withRules = true): string
     {
         $data = $this->api->ladder();
 
@@ -41,17 +41,31 @@ final class BHO_Render
             $html .= $this->note($note);
         }
 
-        $html .= $this->running($data['tournaments'] ?? []);
+        $html .= $this->meta($data['tournaments'] ?? [], $data['updatedAt'] ?? null);
 
         if ($entries === []) {
             return $html . $this->notice($this->t['empty']) . '</div>';
         }
 
-        $html .= $this->updated($data['updatedAt'] ?? null);
         $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries);
-        $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
+
+        if ($withRules) {
+            $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
+        }
 
         return $html . '</div>';
+    }
+
+    /** The rules on their own, for a page that puts them somewhere other than under the table. */
+    public function rulesBlock(): string
+    {
+        $data = $this->api->ladder();
+
+        if (is_wp_error($data)) {
+            return '';
+        }
+
+        return $this->wrap($this->rules($data['rules'] ?? [], $data['ranks'] ?? []));
     }
 
     public function player(int $id): string
@@ -215,8 +229,12 @@ final class BHO_Render
         return $this->wrap($html);
     }
 
-    /** @param array<string,mixed> $game */
-    private function recentRow(array $game): string
+    /**
+     * One game as a row: round, day, the two sides with what it did to them, and the score between.
+     *
+     * @param array<string,mixed> $game
+     */
+    private function recentRow(array $game, bool $withEvent = false): string
     {
         $one = (bool) ($game['one']['excluded'] ?? false) ? ' bho-excluded' : '';
         $two = (bool) ($game['two']['excluded'] ?? false) ? ' bho-excluded' : '';
@@ -228,14 +246,16 @@ final class BHO_Render
             . $this->score($game['one']['score'], $game['two']['score'])
             . '<span class="bho-side bho-right' . $two . '">' . $this->change($game['two']['change']) . ' '
             . $this->playerLink($game['two']) . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
+            . ($withEvent ? '<span class="bho-event">' . esc_html((string) $game['tournament']) . '</span>' : '')
             . '</li>';
     }
 
     /**
      * Every game of the season, newest first, a page at a time.
      *
-     * A table rather than the two-line rows the block uses: this is the page somebody opens to look
-     * something up, and a column is what you scan.
+     * The same rows as the block, because it is the same list — one page of it at a time. A table of
+     * its own drifted from the block in spacing, in what it showed and in how a score was drawn, and
+     * two ways of printing one thing is one too many.
      */
     public function allGames(int $perPage, int $page): string
     {
@@ -262,31 +282,16 @@ final class BHO_Render
             (int) ($data['pages'] ?? 1),
         )) . '</p>';
 
-        $html .= '<table class="bho-table bho-all"><thead><tr>'
-            . '<th class="bho-w-day">' . esc_html($this->t['day']) . '</th>'
-            . '<th class="bho-wide">' . esc_html($this->t['tournament']) . '</th>'
-            . '<th class="bho-w-round bho-num">' . esc_html($this->t['round']) . '</th>'
-            . '<th>' . esc_html($this->t['player']) . '</th>'
-            . '<th class="bho-num bho-w-score">' . esc_html($this->t['score']) . '</th>'
-            . '<th>' . esc_html($this->t['opponent']) . '</th>'
-            . '</tr></thead><tbody>';
+        // The event is only information when it varies, and one season has held one so far: a column
+        // repeating the same name down twenty-five rows is what the block leaves out on purpose.
+        $several = count(array_unique(array_column($games, 'tournament'))) > 1;
 
+        $html .= '<ul class="bho-recent bho-recent-page">';
         foreach ($games as $game) {
-            $html .= '<tr>'
-                // The day it was played when we know it, the tournament's start date when we do not —
-                // which is every game imported before the column existed.
-                . '<td class="bho-w-day bho-quiet">' . esc_html(self::formatDay(
-                    (string) ($game['playedOn'] ?? $game['startDate']),
-                )) . '</td>'
-                . '<td class="bho-wide bho-quiet">' . esc_html((string) $game['tournament']) . '</td>'
-                . '<td class="bho-w-round bho-num bho-quiet">' . esc_html((string) $game['round']) . '</td>'
-                . '<td class="bho-name-cell">' . $this->side($game['one']) . '</td>'
-                . '<td class="bho-w-score">' . $this->score($game['one']['score'], $game['two']['score']) . '</td>'
-                . '<td class="bho-name-cell">' . $this->side($game['two']) . '</td>'
-                . '</tr>';
+            $html .= $this->recentRow($game, $several);
         }
 
-        return $this->wrap($html . '</tbody></table>' . $this->pager($data));
+        return $this->wrap($html . '</ul>' . $this->pager($data));
     }
 
     /**
@@ -303,22 +308,6 @@ final class BHO_Render
             . '<span class="bho-score-sep">–</span>'
             . '<span class="bho-score-box">' . esc_html((string) $two) . '</span>'
             . '</span>';
-    }
-
-    /**
-     * One side of a game in the wide table: flag, name, and what the game did to the rating.
-     *
-     * Struck through where this player's result was taken out — theirs alone. A row marked as a whole
-     * would say the game counted for nobody, and the usual reason for an exclusion is that it counted
-     * for exactly one of the two: somebody dropped out and a stand-in played their table.
-     */
-    private function side(array $player): string
-    {
-        $excluded = (bool) ($player['excluded'] ?? false);
-
-        return '<span class="bho-cell-side' . ($excluded ? ' bho-excluded' : '') . '">'
-            . $this->flag($player['country'] ?? null)
-            . $this->playerLink($player) . ' ' . $this->change($player['change']) . '</span>';
     }
 
     /**
@@ -404,27 +393,43 @@ final class BHO_Render
             . '</li>';
     }
 
-    /** @param array<int,array<string,mixed>> $tournaments */
-    private function running(array $tournaments): string
+    /**
+     * One line above the table: what is being played, and when the results were last read.
+     *
+     * A line rather than the panel this replaced. Both are asides — you look once and then read the
+     * table — and two stacked boxes above the standings pushed the standings themselves off the top
+     * of a phone.
+     *
+     * @param array<int,array<string,mixed>> $tournaments
+     * @param mixed $updatedAt
+     */
+    private function meta(array $tournaments, $updatedAt): string
     {
         $running = array_values(array_filter($tournaments, static fn(array $t): bool => !$t['hasConcluded']));
+        $updated = $this->updated($updatedAt);
 
-        if ($running === []) {
+        if ($running === [] && $updated === '') {
             return '';
         }
 
-        $html = '<div class="bho-running"><h3><span class="bho-dot" aria-hidden="true"></span>'
-            . esc_html(count($running) === 1 ? $this->t['running_one'] : $this->t['running_many']) . '</h3>';
+        $html = '<div class="bho-meta"><div class="bho-live">';
+
+        if ($running !== []) {
+            $html .= '<p class="bho-eyebrow">'
+                . esc_html(count($running) === 1 ? $this->t['running_one'] : $this->t['running_many'])
+                . '</p>';
+        }
 
         foreach ($running as $tournament) {
-            $html .= '<p class="bho-running-name">' . esc_html((string) $tournament['name'])
-                . ' <span>' . esc_html(self::formatDay((string) $tournament['startDate'])
-                . ' – ' . self::formatDay((string) $tournament['endDate'])) . '</span></p>'
-                . '<p class="bho-running-link"><a href="' . esc_url((string) $tournament['url'])
+            $html .= '<p><span class="bho-dot" aria-hidden="true"></span>'
+                . '<strong>' . esc_html((string) $tournament['name']) . '</strong>'
+                . '<span>' . esc_html(self::formatDay((string) $tournament['startDate'])
+                . ' – ' . self::formatDay((string) $tournament['endDate'])) . '</span>'
+                . '<a href="' . esc_url((string) $tournament['url'])
                 . '" target="_blank" rel="noopener">' . esc_html($this->t['herald']) . '</a></p>';
         }
 
-        return $html . '</div>';
+        return $html . '</div>' . $updated . '</div>';
     }
 
     /**

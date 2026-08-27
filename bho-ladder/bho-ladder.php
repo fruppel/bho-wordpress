@@ -54,6 +54,7 @@ BHO_Overview::boot();
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
 add_shortcode('bho_recent_games', 'bho_recent_games_shortcode');
 add_shortcode('bho_all_games', 'bho_all_games_shortcode');
+add_shortcode('bho_rules', 'bho_rules_shortcode');
 
 /**
  * `[bho_ladder]` — the table, or one player's games when the URL names one.
@@ -63,15 +64,32 @@ add_shortcode('bho_all_games', 'bho_all_games_shortcode');
  *
  * Attributes:
  *   limit="0"   how many rows to show; 0 is all of them (use 10 for a front-page teaser)
+ *   rules="1"   the rules panel under the table; "0" frees it for `[bho_rules]` elsewhere
  */
 function bho_ladder_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['limit' => '0'], $atts, 'bho_ladder');
+    $atts = shortcode_atts(['limit' => '0', 'rules' => '1'], $atts, 'bho_ladder');
     $render = bho_ladder_renderer();
 
     $player = bho_ladder_player_in_url();
 
-    return $player > 0 ? $render->player($player) : $render->ladder((int) $atts['limit']);
+    return $player > 0
+        ? $render->player($player)
+        : $render->ladder((int) $atts['limit'], $atts['rules'] !== '0');
+}
+
+/**
+ * `[bho_rules]` — the rules and the rank classes, wherever they fit best.
+ *
+ * The same panel `[bho_ladder]` prints under the table, so a page that wants it beside the latest
+ * games instead sets `rules="0"` there and places this one. It reads the same cached answer, so a
+ * page holding both is still one request.
+ */
+function bho_rules_shortcode(array|string $atts = []): string
+{
+    shortcode_atts([], $atts, 'bho_rules');
+
+    return bho_ladder_renderer()->rulesBlock();
 }
 
 /**

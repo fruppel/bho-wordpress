@@ -185,12 +185,28 @@ final class BHO_Settings
                 aufklappbar auf zehn: <code>[bho_recent_games show="3" more="10"]</code>.
             </p>
             <p>
-                <code>[bho_all_games]</code> — alle Spiele der Saison als Tabelle mit Seitenblättern.
-                Gehört auf die oben gewählte Seite.
+                <code>[bho_all_games]</code> — alle Spiele der Saison, seitenweise, in denselben
+                Zeilen wie der Block oben. Gehört auf die oben gewählte Seite.
+            </p>
+            <p>
+                <code>[bho_rules]</code> — Startpunkte, Punkte pro Spiel, Turnierbonus und die
+                Rangklassen. Steht standardmäßig schon unter der Tabelle; mit
+                <code>[bho_ladder rules="0"]</code> wird sie dort weggelassen und kann anderswo stehen.
             </p>
             <p>
                 Für einen Teaser auf der Startseite: <code>[bho_ladder limit="10"]</code>.
             </p>
+            <h2>Zwei Blöcke nebeneinander</h2>
+            <p>
+                Zwei Shortcodes in <code>&lt;div class="bho-columns"&gt;</code> stehen ab 960px
+                nebeneinander und darunter untereinander. Die Ladder-Seite der Demo nutzt das so:
+            </p>
+            <pre>[bho_ladder rules="0"]
+
+&lt;div class="bho-columns"&gt;
+&lt;div&gt;[bho_recent_games show="3" more="10"]&lt;/div&gt;
+&lt;div&gt;[bho_rules]&lt;/div&gt;
+&lt;/div&gt;</pre>
         </div>
         <?php
     }

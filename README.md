@@ -9,10 +9,26 @@ numbers and renders them into whatever theme the site wears. The version prefix 
 plugin: a breaking change over there means `/api/v2/` and a plugin update, in that order.
 
 ```
-[bho_ladder]                              the standings
+[bho_ladder]                              the standings, with the rules under them
 [bho_ladder limit="10"]                   a top-ten teaser for a front page
+[bho_ladder rules="0"]                    the standings alone, rules placed elsewhere
 [bho_recent_games show="3" more="10"]     the latest games, wherever you put them
 [bho_all_games per="25"]                  every game of the season, paginated
+[bho_rules]                               start rating, points, bonus, rank classes
+```
+
+Wrap two of them in `<div class="bho-columns">` and they sit side by side above 960 pixels and stack
+below it. The demo's ladder page is the arrangement worth copying: the table full width, then the
+latest games and the rules beside each other under it — the standings are what the page is for, and
+the rules are read once where the results are read again.
+
+```
+[bho_ladder rules="0"]
+
+<div class="bho-columns">
+<div>[bho_recent_games show="3" more="10"]</div>
+<div>[bho_rules]</div>
+</div>
 ```
 
 The latest games used to live inside `[bho_ladder]`. They are their own shortcode and their own
@@ -29,8 +45,10 @@ the file it already had — which looked exactly like the change not having been
 On a player's own page the block renders nothing: that page is already a list of games, and this one
 underneath would be the same rows again, most of them about somebody else.
 
-`[bho_all_games]` is a wide table with previous/next paging. Point the *Seite „Alle Spiele"* setting at
-the page holding it and the latest-games block links there; leave it unset and the link stays away.
+`[bho_all_games]` is the same rows again, a page at a time, with previous/next paging. It was a table
+of its own until it drifted from the block in spacing, in what it showed and in how a score was drawn:
+two ways of printing one thing is one too many. Point the *Seite „Alle Spiele"* setting at the page
+holding it and the latest-games block links there; leave it unset and the link stays away.
 
 Clicking a player stays on the same page and appends `?bho_player=…`. No second page to create, and
 no permalink setting to change — which matters, because blackhydra.org runs on plain permalinks.

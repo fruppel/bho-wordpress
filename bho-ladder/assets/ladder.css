@@ -86,9 +86,9 @@
   color: var(--bho-faint);
 }
 
-/* Small and right, above the table: a date nobody looks for unless they are wondering. */
+/* The right-hand end of the meta line: a date nobody looks for unless they are wondering. */
 .bho-updated {
-  margin: 0 0 0.4rem;
+  margin: 0;
   text-align: right;
   font-size: 0.75rem;
   color: var(--bho-faint);
@@ -184,6 +184,28 @@
 .bho-rank-d         { --bho-accent: currentColor; color: var(--bho-quiet); }
 .bho-rank-dminus    { --bho-accent: currentColor; color: var(--bho-faint); }
 
+/*
+ * A page wrapping two shortcodes in `<div class="bho-columns">` gets them side by side above 60rem
+ * and stacked below it. Here rather than in the theme because the blocks are the plugin's and a site
+ * should not have to write CSS to arrange them; `minmax(0, …)` because a grid column defaults to
+ * min-content and a long handle would otherwise push the pair wider than the page.
+ */
+.bho-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.6rem;
+  /* On the container, so both columns start level and the air above them does not depend on which
+     block happens to be first: inside a column the blocks already drop their own top margin. */
+  margin: 2.2rem 0 0;
+  align-items: start;
+}
+
+.bho-columns .bho-rules { margin-top: 0; }
+
+@media (min-width: 60rem) {
+  .bho-columns { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2.4rem; }
+}
+
 /* ---------------------------------------------------------------- rules panel */
 
 .bho-rules {
@@ -270,25 +292,28 @@
   font-size: 0.87rem;
 }
 
-.bho-running {
-  margin: 0 0 1.5rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--bho-line);
-  border-radius: 12px;
-  background: var(--bho-panel);
+/*
+ * The line above the table: what is being played on the left, when it was last read on the right.
+ * Wraps to two lines on a phone, where the right column has nowhere to go.
+ */
+.bho-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.3rem 1.2rem;
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--bho-line);
 }
 
-.bho-running h3 {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--bho-quiet);
-}
+.bho-live { min-width: 0; }
+.bho-live p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; margin: 0; }
+.bho-live p + p { margin-top: 0.2rem; }
+.bho-live strong { font-weight: 600; }
+.bho-live span { color: var(--bho-quiet); font-size: 0.85rem; }
+.bho-live a { font-size: 0.85rem; }
+.bho-live .bho-eyebrow { color: var(--bho-quiet); }
 
 .bho-dot {
   width: 7px;
@@ -299,9 +324,7 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--bho-live) 22%, transparent);
 }
 
-.bho-running-name { margin: 0.6rem 0 0; font-weight: 600; }
-.bho-running-name span { font-weight: 400; color: var(--bho-quiet); }
-.bho-running-link { margin: 0.2rem 0 0; font-size: 0.85rem; }
+
 
 /* ---------------------------------------------------------------- lists of games */
 
@@ -474,41 +497,35 @@
 .bho-more[open] summary { margin-top: 0.2rem; }
 .bho-more .bho-recent { margin-top: 0; margin-bottom: 0; }
 
+/*
+ * Stacked on a phone: round, day and score on one line, then a player per line.
+ *
+ * One line does not fit once the day is in it. 390 pixels minus the round, the day and the score
+ * leave about 140 for each side — a flag, a name and a rating change — so the names ran into the
+ * score rather than wrapping, a flexible item shrinking before a row breaks. Truncating them was the
+ * alternative, and the names are what the row is for.
+ *
+ * The second side is drawn in reverse so both read flag-name-change, one under the other, instead of
+ * mirroring each other down the middle as they do when there is room for them side by side.
+ */
+@media (max-width: 34rem) {
+  .bho-recent li { row-gap: 0.1rem; padding: 0.5rem 0.1rem; }
+  .bho-recent .bho-score { order: 0; }
+  .bho-recent .bho-side { flex: 1 1 100%; order: 1; }
+  .bho-recent .bho-right { flex-direction: row-reverse; justify-content: flex-end; }
+}
+
 .bho-quiet { color: var(--bho-quiet); }
 
-.bho-all th.bho-w-day,   .bho-all td.bho-w-day   { width: 5.5rem; white-space: nowrap; }
-
-/* Truncated, not wrapped: a long event name would otherwise double the height of every row. */
-.bho-all td.bho-wide { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bho-all th.bho-w-round, .bho-all td.bho-w-round { width: 3rem; }
 /*
- * Wide enough for the two boxes plus the dash between them. `table-layout: fixed` does not grow a
- * column that is too narrow — it lets the content run into the next one, and on a phone the second
- * box sat on top of the opponent's name.
+ * The same rows on a page of their own, only not the full width of it: in the block they sit in a
+ * column and the two names frame the score, while across 1100 pixels the pair drifts apart.
  */
-.bho-all th.bho-w-score,
-.bho-all td.bho-w-score { width: 5.5rem; text-align: center; }
+.bho-recent-page { max-width: 52rem; }
 
-/*
- * `table-layout: fixed` so the declared widths hold and the two name columns share what is left.
- * Without it a long handle pushes the table past the screen, which on a phone it did — by 144px.
- */
-.bho-all { table-layout: fixed; }
+/* The event, only printed where the page holds more than one — see BHO_Render::allGames(). */
+.bho-event { flex: none; font-size: 0.78rem; color: var(--bho-faint); }
 
-.bho-cell-side { display: flex; align-items: baseline; gap: 0.4rem; min-width: 0; }
-.bho-cell-side a {
-  color: inherit;
-  text-decoration: none;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.bho-cell-side a:hover { text-decoration: underline; }
-.bho-cell-side .bho-change { flex: none; }
-.bho-cell-side .bho-flag { align-self: center; }
-
-/* Struck through rather than dimmed: it happened, it just does not count. */
 /* The chip that says a result was taken out, beside the kill teams it was played with. */
 .bho-tag {
   padding: 0.05rem 0.4rem;
@@ -523,21 +540,6 @@
 /* One side of a game, not the row: the other player's result stands. */
 .bho-excluded { color: var(--bho-faint); }
 .bho-excluded a { color: inherit; text-decoration: line-through; }
-
-/*
- * The tournament column is the one to lose on a phone: with one event per season it repeats down
- * every row, and the date already says which one it was.
- */
-@media (max-width: 46rem) {
-  .bho-all th.bho-wide, .bho-all td.bho-wide { display: none; }
-}
-
-/* On a phone the round number is the next to go: the date already orders the list. */
-@media (max-width: 30rem) {
-  .bho-all th.bho-w-round, .bho-all td.bho-w-round { display: none; }
-  .bho-all th.bho-w-day, .bho-all td.bho-w-day { width: 4.6rem; }
-  .bho-all .bho-flag { display: none; }
-}
 
 .bho-pager {
   display: flex;

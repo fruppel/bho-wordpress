@@ -66,9 +66,14 @@ fi
 
 # Overwritten every run: the shortcodes are what this script is demonstrating, and a page left with
 # an older combination is a page that shows the wrong thing without saying so.
-wp post update "$PAGE" --post_content='[bho_ladder]
+# The table first, then the two asides beside each other: the standings are what the page is for, and
+# the rules are read once where the results are read again.
+wp post update "$PAGE" --post_content='[bho_ladder rules="0"]
 
-[bho_recent_games show="3" more="10"]' >/dev/null
+<div class="bho-columns">
+<div>[bho_recent_games show="3" more="10"]</div>
+<div>[bho_rules]</div>
+</div>' >/dev/null
 wp post update "$GAMES" --post_content='[bho_all_games per="25"]' >/dev/null
 
 wp option update bho_ladder_settings --format=json \

@@ -23,4 +23,14 @@ logs: ## Follow the WordPress log
 shell: ## A wp-cli shell
 	docker compose run --rm cli bash
 
-.PHONY: help up install down reset logs shell
+# `bho-ladder/` has to be the top folder inside the archive, or WordPress installs the plugin into a
+# directory named after the zip and the next update lands beside it instead of over it. The version
+# comes out of the plugin header, so the file is named after what it contains.
+zip: ## Build the installable bho-ladder-<version>.zip from the committed files
+	@version=$$(sed -n 's/^ \* Version: *//p' bho-ladder/bho-ladder.php | tr -d ' \r'); \
+	rm -f bho-ladder-*.zip; \
+	git archive --format=zip --prefix=bho-ladder/ -o "bho-ladder-$$version.zip" HEAD:bho-ladder; \
+	echo "bho-ladder-$$version.zip"; \
+	unzip -l "bho-ladder-$$version.zip" | tail -1
+
+.PHONY: help up install down reset logs shell zip

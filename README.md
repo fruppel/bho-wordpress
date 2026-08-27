@@ -4,7 +4,9 @@ Draws the [Black Hydra Open](https://github.com/fruppel/bho) ladder on a WordPre
 page per player, and brings a WordPress to look at it in.
 
 The ladder itself is a separate application. This plugin does not reimplement it: it asks that
-application's public API for the same numbers and renders them into whatever theme the site wears.
+application's public API — `/api/v1/ladder`, `/api/v1/players/{id}`, `/api/v1/seasons` — for the same
+numbers and renders them into whatever theme the site wears. The version prefix exists for this
+plugin: a breaking change over there means `/api/v2/` and a plugin update, in that order.
 
 ```
 [bho_ladder]                        the table, with the three latest games above it

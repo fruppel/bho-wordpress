@@ -101,8 +101,8 @@ final class BHO_Settings
                                    type="url" class="regular-text" placeholder="https://bho.fruppel.de"
                                    value="<?php echo esc_attr($settings['api']); ?>" />
                             <p class="description">
-                                Adresse der Ladder-Anwendung, ohne Pfad. Gelesen werden
-                                <code>/api/ladder</code> und <code>/api/players/{id}</code>.
+                                Adresse der Ladder-Anwendung, ohne Pfad. Gelesen wird die
+                                öffentliche API unter <code>/api/v1/</code>.
                             </p>
                         </td>
                     </tr>

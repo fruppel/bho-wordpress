@@ -2,9 +2,13 @@
 /**
  * The BHO API, cached.
  *
- * Two endpoints, both public and both answering without a token: `/api/ladder` is the whole table,
- * `/api/players/{id}` is one player's games. Nothing here writes; the application on the other end
- * owns the data and has its own admin area for it.
+ * Three endpoints, all public and all answering without a token: the whole table, one player's games,
+ * and which tournaments count towards which season. Nothing here writes; the application on the other
+ * end owns the data and has its own admin area for it.
+ *
+ * They live under `/api/v1/`, and that prefix exists because of this file: the application can change
+ * the shape of anything its own screens read in the same commit, but not of what a site it does not
+ * deploy is reading. A breaking change there means `/api/v2/` and a plugin update, in that order.
  */
 
 declare(strict_types=1);
@@ -47,7 +51,7 @@ final class BHO_Api
     /** @return array<string,mixed>|WP_Error */
     public function ladder(?int $season = null): array|WP_Error
     {
-        return $this->get($season === null ? '/api/ladder' : '/api/ladder?season=' . $season);
+        return $this->get($season === null ? '/api/v1/ladder' : '/api/v1/ladder?season=' . $season);
     }
 
     /**
@@ -61,13 +65,13 @@ final class BHO_Api
      */
     public function seasons(): array|WP_Error
     {
-        return $this->get('/api/seasons');
+        return $this->get('/api/v1/seasons');
     }
 
     /** @return array<string,mixed>|WP_Error */
     public function player(int $id): array|WP_Error
     {
-        return $this->get('/api/players/' . $id);
+        return $this->get('/api/v1/players/' . $id);
     }
 
     /** Whether the last answer came out of the stale copy rather than from the API. */

@@ -86,6 +86,14 @@
   color: var(--bho-faint);
 }
 
+/* Small and right, above the table: a date nobody looks for unless they are wondering. */
+.bho-updated {
+  margin: 0 0 0.4rem;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--bho-faint);
+}
+
 /* Fixed widths so the numbers sit in columns and the name absorbs whatever is left over. */
 .bho-table th.bho-w-rating, .bho-table td.bho-w-rating { width: 5.5rem; }
 .bho-table th.bho-w-rank,   .bho-table td.bho-w-rank   { width: 4.5rem; }
@@ -293,8 +301,7 @@
 
 .bho-running-name { margin: 0.6rem 0 0; font-weight: 600; }
 .bho-running-name span { font-weight: 400; color: var(--bho-quiet); }
-.bho-running-name a { font-weight: 400; }
-.bho-running .bho-foot { margin-top: 0.5rem; font-size: 0.78rem; }
+.bho-running-link { margin: 0.2rem 0 0; font-size: 0.85rem; }
 
 /* ---------------------------------------------------------------- lists of games */
 

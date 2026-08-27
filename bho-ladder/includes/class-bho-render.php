@@ -47,6 +47,7 @@ final class BHO_Render
             return $html . $this->notice($this->t['empty']) . '</div>';
         }
 
+        $html .= $this->updated($data['updatedAt'] ?? null);
         $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries);
         $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
 
@@ -392,12 +393,39 @@ final class BHO_Render
         foreach ($running as $tournament) {
             $html .= '<p class="bho-running-name">' . esc_html((string) $tournament['name'])
                 . ' <span>' . esc_html(self::formatDay((string) $tournament['startDate'])
-                . ' – ' . self::formatDay((string) $tournament['endDate'])) . '</span>'
-                . ' <a href="' . esc_url((string) $tournament['url']) . '" target="_blank" rel="noopener">'
-                . esc_html($this->t['herald']) . '</a></p>';
+                . ' – ' . self::formatDay((string) $tournament['endDate'])) . '</span></p>'
+                . '<p class="bho-running-link"><a href="' . esc_url((string) $tournament['url'])
+                . '" target="_blank" rel="noopener">' . esc_html($this->t['herald']) . '</a></p>';
         }
 
-        return $html . '<p class="bho-foot">' . esc_html($this->t['running_note']) . '</p></div>';
+        return $html . '</div>';
+    }
+
+    /**
+     * When the results behind the table were last read from Herald.
+     *
+     * The application's own timestamp, not this plugin's: the cached copy here is refreshed every few
+     * minutes whether anything changed or not, and "updated 2 minutes ago" over a table that has not
+     * moved since Sunday would be a lie the reader cannot check.
+     *
+     * @param mixed $updatedAt
+     */
+    private function updated($updatedAt): string
+    {
+        if (!is_string($updatedAt) || $updatedAt === '') {
+            return '';
+        }
+
+        $when = date_create_immutable($updatedAt);
+
+        if ($when === false) {
+            return '';
+        }
+
+        return '<p class="bho-updated">' . esc_html(sprintf(
+            $this->t['updated'],
+            wp_date('d.m.y, H:i', $when->getTimestamp()) ?: '',
+        )) . '</p>';
     }
 
     /**

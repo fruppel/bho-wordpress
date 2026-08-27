@@ -22,6 +22,9 @@ wp language core install de_DE --activate >/dev/null 2>&1 || true
 
 wp option update blogname 'BLACKHYDRA' >/dev/null
 wp option update blogdescription 'Tabletop & Games' >/dev/null
+# The ladder prints the time of the last import in the site's zone, and a demo left on UTC shows it
+# two hours out — which looks like a bug in the plugin rather than a setting of the site.
+wp option update timezone_string 'Europe/Berlin' >/dev/null
 
 # Plain permalinks, like blackhydra.org. Deliberate: it is the setting the plugin has to cope with.
 wp option update permalink_structure '' >/dev/null

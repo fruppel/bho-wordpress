@@ -41,8 +41,15 @@ make reset     # throw the site away and start over
 `make up` prints the two addresses you want. The admin is `admin` / `admin`.
 
 The demo site is set up to **resemble blackhydra.org rather than a clean install**: German, plain
-permalinks (`?page_id=4`), the same `broadcast-lite` theme, PHP 8.3. That is the point of having it —
-a plugin that only works on pretty permalinks would look fine on a default install and break there.
+permalinks (`?page_id=4`), the same `broadcast-lite` theme with their colours and fonts, their
+navigation, and the page under the menu entry the real ladder sits under. That is the point of having
+it — a plugin that only works on pretty permalinks would look fine on a default install and break
+there, and a plugin judged on a white page tells you nothing about how it looks on a black one.
+
+The colours are not a guess: they are the `:root` block blackhydra.org serves (`#0e0e10`, `#161819`,
+title `#95bef1`, nav `#313338` with a red hover). The ladder page also carries the theme's
+`no-masthead-template.php`, which is what the real ladder page uses — the theme otherwise puts a
+1920×1080 hero above every page, and a table is not a landing page.
 
 The plugin directory is mounted into the container, so editing a file and reloading the page is the
 whole loop.

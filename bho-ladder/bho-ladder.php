@@ -64,67 +64,45 @@ BHO_Overview::boot();
 BHO_Updates::boot();
 
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
-add_shortcode('bho_recent_games', 'bho_recent_games_shortcode');
 add_shortcode('bho_all_games', 'bho_all_games_shortcode');
-add_shortcode('bho_rules', 'bho_rules_shortcode');
 
 /**
- * `[bho_ladder]` — the table, or one player's games when the URL names one.
+ * `[bho_ladder]` — the page: the standings, the last few games and the rules.
  *
- * The latest games used to be part of this and are `[bho_recent_games]` now, so the club can put them
- * where it wants rather than where the table happens to be.
+ * One shortcode and not three, because they are read together: the table is what the page is for, the
+ * games say what just happened, and the rules are what a reader checks a row against. Below 960 pixels
+ * the three stack; above it the games and the rules stand beside each other under the table.
+ *
+ * When the URL names a player it renders that player's games instead — same page, no second one to
+ * create and no permalink setting to change.
  *
  * Attributes:
- *   limit="0"   how many rows to show; 0 is all of them (use 10 for a front-page teaser)
- *   rules="1"   the rules panel under the table; "0" frees it for `[bho_rules]` elsewhere
+ *   limit="0"   rows in the table; 0 is all of them (use 10 for a front-page teaser)
+ *   games="8"   how many recent games under it; 0 leaves them out
+ *   rules="1"   the rules panel; "0" leaves it out
  */
 function bho_ladder_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['limit' => '0', 'rules' => '1'], $atts, 'bho_ladder');
+    $atts = shortcode_atts(['limit' => '0', 'games' => '8', 'rules' => '1'], $atts, 'bho_ladder');
     $render = bho_ladder_renderer();
 
     $player = bho_ladder_player_in_url();
 
     return $player > 0
         ? $render->player($player)
-        : $render->ladder((int) $atts['limit'], $atts['rules'] !== '0', bho_ladder_sort_in_url());
+        : $render->ladder(
+            (int) $atts['limit'],
+            $atts['rules'] !== '0',
+            bho_ladder_sort_in_url(),
+            max((int) $atts['games'], 0),
+        );
 }
 
 /**
- * `[bho_rules]` — the rules and the rank classes, wherever they fit best.
+ * `[bho_all_games]` — every game of the season, a page at a time.
  *
- * The same panel `[bho_ladder]` prints under the table, so a page that wants it beside the latest
- * games instead sets `rules="0"` there and places this one. It reads the same cached answer, so a
- * page holding both is still one request.
- */
-function bho_rules_shortcode(array|string $atts = []): string
-{
-    shortcode_atts([], $atts, 'bho_rules');
-
-    return bho_ladder_renderer()->rulesBlock();
-}
-
-/**
- * `[bho_recent_games]` — the last few games, wherever it is placed.
- *
- * Attributes:
- *   show="8"   how many to list; the link under them goes to every game there is
- */
-function bho_recent_games_shortcode(array|string $atts = []): string
-{
-    // Nothing on a player's own page: it is already a list of games, and the block underneath it
-    // would be the same rows a second time, most of them about somebody else.
-    if (bho_ladder_player_in_url() > 0) {
-        return '';
-    }
-
-    $atts = shortcode_atts(['show' => '8'], $atts, 'bho_recent_games');
-
-    return bho_ladder_renderer()->recentGames((int) $atts['show']);
-}
-
-/**
- * `[bho_all_games]` — every game of the season in one table, a page at a time.
+ * Its own page because it is a lookup, not a summary: the block above lists the last few and links
+ * here for the rest.
  *
  * Attributes:
  *   per="25"   rows per page

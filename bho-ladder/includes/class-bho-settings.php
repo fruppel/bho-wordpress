@@ -176,9 +176,11 @@ final class BHO_Settings
 
             <h2>Einbinden</h2>
             <p>
-                <code>[bho_ladder]</code> — die Tabelle. Ein Klick auf einen Spieler bleibt auf
-                derselben Seite und hängt <code>?<?php echo esc_html(BHO_LADDER_PLAYER_PARAM); ?>=…</code>
-                an; es braucht also keine zweite Seite und keine Permalink-Umstellung.
+                <code>[bho_ladder]</code> — die Seite: Tabelle, die letzten Spiele und die Regeln.
+                Ab 960 Pixeln stehen Spiele und Regeln nebeneinander unter der Tabelle, darunter
+                untereinander. Ein Klick auf einen Spieler bleibt auf derselben Seite und hängt
+                <code>?<?php echo esc_html(BHO_LADDER_PLAYER_PARAM); ?>=…</code> an; es braucht also
+                keine zweite Seite und keine Permalink-Umstellung.
             </p>
             <p>
                 Ein Klick auf eine Spaltenüberschrift sortiert die Tabelle und hängt
@@ -186,32 +188,13 @@ final class BHO_Settings
                 dreht die Richtung um. Die sortierte Ansicht ist damit ein Link, den man verschicken kann.
             </p>
             <p>
-                <code>[bho_recent_games]</code> — die letzten Spiele, wo du willst. Standard sind acht,
-                darunter der Link auf alle: <code>[bho_recent_games show="8"]</code>.
-            </p>
-            <p>
                 <code>[bho_all_games]</code> — alle Spiele der Saison, seitenweise, in denselben
                 Zeilen wie der Block oben. Gehört auf die oben gewählte Seite.
             </p>
             <p>
-                <code>[bho_rules]</code> — Startpunkte, Punkte pro Spiel, Turnierbonus und die
-                Rangklassen. Steht standardmäßig schon unter der Tabelle; mit
-                <code>[bho_ladder rules="0"]</code> wird sie dort weggelassen und kann anderswo stehen.
+                Weniger auf einmal, etwa für die Startseite:
+                <code>[bho_ladder limit="10" games="3" rules="0"]</code>.
             </p>
-            <p>
-                Für einen Teaser auf der Startseite: <code>[bho_ladder limit="10"]</code>.
-            </p>
-            <h2>Zwei Blöcke nebeneinander</h2>
-            <p>
-                Zwei Shortcodes in <code>&lt;div class="bho-columns"&gt;</code> stehen ab 960px
-                nebeneinander und darunter untereinander. Die Ladder-Seite der Demo nutzt das so:
-            </p>
-            <pre>[bho_ladder rules="0"]
-
-&lt;div class="bho-columns"&gt;
-&lt;div&gt;[bho_recent_games show="8"]&lt;/div&gt;
-&lt;div&gt;[bho_rules]&lt;/div&gt;
-&lt;/div&gt;</pre>
         </div>
         <?php
     }

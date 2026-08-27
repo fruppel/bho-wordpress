@@ -22,9 +22,9 @@ final class BHO_Render
         private readonly array $t,
     ) {}
 
-    public function ladder(int $limit, bool $withRules = true, string $sort = ''): string
+    public function ladder(int $limit, bool $withRules = true, string $sort = '', int $games = 8): string
     {
-        $data = $this->api->ladder();
+        $data = $this->api->ladder(null, $games);
 
         if (is_wp_error($data)) {
             return $this->notice($this->t['unavailable'] . ' (' . $data->get_error_message() . ')');
@@ -52,23 +52,18 @@ final class BHO_Render
         $entries = $this->sorted($entries, $sort);
         $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries, $sort);
 
-        if ($withRules) {
-            $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
+        $latest = $games > 0 ? $this->recentGames($data['games'] ?? []) : '';
+        $rules = $withRules ? $this->rules($data['rules'] ?? [], $data['ranks'] ?? []) : '';
+
+        // Side by side when both are there, and the survivor takes the width when only one is: a grid
+        // with an empty second column leaves the first one at three fifths for no reason.
+        if ($latest !== '' && $rules !== '') {
+            $html .= '<div class="bho-columns"><div>' . $latest . '</div><div>' . $rules . '</div></div>';
+        } else {
+            $html .= $latest . $rules;
         }
 
         return $html . '</div>';
-    }
-
-    /** The rules on their own, for a page that puts them somewhere other than under the table. */
-    public function rulesBlock(): string
-    {
-        $data = $this->api->ladder();
-
-        if (is_wp_error($data)) {
-            return '';
-        }
-
-        return $this->wrap($this->rules($data['rules'] ?? [], $data['ranks'] ?? []));
     }
 
     public function player(int $id): string
@@ -272,39 +267,28 @@ final class BHO_Render
     }
 
     /**
-     * The last few games, as a block that can stand anywhere on the site.
+     * The last few games, from the rows the standings came with.
      *
-     * What is shown is all there is: the fold that used to hold a second helping is gone, and the
-     * link under the list goes to every game there is instead. Two ways of seeing more of the same
-     * list, one of them ending in a page that shows all of it anyway, was one too many.
+     * What is shown is all there is: no fold, and the link under the list goes to every game there is
+     * instead. Two ways of seeing more of the same list, one of them ending in a page that shows all
+     * of it anyway, was one too many.
+     *
+     * @param array<int,array<string,mixed>> $games
      */
-    public function recentGames(int $show): string
+    private function recentGames(array $games): string
     {
-        $data = $this->api->games(1, max($show, 1));
-
-        if (is_wp_error($data)) {
-            return $this->wrap($this->notice($this->t['unavailable']));
-        }
-
-        $games = $data['games'] ?? [];
         if ($games === []) {
             return '';
         }
 
-        $html = '<h3 class="bho-group bho-eyebrow">' . esc_html($this->t['latest']) . '</h3>';
-        if ($this->api->servedStale()) {
-            $html .= $this->notice($this->t['stale']);
-        }
+        $html = '<h3 class="bho-group bho-eyebrow">' . esc_html($this->t['latest']) . '</h3>'
+            . '<ul class="bho-recent">';
 
-        $html .= '<ul class="bho-recent">';
         foreach ($games as $game) {
             $html .= $this->recentRow($game);
         }
-        $html .= '</ul>';
 
-        $html .= $this->allGamesLink();
-
-        return $this->wrap($html);
+        return $html . '</ul>' . $this->allGamesLink();
     }
 
     /**

@@ -9,32 +9,23 @@ numbers and renders them into whatever theme the site wears. The version prefix 
 plugin: a breaking change over there means `/api/v2/` and a plugin update, in that order.
 
 ```
-[bho_ladder]                              the standings, with the rules under them
-[bho_ladder limit="10"]                   a top-ten teaser for a front page
-[bho_ladder rules="0"]                    the standings alone, rules placed elsewhere
-[bho_recent_games show="8"]               the latest games, wherever you put them
-[bho_all_games per="25"]                  every game of the season, paginated
-[bho_rules]                               start rating, points, bonus, rank classes
+[bho_ladder]                                the page: standings, latest games, rules
+[bho_ladder limit="10" games="3" rules="0"] less of it, for a front page
+[bho_all_games per="25"]                    every game of the season, paginated
 ```
 
-Wrap two of them in `<div class="bho-columns">` and they sit side by side above 960 pixels and stack
-below it. The demo's ladder page is the arrangement worth copying: the table full width, then the
-latest games and the rules beside each other under it — the standings are what the page is for, and
-the rules are read once where the results are read again.
+Two shortcodes, because there are two pages. `[bho_ladder]` is the standings, the last few games and
+the rules in one block: the table is what the page is for, the games say what just happened, and the
+rules are what a reader checks a row against. Above 960 pixels the games and the rules stand beside
+each other under the table; below it the three stack. There were four shortcodes until 2026-08-28, one
+of them for the rules alone — three snippets to paste and keep in the right order for a page that only
+ever wanted one.
 
-```
-[bho_ladder rules="0"]
-
-<div class="bho-columns">
-<div>[bho_recent_games show="8"]</div>
-<div>[bho_rules]</div>
-</div>
-```
-
-The latest games used to live inside `[bho_ladder]`. They are their own shortcode and their own
-endpoint now, so the club can put them anywhere — the demo site has them below the table. What is
-listed is all the block holds: a fold that opened a few more rows, under a link to a page showing every
-game, was two ways of asking for the same thing.
+The last few games come with the standings — `/api/v1/ladder?games=8` — rather than from a second
+request. They are still their own endpoint for the page that lists them all, but the block above the
+fold shows the table and the games together, and two requests would be two caches: a result could
+appear in the list minutes before its points appear in the table above it. What is listed is all the
+block holds; the link under it goes to every game there is.
 
 The stylesheet is versioned by its own modification time rather than by the plugin version. With the
 plugin version, editing the CSS kept the same `?ver=` and every browser that had been on the page kept

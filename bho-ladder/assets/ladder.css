@@ -210,11 +210,17 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.6rem;
-  /* On the container, so both columns start level and the air above them does not depend on which
-     block happens to be first: inside a column the blocks already drop their own top margin. */
-  margin: 2.2rem 0 0;
   align-items: start;
 }
+
+/*
+ * The air under the table, wherever the band below it is one column or two. On the sibling of the
+ * table rather than on the blocks themselves: their own headings sit at margin zero so that they
+ * start level inside a column, and `[bho_ladder rules="0"]` left the games glued to the last row.
+ */
+.bho-ladder > .bho-table ~ .bho-columns,
+.bho-ladder > .bho-table ~ .bho-group,
+.bho-ladder > .bho-table ~ .bho-rules { margin-top: 2.2rem; }
 
 .bho-columns .bho-rules { margin-top: 0; }
 

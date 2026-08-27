@@ -49,9 +49,22 @@ final class BHO_Api
     }
 
     /** @return array<string,mixed>|WP_Error */
-    public function ladder(?int $season = null): array|WP_Error
+    public function ladder(?int $season = null, int $games = 0): array|WP_Error
     {
-        return $this->get($season === null ? '/api/v1/ladder' : '/api/v1/ladder?season=' . $season);
+        $query = [];
+
+        if ($season !== null) {
+            $query['season'] = $season;
+        }
+
+        // Asked for together so the table and the games under it are one answer from one moment. Two
+        // requests would be two cached copies, and a result could show up in the list minutes before
+        // its points show up in the table.
+        if ($games > 0) {
+            $query['games'] = $games;
+        }
+
+        return $this->get('/api/v1/ladder' . ($query === [] ? '' : '?' . http_build_query($query)));
     }
 
     /**
@@ -71,9 +84,8 @@ final class BHO_Api
     /**
      * One page of games, newest first.
      *
-     * Its own endpoint rather than a field of the standings, which is what lets `[bho_recent_games]`
-     * stand anywhere and `[bho_all_games]` page through everything without fetching a table nobody
-     * asked for.
+     * Its own endpoint rather than a field of the standings, which is what lets `[bho_all_games]` page
+     * through everything without fetching a table nobody asked for.
      *
      * @return array<string,mixed>|WP_Error
      */

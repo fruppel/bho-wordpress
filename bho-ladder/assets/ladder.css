@@ -509,8 +509,20 @@
 .bho-cell-side .bho-flag { align-self: center; }
 
 /* Struck through rather than dimmed: it happened, it just does not count. */
-.bho-excluded .bho-cell-side a { text-decoration: line-through; }
-.bho-excluded td { color: var(--bho-faint); }
+/* The chip that says a result was taken out, beside the kill teams it was played with. */
+.bho-tag {
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--bho-panel-strong);
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--bho-quiet);
+  text-decoration: none;
+}
+
+/* One side of a game, not the row: the other player's result stands. */
+.bho-excluded { color: var(--bho-faint); }
+.bho-excluded a { color: inherit; text-decoration: line-through; }
 
 /*
  * The tournament column is the one to lose on a phone: with one event per season it repeats down

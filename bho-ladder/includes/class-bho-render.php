@@ -67,12 +67,19 @@ final class BHO_Render
         $rating = $rated === [] ? null : end($rated)['ratingAfter'];
         $swing = array_sum(array_map(static fn(array $g): int => (int) ($g['ratingChange'] ?? 0), $games));
 
+        // Only the games that counted for this player, so this line agrees with their row in the
+        // table: a result taken out of the rating is out of the record with it.
+        $counted = array_values(array_filter(
+            $games,
+            static fn(array $g): bool => !(bool) ($g['excluded'] ?? false),
+        ));
+
         $record = [
             'WIN' => 0,
             'DRAW' => 0,
             'LOSS' => 0,
         ];
-        foreach ($games as $game) {
+        foreach ($counted as $game) {
             ++$record[$game['result']];
         }
 
@@ -94,7 +101,7 @@ final class BHO_Render
         $html .= '<p class="bho-foot">' . esc_html(sprintf(
             $this->t['games_count'],
             sprintf('%d–%d–%d', $record['WIN'], $record['DRAW'], $record['LOSS']),
-            count($games),
+            count($counted),
         )) . '</p>';
 
         if ($games === []) {
@@ -211,12 +218,15 @@ final class BHO_Render
     /** @param array<string,mixed> $game */
     private function recentRow(array $game): string
     {
+        $one = (bool) ($game['one']['excluded'] ?? false) ? ' bho-excluded' : '';
+        $two = (bool) ($game['two']['excluded'] ?? false) ? ' bho-excluded' : '';
+
         return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
             . $this->day($game['playedOn'] ?? null)
-            . '<span class="bho-side">' . $this->flag($game['one']['country'] ?? null) . ' '
+            . '<span class="bho-side' . $one . '">' . $this->flag($game['one']['country'] ?? null) . ' '
             . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
             . $this->score($game['one']['score'], $game['two']['score'])
-            . '<span class="bho-side bho-right">' . $this->change($game['two']['change']) . ' '
+            . '<span class="bho-side bho-right' . $two . '">' . $this->change($game['two']['change']) . ' '
             . $this->playerLink($game['two']) . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
             . '</li>';
     }
@@ -262,7 +272,7 @@ final class BHO_Render
             . '</tr></thead><tbody>';
 
         foreach ($games as $game) {
-            $html .= '<tr' . ($game['excluded'] ? ' class="bho-excluded"' : '') . '>'
+            $html .= '<tr>'
                 // The day it was played when we know it, the tournament's start date when we do not —
                 // which is every game imported before the column existed.
                 . '<td class="bho-w-day bho-quiet">' . esc_html(self::formatDay(
@@ -295,10 +305,19 @@ final class BHO_Render
             . '</span>';
     }
 
-    /** One side of a game in the wide table: flag, name, and what the game did to the rating. */
+    /**
+     * One side of a game in the wide table: flag, name, and what the game did to the rating.
+     *
+     * Struck through where this player's result was taken out — theirs alone. A row marked as a whole
+     * would say the game counted for nobody, and the usual reason for an exclusion is that it counted
+     * for exactly one of the two: somebody dropped out and a stand-in played their table.
+     */
     private function side(array $player): string
     {
-        return '<span class="bho-cell-side">' . $this->flag($player['country'] ?? null)
+        $excluded = (bool) ($player['excluded'] ?? false);
+
+        return '<span class="bho-cell-side' . ($excluded ? ' bho-excluded' : '') . '">'
+            . $this->flag($player['country'] ?? null)
             . $this->playerLink($player) . ' ' . $this->change($player['change']) . '</span>';
     }
 
@@ -362,8 +381,11 @@ final class BHO_Render
     private function game(array $game): string
     {
         $result = strtolower((string) $game['result']);
+        // Shown and marked rather than left out: this player did not get the points, and a game that
+        // vanished from their own list would look like one nobody can find again.
+        $excluded = (bool) ($game['excluded'] ?? false);
 
-        return '<li>'
+        return '<li' . ($excluded ? ' class="bho-excluded"' : '') . '>'
             . '<span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
             . $this->day($game['playedOn'] ?? null)
             . '<a class="bho-opponent" href="'
@@ -376,7 +398,9 @@ final class BHO_Render
             . '<span class="bho-after">' . esc_html((string) ($game['ratingAfter'] ?? '')) . '</span>'
             . '<span class="bho-teams">' . esc_html((string) ($game['killTeam'] ?? '—'))
             . ' <em>' . esc_html($this->t['versus']) . '</em> '
-            . esc_html((string) ($game['opponentKillTeam'] ?? '—')) . '</span>'
+            . esc_html((string) ($game['opponentKillTeam'] ?? '—'))
+            . ($excluded ? ' <em class="bho-tag">' . esc_html($this->t['not_counted']) . '</em>' : '')
+            . '</span>'
             . '</li>';
     }
 

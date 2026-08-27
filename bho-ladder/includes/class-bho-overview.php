@@ -23,7 +23,7 @@ final class BHO_Overview
     {
         add_submenu_page(
             'options-general.php',
-            'BHO Saisons',
+            'BHO Ladder — Saisons',
             'BHO Saisons',
             // Reading is not administering: an editor who maintains the ladder page should be able to
             // see which events feed it without holding the keys to the site.
@@ -40,7 +40,9 @@ final class BHO_Overview
         $admin = $api->appUrl('/admin/seasons');
         ?>
         <div class="wrap">
-            <h1>Saisons</h1>
+            <h1>BHO Ladder</h1>
+
+            <?php bho_ladder_tabs('bho-seasons'); ?>
 
             <?php if (is_wp_error($data)) : ?>
                 <div class="notice notice-error">

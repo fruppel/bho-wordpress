@@ -41,6 +41,7 @@ define('BHO_LADDER_PLAYER_PARAM', 'bho_player');
 require_once BHO_LADDER_DIR . 'includes/strings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-api.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
+require_once BHO_LADDER_DIR . 'includes/nav.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-settings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-overview.php';
 

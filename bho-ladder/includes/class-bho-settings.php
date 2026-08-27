@@ -88,6 +88,8 @@ final class BHO_Settings
         <div class="wrap">
             <h1>BHO Ladder</h1>
 
+            <?php bho_ladder_tabs('bho-ladder'); ?>
+
             <form method="post" action="options.php">
                 <?php settings_fields('bho_ladder'); ?>
 

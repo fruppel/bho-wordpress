@@ -22,6 +22,10 @@ engines and script blockers see it, and one answer is cached for everybody inste
 visitor. The ladder is recomputed from every game on each request over there, so that last one is not
 a detail.
 
+Both screens live under `Settings` and carry the same two tabs — *Einstellungen* and *Saisons* — so
+each one leads to the other. Without them they were reachable only by knowing the URL, which is not
+navigation.
+
 `Settings → BHO Saisons` shows which tournaments count towards which season, and names the ones
 counting towards nothing — a state somebody has to be able to notice rather than discover when a table
 looks short. It is **read-only**: assigning happens in the ladder's own admin area, and the screen
@@ -75,6 +79,7 @@ bho-ladder/
   includes/class-bho-render.php  all the HTML, everything escaped on the way out
   includes/class-bho-settings.php  the settings page
   includes/class-bho-overview.php  the read-only seasons screen in wp-admin
+  includes/nav.php            the tab bar the two admin screens share
   includes/strings.php        German, English and Spanish
   assets/ladder.css           only what a theme cannot know: rank tints, podium, flag frame
   assets/flags/               271 country flags (flag-icons, MIT)

@@ -14,6 +14,19 @@ application's public API for the same numbers and renders them into whatever the
 Clicking a player stays on the same page and appends `?bho_player=…`. No second page to create, and
 no permalink setting to change — which matters, because blackhydra.org runs on plain permalinks.
 
+## Colours it does not own
+
+`assets/ladder.css` sets no font, no text colour and no background — those come from the site. What it
+does need a colour for is mixed with `currentColor`, the theme's own text colour: a flat `#17a673` is
+muddy on one of dark and light, while the same green mixed into the text colour reads on both. That is
+the one trick in the file, and it is why the ladder looks deliberate on blackhydra.org's near-black
+theme and would on a white one.
+
+Two consequences worth knowing before editing it: the podium is a bar down the left edge rather than a
+tinted row, because a 9% amber wash comes out olive on black and beige on white; and every numeric
+column needs `th.bho-num`/`td.bho-num` rather than `.bho-num`, because `.bho-table td` wins on
+specificity — which it did, silently left-aligning every number in the table.
+
 ## Why server-side
 
 The plugin reads the API in PHP, not with JavaScript in the visitor's browser. Three reasons, each of

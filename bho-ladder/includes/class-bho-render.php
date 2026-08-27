@@ -132,10 +132,10 @@ final class BHO_Render
         $html = '<table class="bho-table"><thead><tr>'
             . '<th class="bho-pos">#</th>'
             . '<th>' . esc_html($this->t['player']) . '</th>'
-            . '<th class="bho-num">' . esc_html($this->t['rating']) . '</th>'
-            . '<th>' . esc_html($this->t['rank']) . '</th>'
-            . '<th class="bho-num">' . esc_html($this->t['record']) . '</th>'
-            . '<th class="bho-num bho-wide">' . esc_html($this->t['events']) . '</th>'
+            . '<th class="bho-num bho-w-rating">' . esc_html($this->t['rating']) . '</th>'
+            . '<th class="bho-w-rank">' . esc_html($this->t['rank']) . '</th>'
+            . '<th class="bho-num bho-w-record">' . esc_html($this->t['record']) . '</th>'
+            . '<th class="bho-num bho-w-events bho-wide">' . esc_html($this->t['events']) . '</th>'
             . '</tr></thead><tbody>';
 
         foreach ($entries as $entry) {
@@ -146,15 +146,15 @@ final class BHO_Render
                 . esc_url(add_query_arg(BHO_LADDER_PLAYER_PARAM, (int) $entry['id'], get_permalink()))
                 . '">' . $this->flag($entry['country'] ?? null)
                 . '<span>' . esc_html((string) $entry['name']) . '</span></a></td>'
-                . '<td class="bho-num"><strong>' . esc_html((string) $entry['rating']) . '</strong></td>'
-                . '<td>' . $this->rank((string) $entry['rank']) . '</td>'
-                . '<td class="bho-num">' . esc_html(sprintf(
+                . '<td class="bho-num bho-w-rating bho-rating">' . esc_html((string) $entry['rating']) . '</td>'
+                . '<td class="bho-w-rank">' . $this->rank((string) $entry['rank']) . '</td>'
+                . '<td class="bho-num bho-w-record">' . esc_html(sprintf(
                     '%d–%d–%d',
                     $entry['wins'],
                     $entry['draws'],
                     $entry['losses'],
                 )) . '</td>'
-                . '<td class="bho-num bho-wide">' . esc_html((string) $entry['tournaments']) . '</td>'
+                . '<td class="bho-num bho-w-events bho-wide">' . esc_html((string) $entry['tournaments']) . '</td>'
                 . '</tr>';
         }
 
@@ -168,7 +168,8 @@ final class BHO_Render
             return '';
         }
 
-        $html = '<h3 class="bho-group">' . esc_html($this->t['latest']) . '</h3><ul class="bho-recent">';
+        $html = '<h3 class="bho-group bho-eyebrow">' . esc_html($this->t['latest']) . '</h3>'
+            . '<ul class="bho-recent">';
 
         foreach ($games as $game) {
             $html .= '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'

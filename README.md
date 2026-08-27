@@ -9,9 +9,19 @@ numbers and renders them into whatever theme the site wears. The version prefix 
 plugin: a breaking change over there means `/api/v2/` and a plugin update, in that order.
 
 ```
-[bho_ladder]                        the table, with the three latest games above it
-[bho_ladder limit="10" recent="0"]  a top-ten teaser for a front page
+[bho_ladder]                              the standings
+[bho_ladder limit="10"]                   a top-ten teaser for a front page
+[bho_recent_games show="3" more="10"]     the latest games, wherever you put them
+[bho_all_games per="25"]                  every game of the season, paginated
 ```
+
+The latest games used to live inside `[bho_ladder]`. They are their own shortcode and their own
+endpoint now, so the club can put them anywhere — the demo site has them below the table. Rows past
+`show` are folded into a `<details>`, which means they are in the HTML and the browser does the
+hiding: no JavaScript of ours, and one request either way.
+
+`[bho_all_games]` is a wide table with previous/next paging. Point the *Seite „Alle Spiele"* setting at
+the page holding it and the latest-games block links there; leave it unset and the link stays away.
 
 Clicking a player stays on the same page and appends `?bho_player=…`. No second page to create, and
 no permalink setting to change — which matters, because blackhydra.org runs on plain permalinks.

@@ -259,9 +259,13 @@
   font-size: 0.9rem;
 }
 
-/* The recent list sits above the table, so it needs a foot of its own or the two run together. */
-.bho-recent { margin-bottom: 2.25rem; }
 .bho-recent li:last-child { border-bottom: 0; }
+
+/*
+ * Two of these blocks on one page is the normal case now — the table and the latest games are
+ * separate shortcodes — and each one is a wrapper of its own, so nothing else would separate them.
+ */
+.bho-ladder + .bho-ladder { margin-top: 2.5rem; }
 
 .bho-round { width: 1.8rem; flex: none; color: var(--bho-faint); }
 .bho-side { display: flex; align-items: baseline; gap: 0.45rem; flex: 1 1 0; min-width: 0; }
@@ -322,3 +326,80 @@
 .bho-player-rating strong { display: block; font-size: 1.9rem; }
 .bho-player-rating span { font-size: 0.78rem; color: var(--bho-quiet); }
 .bho-player .bho-foot { margin-top: 0.7rem; }
+
+/* ---------------------------------------------------------------- the games block and its table */
+
+/*
+ * The fold is a <details>, so the rows past the third are in the HTML and the browser does the
+ * hiding. A link that reloaded the page would cost a round trip for something already fetched.
+ */
+.bho-more { margin: 0.2rem 0 0; }
+
+.bho-more summary {
+  display: inline-block;
+  padding: 0.3rem 0;
+  font-size: 0.8rem;
+  color: var(--bho-quiet);
+  cursor: pointer;
+}
+
+.bho-more summary:hover { color: currentColor; }
+.bho-more[open] summary { margin-bottom: 0.2rem; }
+.bho-more .bho-recent { margin-top: 0; margin-bottom: 0; }
+
+.bho-quiet { color: var(--bho-quiet); }
+
+.bho-all th.bho-w-day,   .bho-all td.bho-w-day   { width: 5.5rem; white-space: nowrap; }
+.bho-all th.bho-w-round, .bho-all td.bho-w-round { width: 3rem; }
+.bho-all th.bho-w-score, .bho-all td.bho-w-score { width: 5rem; }
+
+/*
+ * `table-layout: fixed` so the declared widths hold and the two name columns share what is left.
+ * Without it a long handle pushes the table past the screen, which on a phone it did — by 144px.
+ */
+.bho-all { table-layout: fixed; }
+
+.bho-cell-side { display: flex; align-items: baseline; gap: 0.4rem; min-width: 0; }
+.bho-cell-side a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bho-cell-side a:hover { text-decoration: underline; }
+.bho-cell-side .bho-change { flex: none; }
+.bho-cell-side .bho-flag { align-self: center; }
+
+/* Struck through rather than dimmed: it happened, it just does not count. */
+.bho-excluded .bho-cell-side a { text-decoration: line-through; }
+.bho-excluded td { color: var(--bho-faint); }
+
+/*
+ * The tournament column is the one to lose on a phone: with one event per season it repeats down
+ * every row, and the date already says which one it was.
+ */
+@media (max-width: 46rem) {
+  .bho-all th.bho-wide, .bho-all td.bho-wide { display: none; }
+}
+
+/* On a phone the round number is the next to go: the date already orders the list. */
+@media (max-width: 30rem) {
+  .bho-all th.bho-w-round, .bho-all td.bho-w-round { display: none; }
+  .bho-all th.bho-w-day, .bho-all td.bho-w-day { width: 4.6rem; }
+  .bho-all th.bho-w-score, .bho-all td.bho-w-score { width: 4rem; }
+  .bho-all .bho-flag { display: none; }
+}
+
+.bho-pager {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+}
+
+.bho-pager a { color: inherit; }
+.bho-pager span { color: var(--bho-faint); }
+.bho-pager-of { margin-left: auto; }

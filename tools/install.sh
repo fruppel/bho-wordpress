@@ -46,24 +46,41 @@ wp theme mod set bc_secondary_font          'Roboto' >/dev/null 2>&1 || true
 
 echo "→ plugin"
 wp plugin activate bho-ladder >/dev/null
-wp option update bho_ladder_settings --format=json "{\"api\":\"$BHO_API\",\"ttl\":5}" >/dev/null
+# Set after the pages exist, because the games page is referenced by id.
 
 PAGE=$(wp post list --post_type=page --name=ladder --field=ID --post_status=publish 2>/dev/null | head -1)
 if [ -z "$PAGE" ]; then
-  echo "→ page"
+  echo "→ pages"
   PAGE=$(wp post create --post_type=page --post_status=publish \
-    --post_title='BLACKHYDRA OPEN LADDER / ELO' --post_name='ladder' \
-    --post_content='[bho_ladder]' --porcelain)
+    --post_title='BLACKHYDRA OPEN LADDER / ELO' --post_name='ladder' --porcelain)
 fi
 
-# Both are overwritten every run rather than only at creation: a demo site that keeps a title from
-# an earlier version of this script is a demo site nobody trusts.
+GAMES=$(wp post list --post_type=page --name=alle-spiele --field=ID --post_status=publish 2>/dev/null | head -1)
+if [ -z "$GAMES" ]; then
+  GAMES=$(wp post create --post_type=page --post_status=publish \
+    --post_title='Alle Spiele' --post_name='alle-spiele' --porcelain)
+fi
+
+# Overwritten every run: the shortcodes are what this script is demonstrating, and a page left with
+# an older combination is a page that shows the wrong thing without saying so.
+wp post update "$PAGE" --post_content='[bho_ladder]
+
+[bho_recent_games show="3" more="10"]' >/dev/null
+wp post update "$GAMES" --post_content='[bho_all_games per="25"]' >/dev/null
+
+wp option update bho_ladder_settings --format=json \
+  "{\"api\":\"$BHO_API\",\"ttl\":5,\"games_page\":$GAMES}" >/dev/null
+
+# Overwritten every run rather than only at creation: a demo site that keeps a title from an earlier
+# version of this script is a demo site nobody trusts.
 wp post update "$PAGE" --post_title='BLACKHYDRA OPEN LADDER / ELO' >/dev/null
 
 # The theme puts a 1920×1080 hero above every page unless a page opts out, and the real ladder page
 # opts out — it is a table, not a landing page. Same template here, or the demo would be judged
 # against a header the live site does not have.
-wp post meta update "$PAGE" _wp_page_template 'no-masthead-template.php' >/dev/null
+for p in "$PAGE" "$GAMES"; do
+  wp post meta update "$p" _wp_page_template 'no-masthead-template.php' >/dev/null
+done
 
 echo "→ menu"
 # The real navigation, in its real order, so the ladder is reached the way it will be reached there.
@@ -75,6 +92,7 @@ if ! wp menu list --fields=name 2>/dev/null | grep -q '^Hauptmenü$'; then
     wp menu item add-custom "Hauptmenü" "$item" "$SITE/" >/dev/null
   done
   wp menu item add-post "Hauptmenü" "$PAGE" --title="BLACKHYDRA OPEN LADDER / ELO" >/dev/null
+  wp menu item add-post "Hauptmenü" "$GAMES" --title="Alle Spiele" >/dev/null
   for item in "Supporter Lodge" "Shop" "Ebay Shop"; do
     wp menu item add-custom "Hauptmenü" "$item" "$SITE/" >/dev/null
   done
@@ -85,6 +103,7 @@ fi
 wp menu location assign "Hauptmenü" main-navigation >/dev/null 2>&1 || true
 
 echo
-echo "Ladder:  $SITE/?page_id=$PAGE"
-echo "Admin:   $SITE/wp-admin/  (admin / admin)"
-echo "API:     $BHO_API"
+echo "Ladder:      $SITE/?page_id=$PAGE"
+echo "Alle Spiele: $SITE/?page_id=$GAMES"
+echo "Admin:       $SITE/wp-admin/  (admin / admin)"
+echo "API:         $BHO_API"

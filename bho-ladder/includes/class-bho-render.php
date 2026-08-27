@@ -22,7 +22,7 @@ final class BHO_Render
         private readonly array $t,
     ) {}
 
-    public function ladder(int $recent, int $limit): string
+    public function ladder(int $limit): string
     {
         $data = $this->api->ladder();
 
@@ -42,10 +42,6 @@ final class BHO_Render
         }
 
         $html .= $this->running($data['tournaments'] ?? []);
-
-        if ($recent > 0) {
-            $html .= $this->recent(array_slice($data['recent'] ?? [], 0, $recent));
-        }
 
         if ($entries === []) {
             return $html . $this->notice($this->t['empty']) . '</div>';
@@ -161,25 +157,172 @@ final class BHO_Render
         return $html . '</tbody></table>';
     }
 
-    /** @param array<int,array<string,mixed>> $games */
-    private function recent(array $games): string
+    /**
+     * The last few games, as a block that can stand anywhere on the site.
+     *
+     * `$more` rows are fetched and the ones past `$show` are folded into a `<details>`. A link that
+     * reloaded the page would work too, but this is one request either way and the browser does the
+     * folding — no JavaScript of ours, and the rows are in the HTML for anything that reads it.
+     */
+    public function recentGames(int $show, int $more): string
     {
+        $wanted = max($show, $more);
+        $data = $this->api->games(1, max($wanted, 1));
+
+        if (is_wp_error($data)) {
+            return $this->wrap($this->notice($this->t['unavailable']));
+        }
+
+        $games = $data['games'] ?? [];
         if ($games === []) {
             return '';
         }
 
-        $html = '<h3 class="bho-group bho-eyebrow">' . esc_html($this->t['latest']) . '</h3>'
-            . '<ul class="bho-recent">';
-
-        foreach ($games as $game) {
-            $html .= '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
-                . '<span class="bho-side">' . $this->playerLink($game['one']) . ' ' . $this->change((int) $game['one']['change']) . '</span>'
-                . '<span class="bho-score">' . esc_html($game['one']['score'] . '–' . $game['two']['score']) . '</span>'
-                . '<span class="bho-side bho-right">' . $this->change((int) $game['two']['change']) . ' ' . $this->playerLink($game['two']) . '</span>'
-                . '</li>';
+        $html = '<h3 class="bho-group bho-eyebrow">' . esc_html($this->t['latest']) . '</h3>';
+        if ($this->api->servedStale()) {
+            $html .= $this->notice($this->t['stale']);
         }
 
-        return $html . '</ul>';
+        $html .= '<ul class="bho-recent">';
+        foreach (array_slice($games, 0, $show) as $game) {
+            $html .= $this->recentRow($game);
+        }
+        $html .= '</ul>';
+
+        $rest = array_slice($games, $show);
+        if ($rest !== []) {
+            $html .= '<details class="bho-more"><summary>'
+                . esc_html(sprintf($this->t['show_more'], count($rest)))
+                . '</summary><ul class="bho-recent">';
+            foreach ($rest as $game) {
+                $html .= $this->recentRow($game);
+            }
+            $html .= '</ul></details>';
+        }
+
+        $html .= $this->allGamesLink();
+
+        return $this->wrap($html);
+    }
+
+    /** @param array<string,mixed> $game */
+    private function recentRow(array $game): string
+    {
+        return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
+            . '<span class="bho-side">' . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
+            . '<span class="bho-score">' . esc_html($game['one']['score'] . '–' . $game['two']['score']) . '</span>'
+            . '<span class="bho-side bho-right">' . $this->change($game['two']['change']) . ' ' . $this->playerLink($game['two']) . '</span>'
+            . '</li>';
+    }
+
+    /**
+     * Every game of the season, newest first, a page at a time.
+     *
+     * A table rather than the two-line rows the block uses: this is the page somebody opens to look
+     * something up, and a column is what you scan.
+     */
+    public function allGames(int $perPage, int $page): string
+    {
+        $data = $this->api->games($page, $perPage);
+
+        if (is_wp_error($data)) {
+            return $this->wrap($this->notice($this->t['unavailable'] . ' (' . $data->get_error_message() . ')'));
+        }
+
+        $games = $data['games'] ?? [];
+        if ($games === []) {
+            return $this->wrap($this->notice($this->t['empty']));
+        }
+
+        $html = '';
+        if ($this->api->servedStale()) {
+            $html .= $this->notice($this->t['stale']);
+        }
+
+        $html .= '<p class="bho-foot">' . esc_html(sprintf(
+            $this->t['games_total'],
+            (int) ($data['total'] ?? 0),
+            (int) ($data['page'] ?? 1),
+            (int) ($data['pages'] ?? 1),
+        )) . '</p>';
+
+        $html .= '<table class="bho-table bho-all"><thead><tr>'
+            . '<th class="bho-w-day">' . esc_html($this->t['day']) . '</th>'
+            . '<th class="bho-wide">' . esc_html($this->t['tournament']) . '</th>'
+            . '<th class="bho-w-round bho-num">' . esc_html($this->t['round']) . '</th>'
+            . '<th>' . esc_html($this->t['player']) . '</th>'
+            . '<th class="bho-num bho-w-score">' . esc_html($this->t['score']) . '</th>'
+            . '<th>' . esc_html($this->t['opponent']) . '</th>'
+            . '</tr></thead><tbody>';
+
+        foreach ($games as $game) {
+            $html .= '<tr' . ($game['excluded'] ? ' class="bho-excluded"' : '') . '>'
+                . '<td class="bho-w-day bho-quiet">' . esc_html(self::formatDay((string) $game['startDate'])) . '</td>'
+                . '<td class="bho-wide bho-quiet">' . esc_html((string) $game['tournament']) . '</td>'
+                . '<td class="bho-w-round bho-num bho-quiet">' . esc_html((string) $game['round']) . '</td>'
+                . '<td class="bho-name-cell">' . $this->side($game['one']) . '</td>'
+                . '<td class="bho-num bho-w-score">' . esc_html($game['one']['score'] . '–' . $game['two']['score']) . '</td>'
+                . '<td class="bho-name-cell">' . $this->side($game['two']) . '</td>'
+                . '</tr>';
+        }
+
+        return $this->wrap($html . '</tbody></table>' . $this->pager($data));
+    }
+
+    /** One side of a game in the wide table: flag, name, and what the game did to the rating. */
+    private function side(array $player): string
+    {
+        return '<span class="bho-cell-side">' . $this->flag($player['country'] ?? null)
+            . $this->playerLink($player) . ' ' . $this->change($player['change']) . '</span>';
+    }
+
+    /**
+     * Previous and next, and nothing else.
+     *
+     * Numbered pages would need every number to be a link somebody can land on, and with 40 games
+     * and no season behind us there is nothing to jump to yet. Two links are honest about that.
+     *
+     * @param array<string,mixed> $data
+     */
+    private function pager(array $data): string
+    {
+        $page = (int) ($data['page'] ?? 1);
+        $pages = (int) ($data['pages'] ?? 1);
+
+        if ($pages <= 1) {
+            return '';
+        }
+
+        $link = static function (int $to, string $label): string {
+            return '<a href="' . esc_url(add_query_arg(BHO_LADDER_PAGE_PARAM, $to, get_permalink()))
+                . '">' . esc_html($label) . '</a>';
+        };
+
+        $html = '<p class="bho-pager">';
+        $html .= $page > 1 ? $link($page - 1, $this->t['previous']) : '<span>' . esc_html($this->t['previous']) . '</span>';
+        $html .= '<span class="bho-pager-of">' . esc_html(sprintf($this->t['page_of'], $page, $pages)) . '</span>';
+        $html .= $page < $pages ? $link($page + 1, $this->t['next']) : '<span>' . esc_html($this->t['next']) . '</span>';
+
+        return $html . '</p>';
+    }
+
+    /** Only when a page has been named in the settings — otherwise there is nowhere to send anybody. */
+    private function allGamesLink(): string
+    {
+        $page = BHO_Settings::all()['games_page'];
+
+        if ($page <= 0 || !get_post($page)) {
+            return '';
+        }
+
+        return '<p class="bho-foot"><a href="' . esc_url((string) get_permalink($page)) . '">'
+            . esc_html($this->t['all_games']) . '</a></p>';
+    }
+
+    /** The wrapper every entry point needs, so the CSS variables are in scope. */
+    private function wrap(string $html): string
+    {
+        return '<div class="bho-ladder">' . $html . '</div>';
     }
 
     /** @param array<string,mixed> $side */

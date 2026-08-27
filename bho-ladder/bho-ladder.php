@@ -38,6 +38,9 @@ define('BHO_LADDER_URL', plugin_dir_url(__FILE__));
  */
 define('BHO_LADDER_PLAYER_PARAM', 'bho_player');
 
+/** Which page of the all-games table is being looked at. Same reasoning as the player parameter. */
+define('BHO_LADDER_PAGE_PARAM', 'bho_page');
+
 require_once BHO_LADDER_DIR . 'includes/strings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-api.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
@@ -49,35 +52,73 @@ BHO_Settings::boot();
 BHO_Overview::boot();
 
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
+add_shortcode('bho_recent_games', 'bho_recent_games_shortcode');
+add_shortcode('bho_all_games', 'bho_all_games_shortcode');
 
 /**
  * `[bho_ladder]` — the table, or one player's games when the URL names one.
  *
+ * The latest games used to be part of this and are `[bho_recent_games]` now, so the club can put them
+ * where it wants rather than where the table happens to be.
+ *
  * Attributes:
- *   recent="3"  how many of the latest games to list above the table; 0 leaves them out
- *   limit="0"   how many rows of the table to show; 0 is all of them (use 10 for a front-page teaser)
+ *   limit="0"   how many rows to show; 0 is all of them (use 10 for a front-page teaser)
  */
 function bho_ladder_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['recent' => '3', 'limit' => '0'], $atts, 'bho_ladder');
+    $atts = shortcode_atts(['limit' => '0'], $atts, 'bho_ladder');
+    $render = bho_ladder_renderer();
 
-    wp_enqueue_style(
-        'bho-ladder',
-        BHO_LADDER_URL . 'assets/ladder.css',
-        [],
-        BHO_LADDER_VERSION,
-    );
+    $player = bho_ladder_player_in_url();
 
-    $api = BHO_Api::fromSettings();
-    $render = new BHO_Render($api, bho_ladder_strings());
+    return $player > 0 ? $render->player($player) : $render->ladder((int) $atts['limit']);
+}
 
-    $player = isset($_GET[BHO_LADDER_PLAYER_PARAM])
+/**
+ * `[bho_recent_games]` — the last few games, wherever it is placed.
+ *
+ * Attributes:
+ *   show="3"   how many to list at rest
+ *   more="10"  how many the "show more" link opens; 0 leaves the link out
+ */
+function bho_recent_games_shortcode(array|string $atts = []): string
+{
+    $atts = shortcode_atts(['show' => '3', 'more' => '10'], $atts, 'bho_recent_games');
+
+    return bho_ladder_renderer()->recentGames((int) $atts['show'], (int) $atts['more']);
+}
+
+/**
+ * `[bho_all_games]` — every game of the season in one table, a page at a time.
+ *
+ * Attributes:
+ *   per="25"   rows per page
+ */
+function bho_all_games_shortcode(array|string $atts = []): string
+{
+    $atts = shortcode_atts(['per' => '25'], $atts, 'bho_all_games');
+
+    return bho_ladder_renderer()->allGames((int) $atts['per'], bho_ladder_page_in_url());
+}
+
+/** The stylesheet is loaded here rather than per shortcode: a page may hold several of them. */
+function bho_ladder_renderer(): BHO_Render
+{
+    wp_enqueue_style('bho-ladder', BHO_LADDER_URL . 'assets/ladder.css', [], BHO_LADDER_VERSION);
+
+    return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings());
+}
+
+function bho_ladder_player_in_url(): int
+{
+    return isset($_GET[BHO_LADDER_PLAYER_PARAM])
         ? absint(wp_unslash($_GET[BHO_LADDER_PLAYER_PARAM]))
         : 0;
+}
 
-    return $player > 0
-        ? $render->player($player)
-        : $render->ladder((int) $atts['recent'], (int) $atts['limit']);
+function bho_ladder_page_in_url(): int
+{
+    return max(isset($_GET[BHO_LADDER_PAGE_PARAM]) ? absint(wp_unslash($_GET[BHO_LADDER_PAGE_PARAM])) : 1, 1);
 }
 
 /**
@@ -87,9 +128,7 @@ function bho_ladder_shortcode(array|string $atts = []): string
  * all thirty-two of them — including in a bookmark and in anything that quotes the link.
  */
 add_filter('document_title_parts', static function (array $parts): array {
-    $player = isset($_GET[BHO_LADDER_PLAYER_PARAM])
-        ? absint(wp_unslash($_GET[BHO_LADDER_PLAYER_PARAM]))
-        : 0;
+    $player = bho_ladder_player_in_url();
 
     if ($player > 0) {
         $history = BHO_Api::fromSettings()->player($player);
@@ -107,9 +146,7 @@ add_filter('document_title_parts', static function (array $parts): array {
  * Otherwise thirty-two URLs claim to be the same page and only one of them is kept.
  */
 add_action('wp_head', static function (): void {
-    $player = isset($_GET[BHO_LADDER_PLAYER_PARAM])
-        ? absint(wp_unslash($_GET[BHO_LADDER_PLAYER_PARAM]))
-        : 0;
+    $player = bho_ladder_player_in_url();
 
     if ($player > 0) {
         printf(

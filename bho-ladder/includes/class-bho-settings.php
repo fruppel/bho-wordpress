@@ -25,7 +25,7 @@ final class BHO_Settings
         );
     }
 
-    /** @return array{api: string, ttl: int} */
+    /** @return array{api: string, ttl: int, games_page: int} */
     public static function all(): array
     {
         $stored = get_option(self::OPTION, []);
@@ -33,6 +33,9 @@ final class BHO_Settings
         return [
             'api' => untrailingslashit((string) ($stored['api'] ?? '')),
             'ttl' => max(1, (int) ($stored['ttl'] ?? 5)),
+            // Which page holds `[bho_all_games]`, so the latest-games block can link to it. Zero
+            // means no link rather than a link to nowhere.
+            'games_page' => max(0, (int) ($stored['games_page'] ?? 0)),
         ];
     }
 
@@ -41,13 +44,13 @@ final class BHO_Settings
         register_setting('bho_ladder', self::OPTION, [
             'type' => 'array',
             'sanitize_callback' => [self::class, 'sanitize'],
-            'default' => ['api' => '', 'ttl' => 5],
+            'default' => ['api' => '', 'ttl' => 5, 'games_page' => 0],
         ]);
     }
 
     /**
      * @param mixed $input
-     * @return array{api: string, ttl: int}
+     * @return array{api: string, ttl: int, games_page: int}
      */
     public static function sanitize($input): array
     {
@@ -58,6 +61,7 @@ final class BHO_Settings
             // request, so it has to be a URL or nothing.
             'api' => untrailingslashit(esc_url_raw((string) ($input['api'] ?? ''))),
             'ttl' => min(1440, max(1, (int) ($input['ttl'] ?? 5))),
+            'games_page' => max(0, (int) ($input['games_page'] ?? 0)),
         ];
     }
 
@@ -118,6 +122,24 @@ final class BHO_Settings
                             </p>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row"><label for="bho-games-page">Seite „Alle Spiele"</label></th>
+                        <td>
+                            <?php
+                            wp_dropdown_pages([
+                                'id' => 'bho-games-page',
+                                'name' => esc_attr(self::OPTION) . '[games_page]',
+                                'selected' => $settings['games_page'],
+                                'show_option_none' => '— keine —',
+                                'option_none_value' => '0',
+                            ]);
+                            ?>
+                            <p class="description">
+                                Die Seite mit <code>[bho_all_games]</code>. Der Block mit den letzten
+                                Spielen verlinkt dorthin; ohne Auswahl bleibt der Link weg.
+                            </p>
+                        </td>
+                    </tr>
                 </table>
 
                 <?php submit_button(); ?>
@@ -125,12 +147,20 @@ final class BHO_Settings
 
             <h2>Einbinden</h2>
             <p>
-                Shortcode <code>[bho_ladder]</code> auf einer Seite. Ein Klick auf einen Spieler bleibt
-                auf derselben Seite und hängt <code>?<?php echo esc_html(BHO_LADDER_PLAYER_PARAM); ?>=…</code>
-                an — es braucht also keine zweite Seite und keine Permalink-Umstellung.
+                <code>[bho_ladder]</code> — die Tabelle. Ein Klick auf einen Spieler bleibt auf
+                derselben Seite und hängt <code>?<?php echo esc_html(BHO_LADDER_PLAYER_PARAM); ?>=…</code>
+                an; es braucht also keine zweite Seite und keine Permalink-Umstellung.
             </p>
             <p>
-                Für einen Teaser auf der Startseite: <code>[bho_ladder limit="10" recent="0"]</code>.
+                <code>[bho_recent_games]</code> — die letzten Spiele, wo du willst. Standard sind drei,
+                aufklappbar auf zehn: <code>[bho_recent_games show="3" more="10"]</code>.
+            </p>
+            <p>
+                <code>[bho_all_games]</code> — alle Spiele der Saison als Tabelle mit Seitenblättern.
+                Gehört auf die oben gewählte Seite.
+            </p>
+            <p>
+                Für einen Teaser auf der Startseite: <code>[bho_ladder limit="10"]</code>.
             </p>
         </div>
         <?php

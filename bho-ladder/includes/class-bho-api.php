@@ -68,6 +68,20 @@ final class BHO_Api
         return $this->get('/api/v1/seasons');
     }
 
+    /**
+     * One page of games, newest first.
+     *
+     * Its own endpoint rather than a field of the standings, which is what lets `[bho_recent_games]`
+     * stand anywhere and `[bho_all_games]` page through everything without fetching a table nobody
+     * asked for.
+     *
+     * @return array<string,mixed>|WP_Error
+     */
+    public function games(int $page = 1, int $perPage = 25): array|WP_Error
+    {
+        return $this->get(sprintf('/api/v1/games?page=%d&perPage=%d', max($page, 1), max($perPage, 1)));
+    }
+
     /** @return array<string,mixed>|WP_Error */
     public function player(int $id): array|WP_Error
     {

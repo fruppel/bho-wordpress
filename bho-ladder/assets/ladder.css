@@ -259,7 +259,11 @@
   font-size: 0.9rem;
 }
 
-.bho-recent li:last-child { border-bottom: 0; }
+/*
+ * Every row keeps its line, the last one included. Dropping it on `:last-child` looked right until
+ * the list was split in two: row three is the last of the first list, so the line between it and row
+ * four went missing the moment the fold was opened.
+ */
 
 /*
  * Two of these blocks on one page is the normal case now — the table and the latest games are

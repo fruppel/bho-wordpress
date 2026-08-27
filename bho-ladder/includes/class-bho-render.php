@@ -275,7 +275,7 @@ final class BHO_Render
         // repeating the same name down twenty-five rows is what the block leaves out on purpose.
         $several = count(array_unique(array_column($games, 'tournament'))) > 1;
 
-        $html .= '<ul class="bho-recent bho-recent-page">';
+        $html .= '<ul class="bho-recent">';
         foreach ($games as $game) {
             $html .= $this->recentRow($game, $several);
         }

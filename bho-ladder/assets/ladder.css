@@ -513,12 +513,6 @@
 
 .bho-quiet { color: var(--bho-quiet); }
 
-/*
- * The same rows on a page of their own, only not the full width of it: in the block they sit in a
- * column and the two names frame the score, while across 1100 pixels the pair drifts apart.
- */
-.bho-recent-page { max-width: 52rem; }
-
 /* The event, only printed where the page holds more than one — see BHO_Render::allGames(). */
 .bho-event { flex: none; font-size: 0.78rem; color: var(--bho-faint); }
 

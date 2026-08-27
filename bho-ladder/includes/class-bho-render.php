@@ -48,12 +48,9 @@ final class BHO_Render
         }
 
         $html .= $this->table($limit > 0 ? array_slice($entries, 0, $limit) : $entries);
-        $html .= $this->legend($data['ranks'] ?? []);
-        $html .= '<p class="bho-foot">' . esc_html(sprintf(
-            '%s %s',
-            $this->t['starts_at'],
-            sprintf($this->t['players_count'], count($entries)),
-        )) . '</p>';
+        $html .= '<p class="bho-foot">'
+            . esc_html(sprintf($this->t['players_count'], count($entries))) . '</p>';
+        $html .= $this->rules($data['rules'] ?? [], $data['ranks'] ?? []);
 
         return $html . '</div>';
     }
@@ -401,6 +398,106 @@ final class BHO_Render
         }
 
         return $html . '<p class="bho-foot">' . esc_html($this->t['running_note']) . '</p></div>';
+    }
+
+    /**
+     * What a reader needs to check a row of the table: where everyone starts, what a game is worth,
+     * what a tournament is worth, and where the classes begin.
+     *
+     * Every number comes from the payload. Printing the booklet's table from memory here would mean
+     * a page that keeps claiming +60 for weeks after the rule behind it changed.
+     *
+     * @param array<string,mixed> $rules
+     * @param array<int,array<string,mixed>> $brackets
+     */
+    private function rules(array $rules, array $brackets): string
+    {
+        if ($rules === [] && $brackets === []) {
+            return '';
+        }
+
+        $html = '<section class="bho-rules"><h3 class="bho-eyebrow">'
+            . esc_html($this->t['rules']) . '</h3>';
+
+        if (isset($rules['startingRating'])) {
+            $html .= '<p class="bho-rules-line">' . esc_html($this->t['start_rating'])
+                . ' <strong>' . esc_html((string) (int) $rules['startingRating']) . '</strong></p>';
+        }
+
+        $html .= $this->points(is_array($rules['points'] ?? null) ? $rules['points'] : []);
+        $html .= $this->bonus(is_array($rules['tournamentBonus'] ?? null) ? $rules['tournamentBonus'] : []);
+
+        if ($brackets !== []) {
+            $html .= '<p class="bho-rules-label">' . esc_html($this->t['rank_classes']) . '</p>'
+                . $this->legend($brackets);
+        }
+
+        return $html . '</section>';
+    }
+
+    /**
+     * The nine cells, as three rows against the opponent's class.
+     *
+     * @param array<string,mixed> $points
+     */
+    private function points(array $points): string
+    {
+        $rows = ['win', 'draw', 'loss'];
+        $columns = ['higher', 'same', 'lower'];
+
+        foreach ($rows as $row) {
+            if (!is_array($points[$row] ?? null)) {
+                return '';
+            }
+        }
+
+        $html = '<p class="bho-rules-label">' . esc_html($this->t['per_game']) . '</p>'
+            . '<table class="bho-rules-points"><thead><tr><th></th>';
+
+        foreach ($columns as $column) {
+            $html .= '<th>' . esc_html($this->t['vs_' . $column]) . '</th>';
+        }
+
+        $html .= '</tr></thead><tbody>';
+
+        foreach ($rows as $row) {
+            $html .= '<tr><th>' . esc_html($this->t[$row]) . '</th>';
+
+            foreach ($columns as $column) {
+                $html .= '<td>' . $this->change((int) $points[$row][$column]) . '</td>';
+            }
+
+            $html .= '</tr>';
+        }
+
+        return $html . '</tbody></table>';
+    }
+
+    /**
+     * The bonus for finishing a tournament in the top three, once all of its rounds are played.
+     *
+     * @param array<int,array<string,mixed>> $bonus
+     */
+    private function bonus(array $bonus): string
+    {
+        if ($bonus === []) {
+            return '';
+        }
+
+        $places = [1 => 'first', 2 => 'second', 3 => 'third'];
+        $parts = [];
+
+        foreach ($bonus as $awarded) {
+            $place = (int) ($awarded['place'] ?? 0);
+            $label = isset($places[$place]) ? $this->t[$places[$place]] : (string) $place;
+
+            $parts[] = '<span class="bho-rules-place">' . esc_html($label) . ' '
+                . $this->change((int) ($awarded['points'] ?? 0)) . '</span>';
+        }
+
+        return '<p class="bho-rules-label">' . esc_html($this->t['bonus'])
+            . ' <span>' . esc_html($this->t['bonus_note']) . '</span></p>'
+            . '<p class="bho-rules-bonus">' . implode('', $parts) . '</p>';
     }
 
     /** @param array<int,array<string,mixed>> $brackets */

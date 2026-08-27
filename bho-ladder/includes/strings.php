@@ -7,8 +7,9 @@
  * readable file is what makes that possible to check. A .po/.mo pair would put the German in a
  * compiled binary and add a build step to a plugin that otherwise has none.
  *
- * The site's own language decides, so a German WordPress shows German. `bho_ladder_strings` is a
- * filter, so a site can correct a word without editing the plugin.
+ * English unless the setting says otherwise — blackhydra.org is an English page, and following the
+ * WordPress locale would put a German table on it the moment the site runs a German install.
+ * `bho_ladder_strings` is a filter, so a site can correct a word without editing the plugin.
  */
 
 declare(strict_types=1);
@@ -47,8 +48,16 @@ function bho_ladder_strings(): array
             'empty' => 'Bisher wurde nichts importiert.',
             'unavailable' => 'Die Ladder ist gerade nicht erreichbar.',
             'stale' => 'Zuletzt bekannter Stand — die Ladder war beim Aktualisieren nicht erreichbar.',
-            'starts_at' => 'Alle starten bei 1100.',
             'players_count' => '%d Spieler',
+            'rules' => 'Regeln',
+            'start_rating' => 'Startpunkte',
+            'per_game' => 'Punkte pro Spiel, je nach Klasse des Gegners',
+            'vs_higher' => 'höher',
+            'vs_same' => 'gleiche Klasse',
+            'vs_lower' => 'tiefer',
+            'bonus' => 'Turnierbonus',
+            'bonus_note' => 'wenn alle Runden gespielt sind',
+            'rank_classes' => 'Rangklassen',
             'no_games' => 'Noch keine Spiele.',
             'no_player' => 'Diesen Spieler gibt es nicht.',
             'from_1100' => 'von 1100',
@@ -93,8 +102,16 @@ function bho_ladder_strings(): array
             'empty' => 'Nothing has been imported so far.',
             'unavailable' => 'The ladder cannot be reached at the moment.',
             'stale' => 'Last known standings — the ladder could not be reached when this was refreshed.',
-            'starts_at' => 'Everyone starts at 1100.',
             'players_count' => '%d players',
+            'rules' => 'Rules',
+            'start_rating' => 'Everyone starts at',
+            'per_game' => 'Points per game, by the opponent’s class',
+            'vs_higher' => 'higher',
+            'vs_same' => 'same class',
+            'vs_lower' => 'lower',
+            'bonus' => 'Tournament bonus',
+            'bonus_note' => 'once all rounds are played',
+            'rank_classes' => 'Rank classes',
             'no_games' => 'No games yet.',
             'no_player' => 'No such player.',
             'from_1100' => 'from 1100',
@@ -139,8 +156,16 @@ function bho_ladder_strings(): array
             'empty' => 'Todavía no se ha importado nada.',
             'unavailable' => 'No se puede contactar con la ladder en este momento.',
             'stale' => 'Última clasificación conocida — no se pudo contactar con la ladder al actualizar.',
-            'starts_at' => 'Todos empiezan en 1100.',
             'players_count' => '%d jugadores',
+            'rules' => 'Reglas',
+            'start_rating' => 'Todos empiezan en',
+            'per_game' => 'Puntos por partida, según la clase del rival',
+            'vs_higher' => 'superior',
+            'vs_same' => 'misma clase',
+            'vs_lower' => 'inferior',
+            'bonus' => 'Bonus de torneo',
+            'bonus_note' => 'cuando se juegan todas las rondas',
+            'rank_classes' => 'Clases',
             'no_games' => 'Aún no hay partidas.',
             'no_player' => 'Ese jugador no existe.',
             'from_1100' => 'desde 1100',
@@ -159,8 +184,8 @@ function bho_ladder_strings(): array
         ],
     ];
 
-    $locale = get_locale();
-    $short = strtolower(substr($locale, 0, 2));
+    $choice = BHO_Settings::all()['language'];
+    $short = $choice === 'site' ? strtolower(substr(get_locale(), 0, 2)) : $choice;
 
-    return apply_filters('bho_ladder_strings', $all[$short] ?? $all['en'], $locale);
+    return apply_filters('bho_ladder_strings', $all[$short] ?? $all['en'], $short);
 }

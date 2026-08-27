@@ -25,7 +25,10 @@ final class BHO_Settings
         );
     }
 
-    /** @return array{api: string, ttl: int, games_page: int} */
+    /** The wording the blocks are rendered in. `site` follows the WordPress locale. */
+    public const LANGUAGES = ['en' => 'English', 'de' => 'Deutsch', 'es' => 'Español', 'site' => 'Wie die Seite'];
+
+    /** @return array{api: string, ttl: int, games_page: int, language: string} */
     public static function all(): array
     {
         $stored = get_option(self::OPTION, []);
@@ -36,7 +39,18 @@ final class BHO_Settings
             // Which page holds `[bho_all_games]`, so the latest-games block can link to it. Zero
             // means no link rather than a link to nowhere.
             'games_page' => max(0, (int) ($stored['games_page'] ?? 0)),
+            // English by default, and not the site's locale: blackhydra.org is an English page, and a
+            // German WordPress behind it would otherwise put a German table on it.
+            'language' => self::language($stored['language'] ?? null),
         ];
+    }
+
+    /** @param mixed $value */
+    private static function language($value): string
+    {
+        $value = is_string($value) ? $value : '';
+
+        return isset(self::LANGUAGES[$value]) ? $value : 'en';
     }
 
     public static function register(): void
@@ -44,13 +58,13 @@ final class BHO_Settings
         register_setting('bho_ladder', self::OPTION, [
             'type' => 'array',
             'sanitize_callback' => [self::class, 'sanitize'],
-            'default' => ['api' => '', 'ttl' => 5, 'games_page' => 0],
+            'default' => ['api' => '', 'ttl' => 5, 'games_page' => 0, 'language' => 'en'],
         ]);
     }
 
     /**
      * @param mixed $input
-     * @return array{api: string, ttl: int, games_page: int}
+     * @return array{api: string, ttl: int, games_page: int, language: string}
      */
     public static function sanitize($input): array
     {
@@ -62,6 +76,7 @@ final class BHO_Settings
             'api' => untrailingslashit(esc_url_raw((string) ($input['api'] ?? ''))),
             'ttl' => min(1440, max(1, (int) ($input['ttl'] ?? 5))),
             'games_page' => max(0, (int) ($input['games_page'] ?? 0)),
+            'language' => self::language($input['language'] ?? null),
         ];
     }
 
@@ -119,6 +134,20 @@ final class BHO_Settings
                             <p class="description">
                                 Wie lange eine Antwort ohne Rückfrage ausgeliefert wird. Die Tabelle
                                 ändert sich nur beim Import, fünf Minuten sind reichlich.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bho-language">Sprache</label></th>
+                        <td>
+                            <select id="bho-language" name="<?php echo esc_attr(self::OPTION); ?>[language]">
+                                <?php foreach (self::LANGUAGES as $code => $label) : ?>
+                                    <option value="<?php echo esc_attr($code); ?>" <?php selected($settings['language'], $code); ?>><?php echo esc_html($label); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description">
+                                Die Sprache der Blöcke. Standard ist Englisch, wie blackhydra.org;
+                                „Wie die Seite" folgt der WordPress-Sprache.
                             </p>
                         </td>
                     </tr>

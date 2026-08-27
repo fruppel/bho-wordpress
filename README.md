@@ -123,10 +123,11 @@ The flags ship with the plugin rather than being fetched from the ladder's serve
 two letters, so the file name is derivable, and every page view would otherwise put a handful of
 requests on somebody's private machine.
 
-`strings.php` is not gettext, deliberately — the wording has to stay in step with the application's own
-`frontend/src/i18n/*.ts`, and one readable file makes that possible to check. The site's language
-decides which of the three is used, and `bho_ladder_strings` is a filter for correcting a word without
-editing the plugin.
+`strings.php` is not gettext, deliberately: three languages side by side in one readable file can be
+checked against each other, where a compiled .mo pair would add a build step to a plugin that has
+none. English is the default rather than the WordPress locale, because blackhydra.org is an English
+page and a German install behind it would otherwise turn the table German; the setting can follow the
+site instead. `bho_ladder_strings` is a filter for correcting a word without editing the plugin.
 
 ## Against which ladder
 

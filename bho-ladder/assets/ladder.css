@@ -175,6 +175,60 @@
 .bho-rank-d         { --bho-accent: currentColor; color: var(--bho-quiet); }
 .bho-rank-dminus    { --bho-accent: currentColor; color: var(--bho-faint); }
 
+/* ---------------------------------------------------------------- rules panel */
+
+.bho-rules {
+  margin: 1.6rem 0 0;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--bho-line);
+  border-radius: 12px;
+  background: var(--bho-panel);
+}
+
+.bho-rules-line { margin: 0.8rem 0 0; font-size: 0.9rem; }
+.bho-rules-line strong { font-variant-numeric: tabular-nums; }
+
+/* The small grey caption above each part. The parenthetical after it is quieter still. */
+.bho-rules-label {
+  margin: 1.1rem 0 0.4rem;
+  font-size: 0.78rem;
+  color: var(--bho-quiet);
+}
+
+.bho-rules-label span { color: var(--bho-faint); }
+
+.bho-rules-points {
+  width: auto;
+  min-width: min(100%, 21rem);
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+/* Centred, not right-aligned: the three headings are of very different lengths, and a number pushed
+   to the right edge of "gleiche Klasse" reads as belonging to the column beside it. */
+.bho-rules-points th,
+.bho-rules-points td {
+  padding: 0.28rem 0.7rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.bho-rules-points thead th {
+  font-weight: 400;
+  font-size: 0.76rem;
+  color: var(--bho-quiet);
+  border-bottom: 1px solid var(--bho-line);
+}
+
+.bho-rules-points tbody th { text-align: left; font-weight: 600; padding-left: 0; padding-right: 1.2rem; }
+.bho-rules-points td { font-variant-numeric: tabular-nums; }
+
+.bho-rules-bonus { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0; font-size: 0.85rem; }
+.bho-rules-place { display: inline-flex; align-items: baseline; gap: 0.35rem; }
+
+/* Inside the panel the legend needs no rule above it — the caption already separates it. */
+.bho-rules .bho-legend { margin: 0; padding: 0; border-top: 0; }
+
 /* ---------------------------------------------------------------- legend, notes, panels */
 
 .bho-legend {

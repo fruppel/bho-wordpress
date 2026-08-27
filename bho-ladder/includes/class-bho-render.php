@@ -212,6 +212,7 @@ final class BHO_Render
     private function recentRow(array $game): string
     {
         return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
+            . $this->day($game['playedOn'] ?? null)
             . '<span class="bho-side">' . $this->flag($game['one']['country'] ?? null) . ' '
             . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
             . $this->score($game['one']['score'], $game['two']['score'])
@@ -364,6 +365,7 @@ final class BHO_Render
 
         return '<li>'
             . '<span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
+            . $this->day($game['playedOn'] ?? null)
             . '<a class="bho-opponent" href="'
             . esc_url(add_query_arg(BHO_LADDER_PLAYER_PARAM, (int) $game['opponent']['id'], get_permalink()))
             . '">' . $this->flag($game['opponent']['country'] ?? null)
@@ -638,6 +640,22 @@ final class BHO_Render
 
         return '<span class="bho-change bho-' . $tone . '">'
             . esc_html(($change > 0 ? '+' : '') . $change) . '</span>';
+    }
+
+    /**
+     * The day a game was played.
+     *
+     * Blank rather than the tournament's start date where nobody knows — everything imported before
+     * the day was recorded has none, and borrowing the event's first day would state a date the game
+     * does not have. The column is kept either way, so the names below it stay in line.
+     *
+     * @param mixed $playedOn
+     */
+    private function day($playedOn): string
+    {
+        $known = is_string($playedOn) && $playedOn !== '';
+
+        return '<span class="bho-day">' . ($known ? esc_html(self::formatDay($playedOn)) : '') . '</span>';
     }
 
     /** dd.mm.yy, the way the application prints it — one club, one way of writing a date. */

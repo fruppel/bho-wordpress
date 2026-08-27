@@ -324,6 +324,15 @@
 .bho-recent,
 .bho-games { list-style: none; margin: 0.5rem 0 0; padding: 0; }
 
+/* Beside the round marker, in the same quiet grey: the row is read for its names and its score. */
+.bho-day {
+  width: 4.2rem;
+  flex: none;
+  font-size: 0.8rem;
+  color: var(--bho-faint);
+  font-variant-numeric: tabular-nums;
+}
+
 .bho-recent li,
 .bho-games li {
   display: flex;

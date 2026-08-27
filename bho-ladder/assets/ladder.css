@@ -144,6 +144,14 @@
 
 /* ---------------------------------------------------------------- rank badges */
 
+/*
+ * Fill, hairline and text all mixed from one accent per class, so a badge is tuned in one place.
+ *
+ * Mixing every part with the page colour is what lets one declaration serve both themes: the same
+ * mix brightens on a dark background and deepens on a light one. The fill leans on the page colour
+ * more than on the accent — a chip that was mostly accent came out a muddy dark hue on the dark
+ * theme — and the hairline is half strength, because at full `currentColor` it read as an outline.
+ */
 .bho-rank {
   display: inline-block;
   min-width: 1.7rem;
@@ -153,17 +161,19 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: center;
-  box-shadow: inset 0 0 0 1px currentColor;
+  color: color-mix(in srgb, var(--bho-accent) 70%, currentColor);
+  background: color-mix(in srgb, var(--bho-accent) 14%, color-mix(in srgb, currentColor 12%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bho-accent) 50%, transparent);
 }
 
-/* Warming as it climbs. */
-.bho-rank-warmaster { color: color-mix(in srgb, #d19a00 76%, currentColor); background: color-mix(in srgb, #d19a00 16%, transparent); }
-.bho-rank-aplus     { color: color-mix(in srgb, #e2445c 76%, currentColor); background: color-mix(in srgb, #e2445c 16%, transparent); }
-.bho-rank-a         { color: color-mix(in srgb, #e07b2a 76%, currentColor); background: color-mix(in srgb, #e07b2a 16%, transparent); }
-.bho-rank-b         { color: color-mix(in srgb, #17a673 76%, currentColor); background: color-mix(in srgb, #17a673 16%, transparent); }
-.bho-rank-c         { color: color-mix(in srgb, #2f8fd4 76%, currentColor); background: color-mix(in srgb, #2f8fd4 16%, transparent); }
-.bho-rank-d         { color: var(--bho-quiet); background: var(--bho-panel-strong); }
-.bho-rank-dminus    { color: var(--bho-faint); background: var(--bho-panel-strong); }
+/* Warming as it climbs. The two D classes have no colour of their own and borrow the page's. */
+.bho-rank-warmaster { --bho-accent: #e8b32a; }
+.bho-rank-aplus     { --bho-accent: #e2445c; }
+.bho-rank-a         { --bho-accent: #e07b2a; }
+.bho-rank-b         { --bho-accent: #17a673; }
+.bho-rank-c         { --bho-accent: #2f8fd4; }
+.bho-rank-d         { --bho-accent: currentColor; color: var(--bho-quiet); }
+.bho-rank-dminus    { --bho-accent: currentColor; color: var(--bho-faint); }
 
 /* ---------------------------------------------------------------- legend, notes, panels */
 
@@ -178,7 +188,11 @@
 }
 
 .bho-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
-.bho-legend-item > span { color: var(--bho-quiet); }
+/*
+ * The range only. `> span` also matched the badge beside it and, standing later in this file, quietly
+ * repainted every class in the legend the same grey — the colours showed in the table alone.
+ */
+.bho-legend-range { color: var(--bho-quiet); }
 
 .bho-foot { margin: 0.9rem 0 0; font-size: 0.8rem; color: var(--bho-quiet); }
 

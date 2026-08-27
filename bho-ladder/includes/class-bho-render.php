@@ -420,7 +420,7 @@ final class BHO_Render
             };
 
             $html .= '<span class="bho-legend-item">' . $this->rank((string) $bracket['name'])
-                . ' <span>' . esc_html($span) . '</span></span>';
+                . ' <span class="bho-legend-range">' . esc_html($span) . '</span></span>';
         }
 
         return $html . '</p>';

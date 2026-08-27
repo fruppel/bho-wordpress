@@ -216,7 +216,7 @@ final class BHO_Render
         return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
             . '<span class="bho-side">' . $this->flag($game['one']['country'] ?? null) . ' '
             . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . '</span>'
-            . '<span class="bho-score">' . esc_html($game['one']['score'] . '–' . $game['two']['score']) . '</span>'
+            . $this->score($game['one']['score'], $game['two']['score'])
             . '<span class="bho-side bho-right">' . $this->change($game['two']['change']) . ' '
             . $this->playerLink($game['two']) . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
             . '</li>';
@@ -268,12 +268,28 @@ final class BHO_Render
                 . '<td class="bho-wide bho-quiet">' . esc_html((string) $game['tournament']) . '</td>'
                 . '<td class="bho-w-round bho-num bho-quiet">' . esc_html((string) $game['round']) . '</td>'
                 . '<td class="bho-name-cell">' . $this->side($game['one']) . '</td>'
-                . '<td class="bho-num bho-w-score">' . esc_html($game['one']['score'] . '–' . $game['two']['score']) . '</td>'
+                . '<td class="bho-w-score">' . $this->score($game['one']['score'], $game['two']['score']) . '</td>'
                 . '<td class="bho-name-cell">' . $this->side($game['two']) . '</td>'
                 . '</tr>';
         }
 
         return $this->wrap($html . '</tbody></table>' . $this->pager($data));
+    }
+
+    /**
+     * A score as three parts rather than one string.
+     *
+     * The dash is what the eye scans down a column of results, and `18–4` above `6–16` puts it in a
+     * different place on every row. Left number right-aligned, right number left-aligned, dash in the
+     * middle: then the column has a spine.
+     */
+    private function score(int|string $one, int|string $two): string
+    {
+        return '<span class="bho-score">'
+            . '<span class="bho-score-a">' . esc_html((string) $one) . '</span>'
+            . '<span class="bho-score-sep">–</span>'
+            . '<span class="bho-score-b">' . esc_html((string) $two) . '</span>'
+            . '</span>';
     }
 
     /** One side of a game in the wide table: flag, name, and what the game did to the rating. */
@@ -350,7 +366,7 @@ final class BHO_Render
             . esc_url(add_query_arg(BHO_LADDER_PLAYER_PARAM, (int) $game['opponent']['id'], get_permalink()))
             . '">' . $this->flag($game['opponent']['country'] ?? null)
             . '<span>' . esc_html((string) $game['opponent']['name']) . '</span></a>'
-            . '<span class="bho-score">' . esc_html($game['score'] . '–' . $game['opponentScore']) . '</span>'
+            . $this->score($game['score'], $game['opponentScore'])
             . '<span class="bho-result bho-' . esc_attr($result) . '">' . esc_html($this->t[$result]) . '</span>'
             . '<span class="bho-delta">' . $this->change($game['ratingChange']) . '</span>'
             . '<span class="bho-after">' . esc_html((string) ($game['ratingAfter'] ?? '')) . '</span>'

@@ -276,7 +276,17 @@
 .bho-side a { color: inherit; text-decoration: none; font-weight: 600; }
 .bho-side a:hover { text-decoration: underline; }
 .bho-right { justify-content: flex-end; }
-.bho-score { flex: none; min-width: 4rem; text-align: center; color: var(--bho-quiet); }
+.bho-score {
+  display: inline-flex;
+  align-items: baseline;
+  flex: none;
+  min-width: 4.5rem;
+  color: var(--bho-quiet);
+}
+
+.bho-score-a { flex: 1 1 0; text-align: right; }
+.bho-score-b { flex: 1 1 0; text-align: left; }
+.bho-score-sep { padding: 0 0.15rem; }
 
 .bho-opponent {
   display: flex;
@@ -367,8 +377,13 @@
 .bho-quiet { color: var(--bho-quiet); }
 
 .bho-all th.bho-w-day,   .bho-all td.bho-w-day   { width: 5.5rem; white-space: nowrap; }
+
+/* Truncated, not wrapped: a long event name would otherwise double the height of every row. */
+.bho-all td.bho-wide { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bho-all th.bho-w-round, .bho-all td.bho-w-round { width: 3rem; }
-.bho-all th.bho-w-score, .bho-all td.bho-w-score { width: 5rem; }
+.bho-all th.bho-w-score { width: 5rem; text-align: center; }
+.bho-all td.bho-w-score { width: 5rem; }
+.bho-all td.bho-w-score .bho-score { min-width: 100%; }
 
 /*
  * `table-layout: fixed` so the declared widths hold and the two name columns share what is left.
@@ -405,7 +420,7 @@
 @media (max-width: 30rem) {
   .bho-all th.bho-w-round, .bho-all td.bho-w-round { display: none; }
   .bho-all th.bho-w-day, .bho-all td.bho-w-day { width: 4.6rem; }
-  .bho-all th.bho-w-score, .bho-all td.bho-w-score { width: 4rem; }
+  .bho-all th.bho-w-score, .bho-all td.bho-w-score { width: 4.2rem; }
   .bho-all .bho-flag { display: none; }
 }
 

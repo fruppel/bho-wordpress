@@ -407,6 +407,21 @@
 .bho-side a:hover { text-decoration: underline; }
 .bho-right { justify-content: flex-end; }
 
+/*
+ * The class a player held at that game, between their flag and their name — and mirrored on the
+ * other side, so each badge sits next to the name it belongs to rather than both to one player's.
+ *
+ * A size below the table's: there the badge is a column of its own with a heading over it, here it
+ * is one of five things on a line that is read for its two names. `flex: none` because a badge that
+ * shrank would clip a class name — Warmaster is nine characters.
+ */
+.bho-rank-then { flex: none; }
+.bho-rank-then .bho-rank {
+  min-width: 1.5rem;
+  padding: 0.05rem 0.28rem;
+  font-size: 0.68rem;
+}
+
 /* Each side's box sits at its inner edge, so the two of them meet either side of the dash. */
 .bho-side > .bho-score-box:last-child { margin-left: auto; }
 .bho-side > .bho-score-box:first-child { margin-right: auto; }
@@ -514,7 +529,7 @@
 
   .bho-recent .bho-side {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) 2.6rem auto;
+    grid-template-columns: auto auto minmax(0, 1fr) 2.6rem auto;
     align-items: center;
     gap: 0 0.45rem;
     flex: 1 1 100%;
@@ -523,14 +538,16 @@
   /* All on one row, or the mirrored side is auto-placed onto a second one, column by column. */
   .bho-recent .bho-side > * { grid-row: 1; }
   .bho-recent .bho-side > .bho-flag { grid-column: 1; }
+  /* Its own column even where the ladder sent no class, so the two names start at the same place. */
+  .bho-recent .bho-side > .bho-rank-then { grid-column: 2; }
   .bho-recent .bho-side > a {
-    grid-column: 2;
+    grid-column: 3;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .bho-recent .bho-side > .bho-change { grid-column: 3; text-align: right; }
-  .bho-recent .bho-side > .bho-score-box { grid-column: 4; margin: 0; }
+  .bho-recent .bho-side > .bho-change { grid-column: 4; text-align: right; }
+  .bho-recent .bho-side > .bho-score-box { grid-column: 5; margin: 0; }
 }
 
 .bho-quiet { color: var(--bho-quiet); }

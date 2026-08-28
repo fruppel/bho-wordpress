@@ -21,6 +21,14 @@ each other under the table; below it the three stack. There were four shortcodes
 of them for the rules alone — three snippets to paste and keep in the right order for a page that only
 ever wanted one.
 
+Every side of a game carries the rank class its player held **when that game was scored**, in the same
+badge the standings use. It is the reason the number beside it is what it is: the step comes from the
+two classes and from nothing else, so a C losing to a D reads −45 and the D reads +60, and the row now
+says why. Not the class they hold today — that is in the table above, and printing it on a game from
+July would label that game with a fact from this morning. The ladder sends it per side (`rank`); where
+it does not — a tournament assigned to no season, or an installation still on an older ladder — the
+badge is simply absent rather than guessed at.
+
 The last few games come with the standings — `/api/v1/ladder?games=8` — rather than from a second
 request. They are still their own endpoint for the page that lists them all, but the block above the
 fold shows the table and the games together, and two requests would be two caches: a result could

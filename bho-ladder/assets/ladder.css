@@ -41,6 +41,22 @@
 
 /* ---------------------------------------------------------------- the table */
 
+/*
+ * The standings scroll inside this rather than taking the page with them.
+ *
+ * Below about 390 pixels the five columns left in the narrow layout stop fitting, and the page was
+ * what scrolled: rating and rank ended up off the right-hand edge of the screen, and every other
+ * thing on the page went sideways with them. `auto`, so there is no scrollbar on any width where the
+ * table fits — which is every width the club actually reads it on.
+ *
+ * `overscroll-behavior-x: contain` keeps a swipe that reaches the end of the table from turning into
+ * the browser's back gesture, which is one flick away from leaving the page altogether.
+ */
+.bho-scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
 .bho-table {
   width: 100%;
   border-collapse: collapse;

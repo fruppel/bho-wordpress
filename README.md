@@ -35,6 +35,12 @@ fold shows the table and the games together, and two requests would be two cache
 appear in the list minutes before its points appear in the table above it. What is listed is all the
 block holds; the link under it goes to every game there is.
 
+Below about 390 pixels the standings stop fitting and scroll inside a wrapper of their own. The page
+does not go with them: a table that takes the page sideways puts the rating and the rank off the right
+edge of the screen and everything else on the page with them. Above that width the wrapper is inert —
+`overflow-x: auto` draws no scrollbar on a table that fits. What it costs is that a name scrolls out of
+view along with everything else, which is the trade a scrolling table makes.
+
 The stylesheet is versioned by its own modification time rather than by the plugin version. With the
 plugin version, editing the CSS kept the same `?ver=` and every browser that had been on the page kept
 the file it already had — which looked exactly like the change not having been made.

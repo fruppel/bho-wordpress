@@ -137,10 +137,19 @@ final class BHO_Render
         return $html . '</ul></div>';
     }
 
-    /** @param array<int,array<string,mixed>> $entries */
+    /**
+     * The standings.
+     *
+     * Wrapped in a scroller of its own: below about 390 pixels the five columns that survive the
+     * narrow layout no longer fit, and without it the *page* was what scrolled sideways — which puts
+     * the rating and the rank off the right-hand edge of every screen, and takes the rest of the
+     * site with them. The wrapper scrolls instead, and the page stays where it is.
+     *
+     * @param array<int,array<string,mixed>> $entries
+     */
     private function table(array $entries, string $sort = ''): string
     {
-        $html = '<table class="bho-table"><thead><tr>'
+        $html = '<div class="bho-scroller"><table class="bho-table"><thead><tr>'
             . $this->head('place', '#', 'bho-pos', $sort)
             . $this->head('name', $this->t['player'], '', $sort)
             . $this->head('rating', $this->t['rating'], 'bho-num bho-w-rating', $sort)
@@ -181,7 +190,7 @@ final class BHO_Render
                 . '</tr>';
         }
 
-        return $html . '</tbody></table>';
+        return $html . '</tbody></table></div>';
     }
 
     /**

@@ -14,6 +14,19 @@ where a change here needs a change there, the entry says so.
 
 Nothing yet.
 
+## [0.5.0] — 2026-08-29
+
+### Added
+
+- **Check for updates**, a link in the plugin's row on the plugins screen, beside *Settings*. A
+  release is otherwise noticed within six hours at the latest — this plugin's cache — and up to twelve
+  behind that, core's own. The link throws both away and asks GitHub now, then says what it found:
+  the version waiting, or that this one is the newest, or that GitHub refused (its limit is sixty
+  requests an hour for anonymous callers, which a shared address can spend on somebody else).
+
+  Shown only to users who may update plugins, and the handler checks that again rather than trusting
+  the link's absence.
+
 ## [0.4.0] — 2026-08-29
 
 ### Added
@@ -111,7 +124,8 @@ commit rather than to a release.
   a light one.
 - A Dockerised demo site to look at it in (`make up`).
 
-[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/fruppel/bho-wordpress/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/fruppel/bho-wordpress/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fruppel/bho-wordpress/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fruppel/bho-wordpress/compare/534dc9f...v0.2.0

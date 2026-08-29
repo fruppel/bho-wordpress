@@ -86,18 +86,28 @@ final class BHO_Settings
     }
 
     /**
+     * The plugin's own links in its row on the plugins screen.
+     *
+     * The update check is second because it is the rarer of the two, and it is here rather than on the
+     * settings screen because this is where somebody is standing when they wonder why no update is
+     * being offered. `BHO_Updates::link()` returns nothing for a user who may not update plugins.
+     *
      * @param array<int,string> $links
      * @return array<int,string>
      */
     public static function actionLink(array $links): array
     {
-        array_unshift(
-            $links,
+        $own = [
             '<a href="' . esc_url(admin_url('options-general.php?page=bho-ladder')) . '">'
             . esc_html__('Settings', 'bho-ladder') . '</a>',
-        );
+        ];
 
-        return $links;
+        $check = BHO_Updates::link();
+        if ($check !== '') {
+            $own[] = $check;
+        }
+
+        return array_merge($own, $links);
     }
 
     public static function page(): void

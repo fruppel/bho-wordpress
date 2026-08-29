@@ -31,10 +31,121 @@ final class BHO_Updates
 
     private const CACHE = 'bho_ladder_latest_release';
 
+    /** The action behind the link in the plugin's row, and the word its answer comes back as. */
+    private const ACTION = 'bho_ladder_check_updates';
+    private const NOTICE = 'bho_ladder_checked';
+
     public static function boot(): void
     {
         // Named after the host in the Update URI header, which is what core derives the filter from.
         add_filter('update_plugins_github.com', [self::class, 'answer'], 10, 3);
+        add_action('admin_post_' . self::ACTION, [self::class, 'checkNow']);
+        add_action('admin_notices', [self::class, 'notice']);
+    }
+
+    /**
+     * The "check for updates" link for the plugin's row on the plugins screen.
+     *
+     * There rather than under Settings, because that screen is where somebody already is when they
+     * are wondering why no update is being offered — and it is where the answer appears.
+     *
+     * Nothing at all for somebody who may not update plugins: a link that answers 403 is worse than
+     * no link, and the capability is checked again in the handler because a link is not a guard.
+     */
+    public static function link(): string
+    {
+        if (!current_user_can('update_plugins')) {
+            return '';
+        }
+
+        return '<a href="' . esc_url(wp_nonce_url(
+            admin_url('admin-post.php?action=' . self::ACTION),
+            self::ACTION,
+        )) . '">' . esc_html__('Check for updates', 'bho-ladder') . '</a>';
+    }
+
+    /**
+     * Throw both caches away and ask again, now.
+     *
+     * Ours is six hours old at most, and core's own answer up to twelve — and `wp_update_plugins()`
+     * declines to look again within the hour, so deleting the site transient is what makes it run at
+     * all. Without that the button would report what core decided this morning and the filter above
+     * would never be reached.
+     */
+    public static function checkNow(): void
+    {
+        if (!current_user_can('update_plugins')) {
+            wp_die(
+                esc_html__('You are not allowed to check for plugin updates.', 'bho-ladder'),
+                '',
+                ['response' => 403],
+            );
+        }
+
+        check_admin_referer(self::ACTION);
+
+        delete_transient(self::CACHE);
+        wp_clean_plugins_cache(true);
+        wp_update_plugins();
+
+        wp_safe_redirect(add_query_arg(self::NOTICE, self::outcome(), admin_url('plugins.php')));
+        exit;
+    }
+
+    /**
+     * What the check found, read from our own answer rather than from core's.
+     *
+     * Core's transient is an internal shape that has changed before; this one is two strings this
+     * file put there a moment ago.
+     */
+    private static function outcome(): string
+    {
+        $release = get_transient(self::CACHE);
+
+        // Anything but the pair is `latest()` saying it could not read GitHub. Reporting "up to
+        // date" there would be claiming an answer nobody got.
+        if (!is_array($release) || count($release) !== 2) {
+            return 'failed';
+        }
+
+        return version_compare($release[0], BHO_LADDER_VERSION, '>') ? 'update' : 'current';
+    }
+
+    /** The line above the plugins screen after the link has been used. */
+    public static function notice(): void
+    {
+        $outcome = isset($_GET[self::NOTICE]) ? sanitize_key(wp_unslash($_GET[self::NOTICE])) : '';
+
+        if (!in_array($outcome, ['update', 'current', 'failed'], true)) {
+            return;
+        }
+
+        $release = get_transient(self::CACHE);
+        $latest = is_array($release) ? (string) $release[0] : '';
+
+        [$class, $text] = match ($outcome) {
+            'update' => ['notice-success', sprintf(
+                /* translators: %s: the version waiting on GitHub */
+                __('BHO Ladder %s is available.', 'bho-ladder'),
+                $latest,
+            )],
+            'current' => ['notice-success', sprintf(
+                /* translators: %s: the version installed here */
+                __('BHO Ladder is up to date (%s).', 'bho-ladder'),
+                BHO_LADDER_VERSION,
+            )],
+            default => ['notice-error', __(
+                'The releases on GitHub could not be read. That is usually its limit of sixty '
+                . 'requests an hour for anonymous callers — try again in a few minutes.',
+                'bho-ladder',
+            )],
+        };
+
+        printf(
+            '<div class="notice %s is-dismissible"><p>%s</p></div>',
+            esc_attr($class),
+            esc_html($text),
+        );
     }
 
     /**

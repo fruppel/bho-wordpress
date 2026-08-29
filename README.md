@@ -79,6 +79,13 @@ the zip attached to it, cached for six hours against GitHub's sixty-requests-an-
 anonymous callers. The plugins screen then offers the update like any other, and the button is the
 button everybody already knows.
 
+Six hours is the wait for somebody who has just tagged a release, and core's own answer can be twelve
+behind that — so the plugin's row carries a **Check for updates** link that drops both caches and asks
+now. Both are needed: `wp_update_plugins()` declines to look again within the hour, so without
+deleting core's site transient first the filter above is never reached and the link would report what
+core decided this morning. On a machine with WP-CLI the same thing is
+`wp transient delete bho_ladder_latest_release && wp cron event run wp_update_plugins`.
+
 Releasing is `git tag v0.3.0 && git push --tags`. The workflow refuses a tag that disagrees with the
 plugin header, because WordPress compares the header against what the update check reported: a tag
 ahead of the header would offer an update that installs, still calls itself the old version, and is

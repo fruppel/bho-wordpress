@@ -12,6 +12,10 @@ where a change here needs a change there, the entry says so.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.4.0] — 2026-08-29
+
 ### Added
 
 - Every side of a game carries the rank class its player held **when that game was scored**, in the
@@ -107,7 +111,8 @@ commit rather than to a release.
   a light one.
 - A Dockerised demo site to look at it in (`make up`).
 
-[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/fruppel/bho-wordpress/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fruppel/bho-wordpress/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fruppel/bho-wordpress/compare/534dc9f...v0.2.0
 [0.1.0]: https://github.com/fruppel/bho-wordpress/commit/534dc9f

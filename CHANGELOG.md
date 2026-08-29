@@ -35,6 +35,9 @@ where a change here needs a change there, the entry says so.
 - The standings scroll inside a wrapper of their own below about 390 pixels instead of compressing
   their columns to fit. A name scrolls out of view with the rest of the row, which is the trade a
   scrolling table makes.
+- The air under the table came back: the rule that puts it there names the table's sibling, and
+  wrapping the table in a scroller left it matching nothing, so the latest games sat against the last
+  row again.
 
 ## [0.3.0] — 2026-08-28
 

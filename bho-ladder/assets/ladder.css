@@ -248,10 +248,14 @@
  * The air under the table, wherever the band below it is one column or two. On the sibling of the
  * table rather than on the blocks themselves: their own headings sit at margin zero so that they
  * start level inside a column, and `[bho_ladder rules="0"]` left the games glued to the last row.
+ *
+ * The sibling is the scroller the table sits in, not the table: it named `.bho-table` until the table
+ * was wrapped, and then matched nothing — which put the games back against the last row, the exact
+ * thing this rule exists to prevent. Anything that moves the table again has to come back here.
  */
-.bho-ladder > .bho-table ~ .bho-columns,
-.bho-ladder > .bho-table ~ .bho-group,
-.bho-ladder > .bho-table ~ .bho-rules { margin-top: 2.2rem; }
+.bho-ladder > .bho-scroller ~ .bho-columns,
+.bho-ladder > .bho-scroller ~ .bho-group,
+.bho-ladder > .bho-scroller ~ .bho-rules { margin-top: 2.2rem; }
 
 .bho-columns .bho-rules { margin-top: 0; }
 

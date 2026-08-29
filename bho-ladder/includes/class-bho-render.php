@@ -137,10 +137,19 @@ final class BHO_Render
         return $html . '</ul></div>';
     }
 
-    /** @param array<int,array<string,mixed>> $entries */
+    /**
+     * The standings.
+     *
+     * Wrapped in a scroller of its own: below about 390 pixels the five columns that survive the
+     * narrow layout no longer fit, and without it the *page* was what scrolled sideways — which puts
+     * the rating and the rank off the right-hand edge of every screen, and takes the rest of the
+     * site with them. The wrapper scrolls instead, and the page stays where it is.
+     *
+     * @param array<int,array<string,mixed>> $entries
+     */
     private function table(array $entries, string $sort = ''): string
     {
-        $html = '<table class="bho-table"><thead><tr>'
+        $html = '<div class="bho-scroller"><table class="bho-table"><thead><tr>'
             . $this->head('place', '#', 'bho-pos', $sort)
             . $this->head('name', $this->t['player'], '', $sort)
             . $this->head('rating', $this->t['rating'], 'bho-num bho-w-rating', $sort)
@@ -181,7 +190,7 @@ final class BHO_Render
                 . '</tr>';
         }
 
-        return $html . '</tbody></table>';
+        return $html . '</tbody></table></div>';
     }
 
     /**
@@ -292,7 +301,13 @@ final class BHO_Render
     }
 
     /**
-     * One game as a row: round, day, the two sides with what it did to them, and the score between.
+     * One game as a row: round, day, the two sides with the class each brought and what the game did
+     * to them, and the score between.
+     *
+     * The class is the one the player held when this game was scored, which is where the number
+     * beside it comes from — the step is chosen by the two classes and by nothing else. It is not
+     * their class today: that is in the standings, and printing it here would label a game from July
+     * with a fact from this morning.
      *
      * @param array<string,mixed> $game
      */
@@ -308,12 +323,14 @@ final class BHO_Render
         return '<li><span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
             . $this->day($game['playedOn'] ?? null)
             . '<span class="bho-side' . $one . '">' . $this->flag($game['one']['country'] ?? null) . ' '
+            . $this->playedAt($game['one']['rank'] ?? null) . ' '
             . $this->playerLink($game['one']) . ' ' . $this->change($game['one']['change']) . ' '
             . $this->scoreBox($game['one']['score']) . '</span>'
             . '<span class="bho-score-sep" aria-hidden="true">–</span>'
             . '<span class="bho-side bho-right' . $two . '">' . $this->scoreBox($game['two']['score'])
             . ' ' . $this->change($game['two']['change']) . ' '
-            . $this->playerLink($game['two']) . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
+            . $this->playerLink($game['two']) . ' ' . $this->playedAt($game['two']['rank'] ?? null)
+            . ' ' . $this->flag($game['two']['country'] ?? null) . '</span>'
             . ($withEvent ? '<span class="bho-event">' . esc_html((string) $game['tournament']) . '</span>' : '')
             . '</li>';
     }
@@ -702,11 +719,35 @@ final class BHO_Render
             . '</svg>';
     }
 
-    private function rank(string $rank): string
+    private function rank(string $rank, string $title = ''): string
     {
         $slug = strtolower(str_replace(['+', '-'], ['plus', 'minus'], $rank));
 
-        return '<span class="bho-rank bho-rank-' . esc_attr($slug) . '">' . esc_html($rank) . '</span>';
+        return '<span class="bho-rank bho-rank-' . esc_attr($slug) . '"'
+            . ($title === '' ? '' : ' title="' . esc_attr($title) . '"')
+            . '>' . esc_html($rank) . '</span>';
+    }
+
+    /**
+     * The class a player held at one game, or nothing at all.
+     *
+     * Nothing where the ladder sent no class: a tournament belonging to no season is never replayed,
+     * so there is no rating to read one off — and nothing, too, against a ladder from before this
+     * field existed, which is a plugin that updates on its own schedule from an application that
+     * does not. A placeholder would be a claim; a gap is the truth.
+     *
+     * The title is the only thing naming what the badge is. Beside the table there is a column head
+     * saying Rang, and in a row of games there is nowhere to put one. It goes on the badge itself
+     * rather than on a span around it: a wrapper carries a line box of its own, the badge then sits
+     * on *its* baseline, and the whole thing hung four pixels below the flag beside it.
+     */
+    private function playedAt(?string $rank): string
+    {
+        if (!is_string($rank) || $rank === '') {
+            return '';
+        }
+
+        return $this->rank($rank, sprintf($this->t['rank_then'], $rank));
     }
 
     /**

@@ -21,11 +21,25 @@ each other under the table; below it the three stack. There were four shortcodes
 of them for the rules alone — three snippets to paste and keep in the right order for a page that only
 ever wanted one.
 
+Every side of a game carries the rank class its player held **when that game was scored**, in the same
+badge the standings use. It is the reason the number beside it is what it is: the step comes from the
+two classes and from nothing else, so a C losing to a D reads −45 and the D reads +60, and the row now
+says why. Not the class they hold today — that is in the table above, and printing it on a game from
+July would label that game with a fact from this morning. The ladder sends it per side (`rank`); where
+it does not — a tournament assigned to no season, or an installation still on an older ladder — the
+badge is simply absent rather than guessed at.
+
 The last few games come with the standings — `/api/v1/ladder?games=8` — rather than from a second
 request. They are still their own endpoint for the page that lists them all, but the block above the
 fold shows the table and the games together, and two requests would be two caches: a result could
 appear in the list minutes before its points appear in the table above it. What is listed is all the
 block holds; the link under it goes to every game there is.
+
+Below about 390 pixels the standings stop fitting and scroll inside a wrapper of their own. The page
+does not go with them: a table that takes the page sideways puts the rating and the rank off the right
+edge of the screen and everything else on the page with them. Above that width the wrapper is inert —
+`overflow-x: auto` draws no scrollbar on a table that fits. What it costs is that a name scrolls out of
+view along with everything else, which is the trade a scrolling table makes.
 
 The stylesheet is versioned by its own modification time rather than by the plugin version. With the
 plugin version, editing the CSS kept the same `?ver=` and every browser that had been on the page kept
@@ -69,6 +83,12 @@ Releasing is `git tag v0.3.0 && git push --tags`. The workflow refuses a tag tha
 plugin header, because WordPress compares the header against what the update check reported: a tag
 ahead of the header would offer an update that installs, still calls itself the old version, and is
 offered again forever.
+
+**Every change under `bho-ladder/` gets a line in `CHANGELOG.md` under *Unreleased*, in the same
+commit that makes it.** The site updates itself, so that file is what somebody reads when the plugins
+screen offers them an update — and a changelog written afterwards from the log is a changelog that
+records what the commits said rather than what a reader needs to know, which is what breaks and what
+to do about it. Releasing turns the *Unreleased* heading into the version and opens an empty one.
 
 ## Colours it does not own
 

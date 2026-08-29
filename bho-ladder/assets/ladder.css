@@ -75,9 +75,16 @@
 /*
  * Element plus class, because `.bho-table td` alone would win on specificity and did: every numeric
  * column was silently left-aligned, which is what made the table look like it had no columns.
+ *
+ * The rank column goes with them although it holds a badge rather than a number. It is not `bho-num`,
+ * which would be a lie in the markup — but left in the default alignment it was the one column in the
+ * block hanging the other way: the badge clung to the rating on its left with a wide gap after it,
+ * and its heading sat out of step with every other heading in the row.
  */
 .bho-table th.bho-num,
-.bho-table td.bho-num { text-align: right; }
+.bho-table td.bho-num,
+.bho-table th.bho-w-rank,
+.bho-table td.bho-w-rank { text-align: right; }
 
 /*
  * A column head that sorts is a link, and looks like the head it replaced until it is hovered: a row

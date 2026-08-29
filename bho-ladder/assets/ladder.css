@@ -121,6 +121,14 @@
 .bho-table th.bho-w-rating, .bho-table td.bho-w-rating { width: 5.5rem; }
 .bho-table th.bho-w-rank,   .bho-table td.bho-w-rank   { width: 4.5rem; }
 .bho-table th.bho-w-record, .bho-table td.bho-w-record { width: 6rem; }
+
+/*
+ * A record is one token, not three: `3–0–0` broken after a dash reads as two numbers on two lines.
+ * The browser treats a en dash as a break opportunity, so it took one as soon as the row was tight —
+ * below 360px with no badge at all, and at 390px as soon as somebody reaches Warmaster, whose badge
+ * is nine characters in a column budgeted for one. The name column has the slack to give.
+ */
+.bho-table td.bho-w-record { white-space: nowrap; }
 .bho-table th.bho-w-games,  .bho-table td.bho-w-games  { width: 4.5rem; }
 .bho-table th.bho-w-events, .bho-table td.bho-w-events { width: 5rem; }
 

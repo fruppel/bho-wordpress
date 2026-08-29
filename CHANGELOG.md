@@ -1,0 +1,110 @@
+# Changelog
+
+What changed in the plugin, newest first. The site it is installed on updates itself from a GitHub
+release, so this file is what somebody reads when the plugins screen offers them one.
+
+The format is [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the numbers are
+[semantic](https://semver.org/spec/v2.0.0.html). A heading here is the number in the plugin header:
+the release workflow refuses a tag that disagrees with it, so the two cannot drift.
+
+Only the plugin is versioned. The ladder it reads is a separate application with its own releases —
+where a change here needs a change there, the entry says so.
+
+## [Unreleased]
+
+### Added
+
+- Every side of a game carries the rank class its player held **when that game was scored**, in the
+  badge the standings already use — in the latest-games block and on the all-games page. It is the
+  reason the number beside it is what it is: the step comes from the two players' classes and from
+  nothing else, so a C losing to a D reads −45 and the D reads +60. Not the class they hold today,
+  which is in the table above. Needs a ladder that sends `rank` per side; against one that does not,
+  the badge is absent rather than guessed at.
+
+### Fixed
+
+- The class badge sat four pixels below the flag beside it. A row of games aligns on the baseline, and
+  the two disagree about what theirs is: an image puts its bottom edge on the baseline, a badge offers
+  the baseline of the letter inside it. Both are centred on the row now.
+- The rank column in the standings hung left while every column around it was right-aligned, which
+  left the badge clinging to the rating with a wide gap after it and its heading out of step with the
+  rest of the head row.
+- A W–D–L record no longer breaks across two lines. `3–0–0` reads as two numbers once the browser
+  takes one of its dashes as a break opportunity, which it did below 360 pixels — and at 390 as soon
+  as one player reaches Warmaster, whose badge is nine characters wide in a column budgeted for one.
+- The standings scroll inside a wrapper of their own below about 390 pixels instead of compressing
+  their columns to fit. A name scrolls out of view with the rest of the row, which is the trade a
+  scrolling table makes.
+
+## [0.3.0] — 2026-08-28
+
+### Changed
+
+- **Breaking:** `[bho_recent_games]` and `[bho_rules]` are gone. `[bho_ladder]` draws the standings,
+  the last few games and the rules as one block — the table is what the page is for, the games say
+  what just happened, and the rules are what a reader checks a row against. Three snippets to paste
+  and keep in the right order was two too many for a page that only ever wanted one.
+
+  **A page using the removed shortcodes shows nothing where they were.** Replace all three with a
+  single `[bho_ladder]`; `games` and `rules` are attributes now (`[bho_ladder games="3" rules="0"]`).
+
+- The last few games arrive with the standings from one request rather than from a second one. Fetched
+  separately they were cached separately, and a result could appear in the list minutes before its
+  points appeared in the table above it.
+
+- The block renders nothing on a player's own page: that page is already a list of games, and this one
+  underneath would be the same rows again, most of them about somebody else.
+
+## [0.2.0] — 2026-08-27
+
+### Added
+
+- The site updates itself. The plugin names an `Update URI`, and the newest GitHub release is offered
+  on the plugins screen like any other update. First installation is still the zip by hand.
+- `make zip` builds that installable archive from the committed files, with `bho-ladder/` at its root —
+  which GitHub's own "Source code (zip)" does not have, and which is why that one cannot be installed.
+- `[bho_all_games]`, every game of the season a page at a time, with previous/next paging.
+- The standings sort by clicking a column head, in the URL rather than in a script, so a sorted table
+  is a link somebody can send. The sort survives a trip into a player's page and back out of it.
+- A player's own page, reached by clicking a name — same page, `?bho_player=…` appended, so there is
+  no second page to create and no permalink setting to change.
+- Flags beside the names, shipped with the plugin rather than fetched from anywhere.
+- The rules and the rank legend under the table, from the ladder's own numbers rather than typed out
+  again, so neither can drift from what the rating is computed with.
+- `Settings → BHO Saisons`: which tournaments count towards which season, and which count towards
+  nothing. Read-only — assigning happens in the ladder's own admin area.
+- English by default, with German and Spanish available, and a `bho_ladder_strings` filter for a site
+  that wants a word changed without editing the plugin.
+
+### Changed
+
+- Reads the versioned public API (`/api/v1/…`). **Needs a ladder that serves it.**
+- An excluded result strikes the player who was taken out, not the whole row: a game the club took one
+  player out of still counts for the other.
+- Each side of a game carries its own half of the score, so on a phone, where the two players go on
+  separate lines, each keeps the number that is his.
+- The stylesheet is versioned by its own modification time rather than by the plugin version — with
+  the plugin version, editing the CSS kept the same `?ver=` and every browser that had been on the
+  page kept the file it already had.
+
+## [0.1.0] — 2026-08-27
+
+The first one, and the only one never tagged: it predates the release workflow, so it is linked to the
+commit rather than to a release.
+
+### Added
+
+- The plugin: `[bho_ladder]` draws the standings on a WordPress page, read server-side from the
+  ladder's API and cached, so there is no CORS to arrange, the table is in the HTML, and one answer
+  serves everybody.
+- `Settings → BHO Ladder`: the address of the ladder and how long an answer is kept. When the ladder
+  cannot be reached the last good answer is served for up to a day with a line saying so.
+- A stylesheet that sets no font, no text colour and no background — those come from the site — and
+  mixes what it does need with the theme's own text colour, so the table reads on a dark theme and on
+  a light one.
+- A Dockerised demo site to look at it in (`make up`).
+
+[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/fruppel/bho-wordpress/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/fruppel/bho-wordpress/compare/534dc9f...v0.2.0
+[0.1.0]: https://github.com/fruppel/bho-wordpress/commit/534dc9f

@@ -84,6 +84,12 @@ plugin header, because WordPress compares the header against what the update che
 ahead of the header would offer an update that installs, still calls itself the old version, and is
 offered again forever.
 
+**Every change under `bho-ladder/` gets a line in `CHANGELOG.md` under *Unreleased*, in the same
+commit that makes it.** The site updates itself, so that file is what somebody reads when the plugins
+screen offers them an update — and a changelog written afterwards from the log is a changelog that
+records what the commits said rather than what a reader needs to know, which is what breaks and what
+to do about it. Releasing turns the *Unreleased* heading into the version and opens an empty one.
+
 ## Colours it does not own
 
 `assets/ladder.css` sets no font, no text colour and no background — those come from the site. What it

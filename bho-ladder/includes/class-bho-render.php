@@ -710,11 +710,13 @@ final class BHO_Render
             . '</svg>';
     }
 
-    private function rank(string $rank): string
+    private function rank(string $rank, string $title = ''): string
     {
         $slug = strtolower(str_replace(['+', '-'], ['plus', 'minus'], $rank));
 
-        return '<span class="bho-rank bho-rank-' . esc_attr($slug) . '">' . esc_html($rank) . '</span>';
+        return '<span class="bho-rank bho-rank-' . esc_attr($slug) . '"'
+            . ($title === '' ? '' : ' title="' . esc_attr($title) . '"')
+            . '>' . esc_html($rank) . '</span>';
     }
 
     /**
@@ -726,7 +728,9 @@ final class BHO_Render
      * does not. A placeholder would be a claim; a gap is the truth.
      *
      * The title is the only thing naming what the badge is. Beside the table there is a column head
-     * saying Rang, and in a row of games there is nowhere to put one.
+     * saying Rang, and in a row of games there is nowhere to put one. It goes on the badge itself
+     * rather than on a span around it: a wrapper carries a line box of its own, the badge then sits
+     * on *its* baseline, and the whole thing hung four pixels below the flag beside it.
      */
     private function playedAt(?string $rank): string
     {
@@ -734,8 +738,7 @@ final class BHO_Render
             return '';
         }
 
-        return '<span class="bho-rank-then" title="'
-            . esc_attr(sprintf($this->t['rank_then'], $rank)) . '">' . $this->rank($rank) . '</span>';
+        return $this->rank($rank, sprintf($this->t['rank_then'], $rank));
     }
 
     /**

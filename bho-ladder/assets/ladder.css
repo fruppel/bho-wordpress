@@ -422,12 +422,24 @@
  * is one of five things on a line that is read for its two names. `flex: none` because a badge that
  * shrank would clip a class name — Warmaster is nine characters.
  */
-.bho-rank-then { flex: none; }
-.bho-rank-then .bho-rank {
+.bho-recent .bho-rank {
+  flex: none;
   min-width: 1.5rem;
-  padding: 0.05rem 0.28rem;
+  padding: 0.1rem 0.28rem;
   font-size: 0.68rem;
+  line-height: 1.25;
 }
+
+/*
+ * The two objects on the line are centred on it; the text around them keeps the baseline it had.
+ *
+ * The row aligns on the baseline, which puts a flag's *bottom edge* on it — that is the rule for an
+ * image — while a badge is a box of text and offers the baseline of the letter inside it instead. So
+ * the two sat four pixels apart with nothing in the markup saying why. Centring both is what makes
+ * "same height" a property of the row rather than a number that happens to work at one font size.
+ */
+.bho-recent .bho-side > .bho-rank,
+.bho-recent .bho-side > .bho-flag { align-self: center; }
 
 /* Each side's box sits at its inner edge, so the two of them meet either side of the dash. */
 .bho-side > .bho-score-box:last-child { margin-left: auto; }
@@ -546,7 +558,7 @@
   .bho-recent .bho-side > * { grid-row: 1; }
   .bho-recent .bho-side > .bho-flag { grid-column: 1; }
   /* Its own column even where the ladder sent no class, so the two names start at the same place. */
-  .bho-recent .bho-side > .bho-rank-then { grid-column: 2; }
+  .bho-recent .bho-side > .bho-rank { grid-column: 2; }
   .bho-recent .bho-side > a {
     grid-column: 3;
     overflow: hidden;

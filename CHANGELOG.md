@@ -12,19 +12,7 @@ where a change here needs a change there, the entry says so.
 
 ## [Unreleased]
 
-### Added
-
-- **Free-text, coloured announcements**, shown above the standings and grouped into one box per
-  colour — yellow, red or blue. Written and posted from the ladder application's own admin area, so a
-  one-off message no longer needs a plugin update to say something new; the sentence comes from the
-  API exactly as an organiser wrote it. Needs a ladder that answers `GET /api/v1/notices`.
-
-### Removed
-
-- The `provisionalPlacings` note this plugin knew how to render. The ladder application dropped the
-  tournament bonus and the finding that came with it, so the code could never arrive here again; the
-  free-text announcements above are its replacement. `excludedGames`, the other finding the standings
-  used to send, was never rendered here to begin with.
+Nothing yet.
 
 ## [0.6.0] — 2026-09-02
 
@@ -46,6 +34,11 @@ where a change here needs a change there, the entry says so.
 
   Two blocks on one page get two cached answers, not one that keeps being overwritten: the cache key
   is the request path, and the path carries the season.
+
+- **Free-text, coloured announcements**, shown above the standings and grouped into one box per
+  colour — yellow, red or blue. Written and posted from the ladder application's own admin area, so a
+  one-off message no longer needs a plugin update to say something new; the sentence comes from the
+  API exactly as an organiser wrote it. Needs a ladder that answers `GET /api/v1/notices`.
 
 - The **Saisons** screen now prints each season's `season="…"` beside its name, so a page can be set
   up without leaving WordPress to look the number up, and a **Spiel** column beside every tournament
@@ -97,13 +90,12 @@ where a change here needs a change there, the entry says so.
   correct as the first. The settings screen links straight to it instead, and the tab bar the two
   screens shared goes with it.
 
-- The **provisional placings** note above the table is gone. It appeared for the whole of the several
-  weeks a tournament runs, which is a paragraph people read past — and the panel right above it
-  already announces the event that is still being played, which is the same fact in a form that says
-  when it ends and where to watch it.
-
-  `notes` is still read from the ladder and simply not rendered, so putting it back is a function
-  here rather than a change on both sides.
+- The **provisional placings** note above the table, and the `notes` handling behind it. It appeared
+  for the whole of the several weeks a tournament runs, which is a paragraph people read past — and
+  the panel right above it already announces the event that is still being played, which is the same
+  fact in a form that says when it ends and where to watch it. The free-text announcements are what
+  says something the standings cannot now. `excludedGames`, the other finding the ladder sends, was
+  never rendered here to begin with.
 
 - The season the ladder falls back to is called the **default** rather than the *current* one, in
   step with the ladder application. With several games run side by side there are several seasons

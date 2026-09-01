@@ -8,7 +8,11 @@
  * readable file is what makes a missing one visible.
  *
  * A `bonus_*` key is named after the code the API sends, so BHO_Render looks one up rather than
- * matching on a list it holds itself; a code with no key here falls back to the note beside it. A .po/.mo pair would put the German in a
+ * matching on a list it holds itself; a code with no key here falls back to the note beside it.
+ *
+ * The three placings are worded short — "1. Platz", not "Turnierbonus 1. Platz" — because the event
+ * is printed in front of them and the block they sit in is already headed "Bonuspunkte". Saying
+ * "Turnierbonus" between those two would be the third time. A .po/.mo pair would put the German in a
  * compiled binary and add a build step to a plugin that otherwise has none.
  *
  * English unless the setting says otherwise — blackhydra.org is an English page, and following the
@@ -79,9 +83,10 @@ function bho_ladder_strings(): array
             'third' => 'Dritter Platz',
             'bonus_points' => 'Bonuspunkte',
             'bonus_reason' => 'Grund',
-            'bonus_tournamentFirst' => 'Turnierbonus 1. Platz',
-            'bonus_tournamentSecond' => 'Turnierbonus 2. Platz',
-            'bonus_tournamentThird' => 'Turnierbonus 3. Platz',
+            'bonus_tournamentFirst' => '1. Platz',
+            'bonus_tournamentSecond' => '2. Platz',
+            'bonus_tournamentThird' => '3. Platz',
+            'bonus_tournamentOther' => 'Turnierbonus',
             'bonus_other' => 'Sonstige',
         ],
         'en' => [
@@ -139,9 +144,10 @@ function bho_ladder_strings(): array
             'third' => 'Third place',
             'bonus_points' => 'Bonus points',
             'bonus_reason' => 'Reason',
-            'bonus_tournamentFirst' => 'Tournament bonus, 1st place',
-            'bonus_tournamentSecond' => 'Tournament bonus, 2nd place',
-            'bonus_tournamentThird' => 'Tournament bonus, 3rd place',
+            'bonus_tournamentFirst' => '1st place',
+            'bonus_tournamentSecond' => '2nd place',
+            'bonus_tournamentThird' => '3rd place',
+            'bonus_tournamentOther' => 'Tournament bonus',
             'bonus_other' => 'Other',
         ],
         'es' => [
@@ -199,9 +205,10 @@ function bho_ladder_strings(): array
             'third' => 'Tercer puesto',
             'bonus_points' => 'Puntos extra',
             'bonus_reason' => 'Motivo',
-            'bonus_tournamentFirst' => 'Bonus de torneo, 1.º puesto',
-            'bonus_tournamentSecond' => 'Bonus de torneo, 2.º puesto',
-            'bonus_tournamentThird' => 'Bonus de torneo, 3.º puesto',
+            'bonus_tournamentFirst' => '1.º puesto',
+            'bonus_tournamentSecond' => '2.º puesto',
+            'bonus_tournamentThird' => '3.º puesto',
+            'bonus_tournamentOther' => 'Bonus de torneo',
             'bonus_other' => 'Otros',
         ],
     ];

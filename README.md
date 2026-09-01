@@ -50,9 +50,11 @@ underneath would be the same rows again, most of them about somebody else.
 
 A player's page also lists the **points the club gave out by hand** under their games, with the day,
 the reason and the running rating after each one — the part of a rating no game accounts for, and the
-one that would otherwise leave the arithmetic on that page not adding up. The ladder sends the reason
-as a code (`tournamentFirst`, `other`, …) and `includes/strings.php` writes it out in each of the
-three languages; a code with no wording there falls back to the note the organiser typed, so the
+one that would otherwise leave the arithmetic on that page not adding up. A bonus given at a
+tournament leads with that event and then the placing (*BLACKHYDRA OPEN KILL TEAM - I · 1. Platz*),
+because the placing alone says nothing about which weekend. The ladder sends the reason as a code
+(`tournamentFirst`, `other`, …) and `includes/strings.php` writes it out in each of the three
+languages; a code with no wording there falls back to the note the organiser typed, so the
 application can add a reason before this plugin is updated.
 
 The **installed version** is printed in small print at the foot of any page this plugin drew on. Not

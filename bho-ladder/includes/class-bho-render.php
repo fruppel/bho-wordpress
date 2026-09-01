@@ -186,24 +186,33 @@ final class BHO_Render
     /**
      * Why, in the language the page is being read in.
      *
-     * The API sends a code and the words beside it, never a finished sentence — the same arrangement
-     * as the ladder's findings, and for the same reason: this page is read in three languages and
-     * only it knows which. A code with no wording here falls back to the note, which is the honest
-     * answer when the application has added a reason before the plugin was updated. `other` always
-     * carries one; the three named reasons carry one only where somebody named the event.
+     * The API sends a code, the event and whatever words were typed beside them, never a finished
+     * sentence — the same arrangement as the ladder's findings, and for the same reason: this page is
+     * read in three languages and only it knows which.
+     *
+     * The event leads, because "1st place" on its own says nothing about which weekend, and it is a
+     * field rather than something somebody typed into the note — the same tournament typed twice is
+     * spelt two ways. It is absent for an award that stands on its own, which is then the only kind
+     * that has to carry words.
+     *
+     * A code with no wording here falls back to the note, which is the honest answer when the
+     * application has added a reason before this plugin was updated.
      *
      * @param array<string,mixed> $award
      */
     private function awardReason(array $award): string
     {
         $label = $this->t['bonus_' . (string) ($award['reason'] ?? '')] ?? '';
+        $event = trim((string) ($award['tournament'] ?? ''));
         $note = trim((string) ($award['note'] ?? ''));
 
         if ($label === '') {
             return $note !== '' ? $note : (string) ($award['reason'] ?? '');
         }
 
-        return $note === '' ? $label : $label . ' — ' . $note;
+        $said = $event === '' ? $label : $event . ' · ' . $label;
+
+        return $note === '' ? $said : $said . ' — ' . $note;
     }
 
     /**

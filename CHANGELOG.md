@@ -36,10 +36,16 @@ where a change here needs a change there, the entry says so.
   the half of that which anybody can read. Their own list rather than rows among the games: a bonus
   has no opponent, no score and no result, so half a game row would be empty for every one of them.
 
-  The reason arrives as a code and is written out here in all three languages — *Turnierbonus 1./2./3.
-  Platz* and *Sonstige*, with the words the organiser typed beside it. A reason this plugin has no
-  wording for falls back to those words rather than printing a key, so the ladder can add one before
-  the plugin is updated.
+  A tournament bonus leads with **the event it was given at**, then the placing: *BLACKHYDRA OPEN
+  KILL TEAM - I · 1. Platz*. The event is a field on the award rather than something somebody typed
+  into a note, so the same tournament cannot end up spelt two ways down the list — and "1. Platz" on
+  its own says nothing about which weekend.
+
+  The reason arrives as a code and is written out here in all three languages, with whatever the
+  organiser typed beside it. The placings are worded short, because the event is in front of them and
+  the block is already headed *Bonuspunkte*; saying *Turnierbonus* between the two would be the third
+  time. A reason this plugin has no wording for falls back to the organiser's words rather than
+  printing a key, so the ladder can add one before the plugin is updated.
 
   The rating in the head of the page now stands where the last bonus left it rather than where the
   last game did — they are added after every game of their season, whatever day they carry.

@@ -177,6 +177,10 @@ function bho_ladder_renderer(?int $season = null): BHO_Render
  * question that needs the plugins screen and an account allowed to open it. On the page, anybody
  * looking at a table that seems wrong can read the answer out.
  *
+ * The number alone, without the plugin's name in front of it: it only ever appears under something
+ * this plugin drew, so the name was a word every reader had to skip past to reach the one thing the
+ * line is for.
+ *
  * **Appended to the shortcode's own output rather than hooked onto `wp_footer`**, which is where it
  * started and where it is invisible: that prints after the theme's container, and a theme that puts
  * its dark background on the container rather than on `body` leaves white text on a white strip. In
@@ -196,7 +200,7 @@ function bho_ladder_version_line(): string
 
     $printed = true;
 
-    return '<p class="bho-version">' . esc_html(sprintf('BHO Ladder %s', BHO_LADDER_VERSION)) . '</p>';
+    return '<p class="bho-version">' . esc_html('v' . BHO_LADDER_VERSION) . '</p>';
 }
 
 /**

@@ -111,10 +111,10 @@ where a change here needs a change there, the entry says so.
   Needs a ladder that sends `awards` on `/api/v1/players/{id}`; against one that does not, the list is
   simply absent.
 
-- **The installed version, in small print at the foot of the page.** The site updates itself from a
-  GitHub release, so which one is actually on there otherwise needs the plugins screen and an account
-  allowed to open it — and "which version are you on" is the first question about a table that looks
-  wrong.
+- **The installed version, in small print at the foot of the page** — just `v0.6.0`, since it only
+  ever appears under something this plugin drew. The site updates itself from a GitHub release, so
+  which one is actually on there otherwise needs the plugins screen and an account allowed to open
+  it — and "which version are you on" is the first question about a table that looks wrong.
 
   Under the block this plugin drew and not on `wp_footer`, which is where it was first put and where
   it is invisible: that prints after the theme's container, and a theme carrying its dark background

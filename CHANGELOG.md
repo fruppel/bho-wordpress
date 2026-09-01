@@ -30,6 +30,23 @@ where a change here needs a change there, the entry says so.
 
 ### Added
 
+- **A `season` attribute on both shortcodes**, which is what lets one site carry more than one
+  ladder: `[bho_ladder season="12"]` and `[bho_all_games season="12"]`. The club runs several games
+  side by side, each with its own seasons, and the ladder application can only call one of them
+  current — so a page that wants another one says which. Left out, everything behaves as before.
+
+  It runs through the whole block: the table, the latest games under it and the player page a click
+  opens all show the same season. That last one is the reason it exists — a player's page is their
+  whole career across every game, so the page behind the 40k standings would otherwise list their
+  Kill Team games under them. Needs a ladder that accepts `?season=` on `/api/v1/players/{id}`.
+
+  An id rather than a name, because a name is a thing somebody renames, and a page that then shows an
+  empty table gives no clue why. The ids are on the Seasons screen in the ladder's admin area. An id
+  that does not exist says so rather than quietly falling back to the current season.
+
+  Two blocks on one page get two cached answers, not one that keeps being overwritten: the cache key
+  is the request path, and the path carries the season.
+
 - **Bonus points on a player's page**, in a list under their games: the day, why, what it was worth
   and where the rating stood afterwards. The club can now give points out by hand for what the ladder
   cannot see on its own — a side event, a tournament whose results never reached Herald — and this is

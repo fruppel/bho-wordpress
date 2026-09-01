@@ -16,15 +16,25 @@ defined('ABSPATH') || exit;
 
 final class BHO_Render
 {
-    /** @param array<string,string> $t */
+    /**
+     * Which season every block on this page is about, or null for whichever one the ladder calls
+     * current.
+     *
+     * On the renderer rather than passed to each method, because it is not a property of one block:
+     * the table, the games under it and the player page a click opens all have to be the same
+     * season, or a page about the club's 40k ladder opens onto somebody's Kill Team games.
+     *
+     * @param array<string,string> $t
+     */
     public function __construct(
         private readonly BHO_Api $api,
         private readonly array $t,
+        private readonly ?int $season = null,
     ) {}
 
     public function ladder(int $limit, bool $withRules = true, string $sort = '', int $games = 8): string
     {
-        $data = $this->api->ladder(null, $games);
+        $data = $this->api->ladder($this->season, $games);
 
         if (is_wp_error($data)) {
             return $this->notice($this->t['unavailable'] . ' (' . $data->get_error_message() . ')');
@@ -66,7 +76,7 @@ final class BHO_Render
 
     public function player(int $id): string
     {
-        $data = $this->api->player($id);
+        $data = $this->api->player($id, $this->season);
 
         if (is_wp_error($data)) {
             return $this->notice($this->t['no_player']);
@@ -422,7 +432,7 @@ final class BHO_Render
      */
     public function allGames(int $perPage, int $page): string
     {
-        $data = $this->api->games($page, $perPage);
+        $data = $this->api->games($page, $perPage, $this->season);
 
         if (is_wp_error($data)) {
             return $this->wrap($this->notice($this->t['unavailable'] . ' (' . $data->get_error_message() . ')'));

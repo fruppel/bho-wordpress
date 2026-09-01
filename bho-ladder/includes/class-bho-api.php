@@ -6,6 +6,10 @@
  * and which tournaments count towards which season. Nothing here writes; the application on the other
  * end owns the data and has its own admin area for it.
  *
+ * Every read takes an optional season, and the cache follows for free: the key is the path and the
+ * path carries the season, so two ladders on one site are two cached answers rather than one that
+ * keeps being overwritten.
+ *
  * They live under `/api/v1/`, and that prefix exists because of this file: the application can change
  * the shape of anything its own screens read in the same commit, but not of what a site it does not
  * deploy is reading. A breaking change there means `/api/v2/` and a plugin update, in that order.
@@ -89,15 +93,29 @@ final class BHO_Api
      *
      * @return array<string,mixed>|WP_Error
      */
-    public function games(int $page = 1, int $perPage = 25): array|WP_Error
+    public function games(int $page = 1, int $perPage = 25, ?int $season = null): array|WP_Error
     {
-        return $this->get(sprintf('/api/v1/games?page=%d&perPage=%d', max($page, 1), max($perPage, 1)));
+        $query = ['page' => max($page, 1), 'perPage' => max($perPage, 1)];
+
+        if ($season !== null) {
+            $query['season'] = $season;
+        }
+
+        return $this->get('/api/v1/games?' . http_build_query($query));
     }
 
-    /** @return array<string,mixed>|WP_Error */
-    public function player(int $id): array|WP_Error
+    /**
+     * One player's games, all of them or one season's worth.
+     *
+     * The season matters since the club runs several games side by side: a whole history is then a
+     * mixture, and the page behind the 40k standings would list somebody's Kill Team games under
+     * them. A block that was told which season it shows passes it on.
+     *
+     * @return array<string,mixed>|WP_Error
+     */
+    public function player(int $id, ?int $season = null): array|WP_Error
     {
-        return $this->get('/api/v1/players/' . $id);
+        return $this->get('/api/v1/players/' . $id . ($season === null ? '' : '?season=' . $season));
     }
 
     /**

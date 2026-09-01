@@ -11,8 +11,19 @@ plugin: a breaking change over there means `/api/v2/` and a plugin update, in th
 ```
 [bho_ladder]                                the page: standings, latest games, rules
 [bho_ladder limit="10" games="3" rules="0"] less of it, for a front page
+[bho_ladder season="12"]                    a season other than the current one
 [bho_all_games per="25"]                    every game of the season, paginated
 ```
+
+Without `season` a block shows whichever season the ladder application calls current, which is what
+one club running one game wants. Naming one is how a site carries **several ladders at once**: the
+club runs more than one game, each with its own seasons, and only one of them can be current over
+there. The id is on the Seasons screen in the ladder's admin area — an id and not a name, because a
+name is a thing somebody renames and a page that then shows an empty table gives no clue why.
+
+It runs through the whole block: table, latest games, and the player page behind a click. That last
+one is the point — a player's page is their whole career across every game, so a 40k page would
+otherwise open onto somebody's Kill Team results.
 
 Two shortcodes, because there are two pages. `[bho_ladder]` is the standings, the last few games and
 the rules in one block: the table is what the page is for, the games say what just happened, and the

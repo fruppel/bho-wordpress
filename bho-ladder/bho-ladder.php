@@ -80,11 +80,16 @@ add_shortcode('bho_all_games', 'bho_all_games_shortcode');
  *   limit="0"   rows in the table; 0 is all of them (use 10 for a front-page teaser)
  *   games="8"   how many recent games under it; 0 leaves them out
  *   rules="1"   the rules panel; "0" leaves it out
+ *   season=""   which season, by id; empty is whichever one the ladder calls current
  */
 function bho_ladder_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['limit' => '0', 'games' => '8', 'rules' => '1'], $atts, 'bho_ladder');
-    $render = bho_ladder_renderer();
+    $atts = shortcode_atts(
+        ['limit' => '0', 'games' => '8', 'rules' => '1', 'season' => ''],
+        $atts,
+        'bho_ladder',
+    );
+    $render = bho_ladder_renderer(bho_ladder_season_in($atts));
 
     $player = bho_ladder_player_in_url();
 
@@ -105,22 +110,44 @@ function bho_ladder_shortcode(array|string $atts = []): string
  * here for the rest.
  *
  * Attributes:
- *   per="25"   rows per page
+ *   per="25"    rows per page
+ *   season=""   which season, by id; empty is whichever one the ladder calls current
  */
 function bho_all_games_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['per' => '25'], $atts, 'bho_all_games');
+    $atts = shortcode_atts(['per' => '25', 'season' => ''], $atts, 'bho_all_games');
 
-    return bho_ladder_renderer()->allGames((int) $atts['per'], bho_ladder_page_in_url())
+    return bho_ladder_renderer(bho_ladder_season_in($atts))
+        ->allGames((int) $atts['per'], bho_ladder_page_in_url())
         . bho_ladder_version_line();
 }
 
+/**
+ * The season a shortcode was given, or null for the one the ladder calls current.
+ *
+ * **This is what lets one site carry several ladders.** The club runs more than one game, each with
+ * its own seasons, and the ladder application can only call one of them current — so a page that
+ * wants the other says which: `[bho_ladder season="12"]`. Left out, everything behaves as it always
+ * has, which is what the club's one existing page wants.
+ *
+ * An id and not a name, because a name is a thing somebody renames and a page that then shows an
+ * empty table gives no clue why. The ids are on the Seasons screen in the ladder's admin area.
+ *
+ * @param array<string,string> $atts
+ */
+function bho_ladder_season_in(array $atts): ?int
+{
+    $season = absint($atts['season'] ?? 0);
+
+    return $season > 0 ? $season : null;
+}
+
 /** The stylesheet is loaded here rather than per shortcode: a page may hold several of them. */
-function bho_ladder_renderer(): BHO_Render
+function bho_ladder_renderer(?int $season = null): BHO_Render
 {
     wp_enqueue_style('bho-ladder', BHO_LADDER_URL . 'assets/ladder.css', [], bho_ladder_style_version());
 
-    return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings());
+    return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings(), $season);
 }
 
 /**
@@ -197,6 +224,8 @@ add_filter('document_title_parts', static function (array $parts): array {
     $player = bho_ladder_player_in_url();
 
     if ($player > 0) {
+        // No season here, and it costs nothing: this reads a name, and a player has one name in
+        // every season. Asking for a particular one would be a second cached copy of the same answer.
         $history = BHO_Api::fromSettings()->player($player);
         if (!is_wp_error($history) && isset($history['player']['name'])) {
             $parts['title'] = (string) $history['player']['name'];

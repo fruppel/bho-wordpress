@@ -205,6 +205,20 @@ final class BHO_Settings
                 Weniger auf einmal, etwa für die Startseite:
                 <code>[bho_ladder limit="10" games="3" rules="0"]</code>.
             </p>
+
+            <h2>Mehrere Ladders auf einer Seite</h2>
+            <p>
+                Ohne Angabe zeigen beide Shortcodes die Saison, die in der Ladder-Anwendung als
+                <em>aktuell</em> markiert ist. Läuft mehr als ein Spiel parallel, sagt die Seite,
+                welche Saison sie meint: <code>[bho_ladder season="12"]</code> und
+                <code>[bho_all_games season="12"]</code>. Die Nummer steht in der Ladder-Anwendung
+                unter <em>Seasons</em>.
+            </p>
+            <p>
+                Die Angabe zieht sich durch: Tabelle, letzte Spiele und die Spielerseite dahinter
+                zeigen dieselbe Saison. Ohne sie listet die Spielerseite alle Spiele einer Person
+                über alle Spiele hinweg — was auf einer Seite über eine einzelne Ladder falsch wäre.
+            </p>
         </div>
         <?php
     }

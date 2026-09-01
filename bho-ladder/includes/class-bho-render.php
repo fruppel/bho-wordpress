@@ -37,10 +37,6 @@ final class BHO_Render
             $html .= $this->notice($this->t['stale']);
         }
 
-        foreach ($data['notes'] ?? [] as $note) {
-            $html .= $this->note($note);
-        }
-
         $html .= $this->meta($data['tournaments'] ?? [], $data['updatedAt'] ?? null);
 
         if ($entries === []) {
@@ -668,26 +664,6 @@ final class BHO_Render
         }
 
         return $html . '</p>';
-    }
-
-    /** @param array<string,mixed> $note */
-    private function note(array $note): string
-    {
-        $params = $note['params'] ?? [];
-
-        $text = match ($note['code'] ?? '') {
-            'provisionalPlacings' => sprintf(
-                $this->t['note_provisional'],
-                $params['tournament'] ?? '',
-                (int) ($params['counted'] ?? 0),
-                (int) ($params['expected'] ?? 0),
-            ),
-            // A code this plugin has no sentence for is skipped rather than printed: the application
-            // can add one before the plugin is updated, and a raw key on the page helps nobody.
-            default => '',
-        };
-
-        return $text === '' ? '' : '<p class="bho-note">' . esc_html($text) . '</p>';
     }
 
     /**

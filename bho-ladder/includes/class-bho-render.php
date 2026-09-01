@@ -147,20 +147,16 @@ final class BHO_Render
             return $html . $this->notice($this->t['no_games']) . '</div>';
         }
 
+        // The event on every row that has one, not once per run: a blank cell only means "the same
+        // as further up" to somebody reading from the top, which is not how anybody reads a table
+        // they have scrolled into or copied a line out of.
         $html .= '<ul class="bho-games">';
-        // The last event actually named, not the last row: a bonus with no tournament between two
-        // games of one would otherwise make the second print the name again mid-run.
-        $event = null;
         foreach ($rows as $row) {
             $name = (string) ($row['tournament'] ?? '');
-            $show = ($name === '' || $name === $event) ? '' : $name;
-            if ($name !== '') {
-                $event = $name;
-            }
 
             $html .= $row['kind'] === 'game'
-                ? $this->game($row['row'], $data['player'], $show)
-                : $this->award($row['row'], $show);
+                ? $this->game($row['row'], $data['player'], $name)
+                : $this->award($row['row'], $name);
         }
 
         return $html . '</ul></div>';
@@ -588,7 +584,7 @@ final class BHO_Render
      *
      * The columns are the same eight the every-game list uses and the same the admin draws: day,
      * event, round, the two sides with their kill teams, score, result, what it moved and where the
-     * rating stood. `$event` is blank where the row above already named it.
+     * rating stood.
      *
      * @param array<string,mixed> $game
      * @param array<string,mixed> $me

@@ -553,7 +553,7 @@ a.bho-party:hover .bho-who { text-decoration: underline; }
 .bho-match em { font-style: normal; font-size: 0.78rem; color: var(--bho-quiet); }
 .bho-match .bho-vs { color: var(--bho-faint); }
 
-/* Printed once per tournament, so the rows under it read as one run rather than as a repeated name. */
+/* On every row, so a line lifted out of the middle of the table still says which event it is from. */
 .bho-games .bho-event { width: 9rem; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Nothing in the two columns a game fills with a score and a result. */

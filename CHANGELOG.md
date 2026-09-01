@@ -58,16 +58,21 @@ where a change here needs a change there, the entry says so.
   first row to the last. It was grouped per tournament with the bonuses in a block underneath, which
   put a bonus for the first event under the last one.
 
-  The columns are the day, the event, the round, both sides with their kill teams, the score, the
-  result, what it moved and where the rating stood. A bonus has no opponent, no score and no result,
-  so it takes the width of those three. The event is printed once per run of rows rather than on
-  every line.
+  Six columns, the same the admin draws: the day, whether the row is a match or a bonus, the event,
+  what happened, what it moved and where the rating stood. The round, both sides with their kill
+  teams, the score and the result are one description inside the fourth column rather than four
+  columns of their own — four columns every bonus row would leave empty. The event stands on every
+  row, so a row read on its own still says which weekend it belongs to.
 
   The ladder's own +75/+50/+25 for a placing is a row here too — it moves a rating, and without it
   the column jumped by a hundred beside a bonus saying +75.
 
   On a phone the two sides of a match take a line each. Needs a ladder that sends `sequence` on both
   kinds of row; against one that does not, the page falls back to games first and bonuses after.
+
+- **The line under a player's rating names the season's own starting number**, not 1100. A season
+  sets what everybody starts on now, and "from 1100" above a table that began at 1500 is a page
+  arguing with itself. Against a ladder that does not send `startingRating`, it stays 1100.
 
 - **A block that names no season now asks for the default one explicitly.** The player page behind it
   was showing a career spanning every game the club runs, under standings covering one of them —

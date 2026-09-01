@@ -553,8 +553,12 @@ a.bho-party:hover .bho-who { text-decoration: underline; }
 .bho-match em { font-style: normal; font-size: 0.78rem; color: var(--bho-quiet); }
 .bho-match .bho-vs { color: var(--bho-faint); }
 
-/* On every row, so a line lifted out of the middle of the table still says which event it is from. */
-.bho-games .bho-event { width: 9rem; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/*
+ * On every row, so a line lifted out of the middle of the table still says which event it is from —
+ * and wide enough for a whole name, because these differ at the end: "… KILL TEAM — III" and "… —
+ * IV" cut to the same thing, and a column that cannot tell two tournaments apart is worse than none.
+ */
+.bho-games .bho-event { width: 13rem; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Nothing in the two columns a game fills with a score and a result. */
 .bho-award .bho-match { color: var(--bho-quiet); }

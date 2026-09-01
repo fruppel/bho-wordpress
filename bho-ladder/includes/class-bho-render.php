@@ -132,7 +132,13 @@ final class BHO_Render
 
         if ($rating !== null) {
             $html .= '<p class="bho-player-rating"><strong>' . esc_html((string) $rating) . '</strong>'
-                . '<span>' . esc_html($this->t['from_1100']) . ' · ' . $this->change($swing) . ' '
+                // The season's own number, not a constant in the wording: a season can start
+                // somewhere other than the booklet's 1100, and a line saying "from 1100" beside a
+                // table that started at 1500 is a page arguing with itself.
+                . '<span>' . esc_html(sprintf(
+                    $this->t['from_start'],
+                    (int) ($data['startingRating'] ?? 1100),
+                )) . ' · ' . $this->change($swing) . ' '
                 . esc_html($this->t['here']) . '</span></p>';
         }
         $html .= '</div>';

@@ -53,6 +53,26 @@ where a change here needs a change there, the entry says so.
 
 ### Changed
 
+- **A player's page is one table across the whole season.** Every game and every bonus in the order
+  the ladder replayed them, oldest first, so the rating in the last column can be followed from the
+  first row to the last. It was grouped per tournament with the bonuses in a block underneath, which
+  put a bonus for the first event under the last one.
+
+  The columns are the day, the event, the round, both sides with their kill teams, the score, the
+  result, what it moved and where the rating stood. A bonus has no opponent, no score and no result,
+  so it takes the width of those three. The event is printed once per run of rows rather than on
+  every line.
+
+  The ladder's own +75/+50/+25 for a placing is a row here too — it moves a rating, and without it
+  the column jumped by a hundred beside a bonus saying +75.
+
+  On a phone the two sides of a match take a line each. Needs a ladder that sends `sequence` on both
+  kinds of row; against one that does not, the page falls back to games first and bonuses after.
+
+- **A block that names no season now asks for the default one explicitly.** The player page behind it
+  was showing a career spanning every game the club runs, under standings covering one of them —
+  the season only reached it when the shortcode named an id.
+
 - **"See every game" stays on the page it was clicked on** and shows the season that block is
   showing. It was a page id picked in the settings — one page, and therefore one season: the moment
   the club ran a second ladder, the 40k block's link led to Kill Team's games. The setting is gone,

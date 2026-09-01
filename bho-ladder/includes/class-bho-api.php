@@ -100,9 +100,11 @@ final class BHO_Api
      *
      * @return array<string,mixed>|WP_Error
      */
-    public function player(int $id, ?int $season = null): array|WP_Error
+    public function player(int $id, int|string|null $season = null): array|WP_Error
     {
-        return $this->get('/api/v1/players/' . $id . ($season === null ? '' : '?season=' . $season));
+        // The literal `default` is the ladder's own word for "whichever season is the default one",
+        // which is what a block that was given no id is showing.
+        return $this->get('/api/v1/players/' . $id . ($season === null ? '' : '?season=' . rawurlencode((string) $season)));
     }
 
     /**

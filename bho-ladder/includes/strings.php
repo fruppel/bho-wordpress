@@ -87,6 +87,7 @@ function bho_ladder_strings(): array
             'bonus_tournamentSecond' => '2. Platz',
             'bonus_tournamentThird' => '3. Platz',
             'bonus_tournamentOther' => 'Turnierbonus',
+            'bonus_tournamentPlacing' => 'Turnierwertung',
             'bonus_other' => 'Sonstige',
         ],
         'en' => [
@@ -148,6 +149,7 @@ function bho_ladder_strings(): array
             'bonus_tournamentSecond' => '2nd place',
             'bonus_tournamentThird' => '3rd place',
             'bonus_tournamentOther' => 'Tournament bonus',
+            'bonus_tournamentPlacing' => 'Tournament result',
             'bonus_other' => 'Other',
         ],
         'es' => [
@@ -209,6 +211,7 @@ function bho_ladder_strings(): array
             'bonus_tournamentSecond' => '2.º puesto',
             'bonus_tournamentThird' => '3.º puesto',
             'bonus_tournamentOther' => 'Bonus de torneo',
+            'bonus_tournamentPlacing' => 'Resultado del torneo',
             'bonus_other' => 'Otros',
         ],
     ];

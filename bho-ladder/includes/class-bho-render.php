@@ -76,7 +76,10 @@ final class BHO_Render
 
     public function player(int $id): string
     {
-        $data = $this->api->player($id, $this->season);
+        // `default` and not "nothing": a block that was given no season is still showing one table,
+        // just the default one — and without saying so it got a career spanning every game the club
+        // runs, under standings covering one of them.
+        $data = $this->api->player($id, $this->season ?? 'default');
 
         if (is_wp_error($data)) {
             return $this->notice($this->t['no_player']);
@@ -87,15 +90,18 @@ final class BHO_Render
         // survive: the application it reads is deployed separately from it.
         $awards = $data['awards'] ?? [];
 
-        // The rating stands where the last award left it, not where the last game did — they are
-        // applied after every game of the season, whatever day they carry.
-        $rated = array_values(array_filter($games, static fn(array $g): bool => $g['ratingAfter'] !== null));
-        $paid = array_values(array_filter($awards, static fn(array $a): bool => $a['ratingAfter'] !== null));
-        $rating = match (true) {
-            $paid !== [] => end($paid)['ratingAfter'],
-            $rated !== [] => end($rated)['ratingAfter'],
-            default => null,
-        };
+        // Every game and every bonus as one sequence, in the order the ladder replayed them. The
+        // page is drawn from it and so is the rating in its head — picking the last of either list
+        // would take whichever one happened to be appended last, not the last thing that happened.
+        $rows = $this->seasonRows($games, $awards);
+
+        $rating = null;
+        foreach (array_reverse($rows) as $row) {
+            if (($row['row']['ratingAfter'] ?? null) !== null) {
+                $rating = $row['row']['ratingAfter'];
+                break;
+            }
+        }
 
         $swing = array_sum(array_map(static fn(array $g): int => (int) ($g['ratingChange'] ?? 0), $games))
             + array_sum(array_map(static fn(array $a): int => (int) $a['points'], $awards));
@@ -141,56 +147,63 @@ final class BHO_Render
             return $html . $this->notice($this->t['no_games']) . '</div>';
         }
 
-        // Grouped by tournament, because the name repeats down every round of an event and reads as
-        // noise once somebody has two seasons behind them.
-        $tournament = null;
-        foreach ($games as $game) {
-            if ($game['tournament'] !== $tournament) {
-                $html .= $tournament === null ? '' : '</ul>';
-                $tournament = $game['tournament'];
-                $html .= '<h3 class="bho-group">' . esc_html((string) $tournament)
-                    . ' <span>' . esc_html(self::formatDay((string) $game['startDate'])) . '</span></h3><ul class="bho-games">';
+        $html .= '<ul class="bho-games">';
+        // The last event actually named, not the last row: a bonus with no tournament between two
+        // games of one would otherwise make the second print the name again mid-run.
+        $event = null;
+        foreach ($rows as $row) {
+            $name = (string) ($row['tournament'] ?? '');
+            $show = ($name === '' || $name === $event) ? '' : $name;
+            if ($name !== '') {
+                $event = $name;
             }
 
-            $html .= $this->game($game);
+            $html .= $row['kind'] === 'game'
+                ? $this->game($row['row'], $data['player'], $show)
+                : $this->award($row['row'], $show);
         }
 
-        return $html . ($games === [] ? '' : '</ul>') . $this->awards($awards) . '</div>';
+        return $html . '</ul></div>';
     }
 
     /**
-     * The points somebody was given by hand, under their games.
+     * Games and awards as one sequence, in the order the ladder replayed them.
      *
-     * Their own list rather than rows among the games: they have no opponent, no score and no
-     * result, so half of a game row would be empty for every one of them. They are printed all the
-     * same, and with the reason beside each one — this is the part of a rating that no game accounts
-     * for, and a number nobody can trace is one people argue about.
+     * `sequence` comes from the API, decided where the replay happens — working it out here would be
+     * a second copy of the rule that decides whether the running rating in the last column adds up.
+     * A row without one was never replayed (a tournament in no season) and goes last, which is where
+     * something counting towards nothing belongs.
      *
-     * They sit last because that is where they land in the rating: after every game of their season,
-     * whatever day they carry. The running total in the right-hand column therefore continues from
-     * the last game rather than restarting.
-     *
-     * @param array<int,array<string,mixed>> $awards
+     * @param  array<int,array<string,mixed>> $games
+     * @param  array<int,array<string,mixed>> $awards
+     * @return array<int,array{kind: string, tournament: ?string, row: array<string,mixed>}>
      */
-    private function awards(array $awards): string
+    private function seasonRows(array $games, array $awards): array
     {
-        if ($awards === []) {
-            return '';
+        $rows = [];
+        $last = count($games) + count($awards);
+
+        foreach ($games as $i => $game) {
+            $rows[] = [
+                'kind' => 'game',
+                'tournament' => $game['tournament'] ?? null,
+                'row' => $game,
+                'at' => $game['sequence'] ?? $last + $i,
+            ];
         }
 
-        $html = '<h3 class="bho-group">' . esc_html($this->t['bonus_points']) . '</h3>'
-            . '<ul class="bho-games bho-awards">';
-
-        foreach ($awards as $award) {
-            $html .= '<li>'
-                . $this->day($award['awardedOn'] ?? null)
-                . '<span class="bho-reason">' . esc_html($this->awardReason($award)) . '</span>'
-                . '<span class="bho-delta">' . $this->change((int) $award['points']) . '</span>'
-                . '<span class="bho-after">' . esc_html((string) ($award['ratingAfter'] ?? '')) . '</span>'
-                . '</li>';
+        foreach ($awards as $i => $award) {
+            $rows[] = [
+                'kind' => 'award',
+                'tournament' => $award['tournament'] ?? null,
+                'row' => $award,
+                'at' => $award['sequence'] ?? $last + count($games) + $i,
+            ];
         }
 
-        return $html . '</ul>';
+        usort($rows, static fn(array $a, array $b): int => $a['at'] <=> $b['at']);
+
+        return $rows;
     }
 
     /**
@@ -200,10 +213,8 @@ final class BHO_Render
      * sentence — the same arrangement as the ladder's findings, and for the same reason: this page is
      * read in three languages and only it knows which.
      *
-     * The event leads, because "1st place" on its own says nothing about which weekend, and it is a
-     * field rather than something somebody typed into the note — the same tournament typed twice is
-     * spelt two ways. It is absent for an award that stands on its own, which is then the only kind
-     * that has to carry words.
+     * The event is not in here any more: a player's page prints it in its own column, beside the day
+     * and the round, so repeating it in the reason was the same name twice on one line.
      *
      * A code with no wording here falls back to the note, which is the honest answer when the
      * application has added a reason before this plugin was updated.
@@ -213,16 +224,20 @@ final class BHO_Render
     private function awardReason(array $award): string
     {
         $label = $this->t['bonus_' . (string) ($award['reason'] ?? '')] ?? '';
-        $event = trim((string) ($award['tournament'] ?? ''));
         $note = trim((string) ($award['note'] ?? ''));
 
         if ($label === '') {
             return $note !== '' ? $note : (string) ($award['reason'] ?? '');
         }
 
-        $said = $event === '' ? $label : $event . ' · ' . $label;
+        // The ladder's own placing bonus says which place; the hand-given ones say it in their
+        // reason. The three words are the ones the trophies already use, so a place is spelt one way.
+        $place = [1 => 'first', 2 => 'second', 3 => 'third'][(int) ($award['place'] ?? 0)] ?? null;
+        if ($place !== null) {
+            $label .= ' · ' . $this->t[$place];
+        }
 
-        return $note === '' ? $said : $said . ' — ' . $note;
+        return $note === '' ? $label : $label . ' — ' . $note;
     }
 
     /**
@@ -568,8 +583,17 @@ final class BHO_Render
             . '">' . esc_html((string) $side['name']) . '</a>';
     }
 
-    /** @param array<string,mixed> $game */
-    private function game(array $game): string
+    /**
+     * One game, from this player's side first.
+     *
+     * The columns are the same eight the every-game list uses and the same the admin draws: day,
+     * event, round, the two sides with their kill teams, score, result, what it moved and where the
+     * rating stood. `$event` is blank where the row above already named it.
+     *
+     * @param array<string,mixed> $game
+     * @param array<string,mixed> $me
+     */
+    private function game(array $game, array $me, string $event): string
     {
         $result = strtolower((string) $game['result']);
         // Shown and marked rather than left out: this player did not get the points, and a game that
@@ -577,21 +601,47 @@ final class BHO_Render
         $excluded = (bool) ($game['excluded'] ?? false);
 
         return '<li' . ($excluded ? ' class="bho-excluded"' : '') . '>'
+            . $this->day($game['playedOn'] ?? $game['startDate'] ?? null)
+            . '<span class="bho-event">' . esc_html($event) . '</span>'
             . '<span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
-            . $this->day($game['playedOn'] ?? null)
-            . '<a class="bho-opponent" href="'
+            . '<span class="bho-match">'
+            . '<span class="bho-party">' . $this->flag($me['country'] ?? null)
+            . '<span class="bho-who">' . esc_html((string) $me['name']) . '</span>'
+            . '<em>' . esc_html((string) ($game['killTeam'] ?? '—')) . '</em></span>'
+            . '<em class="bho-vs">' . esc_html($this->t['versus']) . '</em>'
+            . '<a class="bho-party" href="'
             . esc_url(add_query_arg(BHO_LADDER_PLAYER_PARAM, (int) $game['opponent']['id'], get_permalink()))
             . '">' . $this->flag($game['opponent']['country'] ?? null)
-            . '<span>' . esc_html((string) $game['opponent']['name']) . '</span></a>'
+            . '<span class="bho-who">' . esc_html((string) $game['opponent']['name']) . '</span>'
+            . '<em>' . esc_html((string) ($game['opponentKillTeam'] ?? '—')) . '</em></a>'
+            . ($excluded ? ' <em class="bho-tag">' . esc_html($this->t['not_counted']) . '</em>' : '')
+            . '</span>'
             . $this->score($game['score'], $game['opponentScore'])
             . '<span class="bho-result bho-' . esc_attr($result) . '">' . esc_html($this->t[$result]) . '</span>'
             . '<span class="bho-delta">' . $this->change($game['ratingChange']) . '</span>'
             . '<span class="bho-after">' . esc_html((string) ($game['ratingAfter'] ?? '')) . '</span>'
-            . '<span class="bho-teams">' . esc_html((string) ($game['killTeam'] ?? '—'))
-            . ' <em>' . esc_html($this->t['versus']) . '</em> '
-            . esc_html((string) ($game['opponentKillTeam'] ?? '—'))
-            . ($excluded ? ' <em class="bho-tag">' . esc_html($this->t['not_counted']) . '</em>' : '')
-            . '</span>'
+            . '</li>';
+    }
+
+    /**
+     * One rating movement that is not a game: points given by hand, or the bonus a concluded
+     * tournament pays for a placing.
+     *
+     * It takes the width of the columns a game fills with an opponent, a score and a result, because
+     * it has none of the three — and leaving them empty is three gaps where a reader looks for
+     * numbers.
+     *
+     * @param array<string,mixed> $award
+     */
+    private function award(array $award, string $event): string
+    {
+        return '<li class="bho-award">'
+            . $this->day($award['awardedOn'] ?? null)
+            . '<span class="bho-event">' . esc_html($event) . '</span>'
+            . '<span class="bho-round"></span>'
+            . '<span class="bho-match">' . esc_html($this->awardReason($award)) . '</span>'
+            . '<span class="bho-delta">' . $this->change((int) $award['points']) . '</span>'
+            . '<span class="bho-after">' . esc_html((string) ($award['ratingAfter'] ?? '')) . '</span>'
             . '</li>';
     }
 

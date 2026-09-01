@@ -15,8 +15,8 @@ plugin: a breaking change over there means `/api/v2/` and a plugin update, in th
 [bho_all_games per="25"]                    every game of the season, paginated
 ```
 
-Without `season` a block shows whichever season the ladder application calls current, which is what
-one club running one game wants. Naming one is how a site carries **several ladders at once**: the
+Without `season` a block shows whichever season the ladder application marks as the **default**,
+which is what one club running one game wants. Naming one is how a site carries **several ladders at once**: the
 club runs more than one game, each with its own seasons, and only one of them can be current over
 there. The id is on the Seasons screen in the ladder's admin area — an id and not a name, because a
 name is a thing somebody renames and a page that then shows an empty table gives no clue why.

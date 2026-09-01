@@ -209,10 +209,10 @@ final class BHO_Settings
             <h2>Mehrere Ladders auf einer Seite</h2>
             <p>
                 Ohne Angabe zeigen beide Shortcodes die Saison, die in der Ladder-Anwendung als
-                <em>aktuell</em> markiert ist. Läuft mehr als ein Spiel parallel, sagt die Seite,
+                <em>Standard</em> markiert ist. Läuft mehr als ein Spiel parallel, sagt die Seite,
                 welche Saison sie meint: <code>[bho_ladder season="12"]</code> und
-                <code>[bho_all_games season="12"]</code>. Die Nummer steht in der Ladder-Anwendung
-                unter <em>Seasons</em>.
+                <code>[bho_all_games season="12"]</code>. Die Nummern stehen nebenan unter
+                <a href="<?php echo esc_url(admin_url('options-general.php?page=bho-seasons')); ?>">Saisons</a>.
             </p>
             <p>
                 Die Angabe zieht sich durch: Tabelle, letzte Spiele und die Spielerseite dahinter

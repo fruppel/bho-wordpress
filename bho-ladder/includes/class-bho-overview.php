@@ -3,9 +3,12 @@
  * Which tournaments count towards which season, in the WordPress admin.
  *
  * Read-only on purpose. The ladder's own admin area is where an organiser assigns a tournament, and
- * two write paths to one dataset means the rules that hold it together — exactly one current season,
+ * two write paths to one dataset means the rules that hold it together — exactly one default season,
  * one season per tournament, a PUT that replaces the whole set — either live in two places or drift
  * apart. This screen answers "what is where" and hands over for "change it".
+ *
+ * It is also where the season ids are looked up, which is what a shortcode names to show a season
+ * other than the default — so somebody setting a page up never has to leave WordPress for it.
  */
 
 declare(strict_types=1);
@@ -76,9 +79,19 @@ final class BHO_Overview
             <?php foreach ($data['seasons'] as $season) : ?>
                 <h2>
                     <?php echo esc_html((string) $season['name']); ?>
-                    <?php if ($season['isCurrent']) : ?>
+                    <code style="font-size:13px;font-weight:400"><?php
+                        echo esc_html(sprintf('season="%d"', (int) ($season['id'] ?? 0)));
+                    ?></code>
+                    <?php
+                    // `isDefault` since the ladder learned to run several games side by side — there
+                    // are several seasons being played at once now, and what is unique is only which
+                    // one a page gets that names none. The old key is read as a fallback so a site
+                    // updated before the ladder still shows the mark.
+                    $isDefault = (bool) ($season['isDefault'] ?? $season['isCurrent'] ?? false);
+                    ?>
+                    <?php if ($isDefault) : ?>
                         <span class="dashicons dashicons-yes-alt" style="color:#00a32a" aria-hidden="true"></span>
-                        <span style="font-size:13px;font-weight:400">aktuelle Saison — diese zeigt die öffentliche Ladder</span>
+                        <span style="font-size:13px;font-weight:400">Standard-Saison — diese zeigt ein Block ohne <code>season</code></span>
                     <?php endif; ?>
                 </h2>
                 <?php self::table($season['tournaments']); ?>
@@ -98,6 +111,25 @@ final class BHO_Overview
         <?php
     }
 
+    /**
+     * Herald's name for a game, as a person would write it: `KILL_TEAM` becomes "Kill Team".
+     *
+     * Not a lookup table — there are dozens of systems on Herald and a club that adds one should not
+     * need a plugin release to see it spelt properly. The one exception is a name no rule produces.
+     */
+    private static function gameName(string $system): string
+    {
+        if ($system === '') {
+            return '—';
+        }
+
+        if ($system === 'WARHAMMER_40000') {
+            return 'Warhammer 40,000';
+        }
+
+        return ucwords(strtolower(str_replace('_', ' ', $system)));
+    }
+
     /** @param array<int,array<string,mixed>> $tournaments */
     private static function table(array $tournaments): void
     {
@@ -110,6 +142,7 @@ final class BHO_Overview
             <thead>
                 <tr>
                     <th>Turnier</th>
+                    <th style="width:11rem">Spiel</th>
                     <th style="width:12rem">Zeitraum</th>
                     <th style="width:9rem">Status</th>
                 </tr>
@@ -121,6 +154,12 @@ final class BHO_Overview
                             <a href="<?php echo esc_url((string) $tournament['url']); ?>" target="_blank" rel="noopener">
                                 <?php echo esc_html((string) $tournament['name']); ?>
                             </a>
+                        </td>
+                        <td>
+                            <?php
+                            // Absent against a ladder that imports one game and does not say which.
+                            echo esc_html(self::gameName((string) ($tournament['gameSystem'] ?? '')));
+                            ?>
                         </td>
                         <td>
                             <?php echo esc_html(

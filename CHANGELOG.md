@@ -47,6 +47,20 @@ where a change here needs a change there, the entry says so.
   Two blocks on one page get two cached answers, not one that keeps being overwritten: the cache key
   is the request path, and the path carries the season.
 
+- The **Saisons** screen now prints each season's `season="…"` beside its name, so a page can be set
+  up without leaving WordPress to look the number up, and a **Spiel** column beside every tournament
+  — a list covering several games is otherwise one nobody can read.
+
+### Changed
+
+- The season the ladder falls back to is called the **default** rather than the *current* one, in
+  step with the ladder application. With several games run side by side there are several seasons
+  being played at once, so "current" was a claim of uniqueness that no longer held; what is unique is
+  which season a block gets that names none.
+
+  Against a ladder that still sends the old `isCurrent`, the Saisons screen reads that instead, so a
+  site updated before the ladder still marks the right row.
+
 - **Bonus points on a player's page**, in a list under their games: the day, why, what it was worth
   and where the rating stood afterwards. The club can now give points out by hand for what the ladder
   cannot see on its own — a side event, a tournament whose results never reached Herald — and this is

@@ -73,7 +73,6 @@ function bho_ladder_strings(): array
             'first' => 'Erster Platz',
             'second' => 'Zweiter Platz',
             'third' => 'Dritter Platz',
-            'note_provisional' => '%1$s: %2$d von etwa %3$d Spielen gezählt — die Platzierungen und die Bonuspunkte daraus sind vorläufig.',
         ],
         'en' => [
             'all_games' => 'See every game →',
@@ -128,7 +127,6 @@ function bho_ladder_strings(): array
             'first' => 'First place',
             'second' => 'Second place',
             'third' => 'Third place',
-            'note_provisional' => '%1$s: %2$d of about %3$d games counted, so its placings — and the bonus points from them — are provisional.',
         ],
         'es' => [
             'all_games' => 'Ver todas las partidas →',
@@ -183,7 +181,6 @@ function bho_ladder_strings(): array
             'first' => 'Primer puesto',
             'second' => 'Segundo puesto',
             'third' => 'Tercer puesto',
-            'note_provisional' => '%1$s: se han contado %2$d de unas %3$d partidas, así que sus puestos —y los puntos de bonificación que salen de ellos— son provisionales.',
         ],
     ];
 

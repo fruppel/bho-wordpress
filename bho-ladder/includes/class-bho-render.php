@@ -37,9 +37,7 @@ final class BHO_Render
             $html .= $this->notice($this->t['stale']);
         }
 
-        foreach ($data['notes'] ?? [] as $note) {
-            $html .= $this->note($note);
-        }
+        $html .= $this->noticeBoxes();
 
         $html .= $this->meta($data['tournaments'] ?? [], $data['updatedAt'] ?? null);
 
@@ -670,24 +668,47 @@ final class BHO_Render
         return $html . '</p>';
     }
 
-    /** @param array<string,mixed> $note */
-    private function note(array $note): string
+    /**
+     * Free-text, coloured announcements, grouped into one box per colour rather than one box per
+     * notice — several of the same colour are the normal case, and a stack of identical-looking boxes
+     * would say nothing a single one with two lines in it does not.
+     *
+     * A failure here is swallowed rather than shown: these are decoration on top of a table that works
+     * without them, and an ladder page that broke because an announcement could not be fetched would be
+     * the wrong way round.
+     */
+    private function noticeBoxes(): string
     {
-        $params = $note['params'] ?? [];
+        $data = $this->api->notices();
+        if (is_wp_error($data)) {
+            return '';
+        }
 
-        $text = match ($note['code'] ?? '') {
-            'provisionalPlacings' => sprintf(
-                $this->t['note_provisional'],
-                $params['tournament'] ?? '',
-                (int) ($params['counted'] ?? 0),
-                (int) ($params['expected'] ?? 0),
-            ),
-            // A code this plugin has no sentence for is skipped rather than printed: the application
-            // can add one before the plugin is updated, and a raw key on the page helps nobody.
-            default => '',
-        };
+        $byColor = [];
+        foreach ($data['notices'] ?? [] as $notice) {
+            $color = (string) ($notice['color'] ?? '');
+            if (!in_array($color, ['red', 'yellow', 'blue'], true)) {
+                continue;
+            }
+            $byColor[$color][] = (string) ($notice['message'] ?? '');
+        }
 
-        return $text === '' ? '' : '<p class="bho-note">' . esc_html($text) . '</p>';
+        $html = '';
+        // Red first: whatever needs the most attention is what a visitor should read first.
+        foreach (['red', 'yellow', 'blue'] as $color) {
+            if (empty($byColor[$color])) {
+                continue;
+            }
+
+            $html .= '<div class="bho-announcement bho-announcement-' . $color . '">'
+                . implode('', array_map(
+                    static fn(string $message): string => '<p>' . esc_html($message) . '</p>',
+                    $byColor[$color],
+                ))
+                . '</div>';
+        }
+
+        return $html;
     }
 
     /**

@@ -338,7 +338,6 @@
 
 .bho-foot { margin: 0.9rem 0 0; font-size: 0.8rem; color: var(--bho-quiet); }
 
-.bho-note,
 .bho-notice {
   margin: 0 0 1rem;
   padding: 0.7rem 0.9rem;
@@ -348,6 +347,26 @@
   border-left: 3px solid color-mix(in srgb, #d19a00 60%, currentColor);
   font-size: 0.87rem;
 }
+
+/*
+ * Free-text announcements, one box per colour. Same construction as .bho-notice — a tinted left
+ * border on the theme-neutral panel — so a page can carry both without one looking like an
+ * afterthought next to the other.
+ */
+.bho-announcement {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  background: var(--bho-panel);
+  border: 1px solid var(--bho-line);
+  font-size: 0.87rem;
+}
+.bho-announcement p { margin: 0; }
+.bho-announcement p + p { margin-top: 0.4rem; }
+
+.bho-announcement-red { border-left: 3px solid color-mix(in srgb, #d1372f 65%, currentColor); }
+.bho-announcement-yellow { border-left: 3px solid color-mix(in srgb, #d19a00 60%, currentColor); }
+.bho-announcement-blue { border-left: 3px solid color-mix(in srgb, #2f6fd1 65%, currentColor); }
 
 /*
  * The line above the table: what is being played on the left, when it was last read on the right.

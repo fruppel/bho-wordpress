@@ -12,7 +12,19 @@ where a change here needs a change there, the entry says so.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **Free-text, coloured announcements**, shown above the standings and grouped into one box per
+  colour — yellow, red or blue. Written and posted from the ladder application's own admin area, so a
+  one-off message no longer needs a plugin update to say something new; the sentence comes from the
+  API exactly as an organiser wrote it. Needs a ladder that answers `GET /api/v1/notices`.
+
+### Removed
+
+- The `provisionalPlacings` note this plugin knew how to render. The ladder application dropped the
+  tournament bonus and the finding that came with it, so the code could never arrive here again; the
+  free-text announcements above are its replacement. `excludedGames`, the other finding the standings
+  used to send, was never rendered here to begin with.
 
 ## [0.5.0] — 2026-08-29
 

@@ -2,9 +2,10 @@
 /**
  * The BHO API, cached.
  *
- * Three endpoints, all public and all answering without a token: the whole table, one player's games,
- * and which tournaments count towards which season. Nothing here writes; the application on the other
- * end owns the data and has its own admin area for it.
+ * Three endpoints, all public and all answering without a token: the whole table, one page of games,
+ * and one player's games. Nothing here writes; the application on the other end owns the data and has
+ * its own admin area for it — which is also where `/api/v1/seasons` is read now that this plugin has
+ * no screen listing them.
  *
  * Every read takes an optional season, and the cache follows for free: the key is the path and the
  * path carries the season, so two ladders on one site are two cached answers rather than one that
@@ -69,20 +70,6 @@ final class BHO_Api
         }
 
         return $this->get('/api/v1/ladder' . ($query === [] ? '' : '?' . http_build_query($query)));
-    }
-
-    /**
-     * Every season and what counts towards it. Read-only, like everything here.
-     *
-     * Changing the assignment stays in the ladder's own admin area: it would need a credential with
-     * write access sitting in this database, and this is a WordPress on shared hosting — the most
-     * attacked software in the whole arrangement — for a job somebody does five times a year.
-     *
-     * @return array<string,mixed>|WP_Error
-     */
-    public function seasons(): array|WP_Error
-    {
-        return $this->get('/api/v1/seasons');
     }
 
     /**

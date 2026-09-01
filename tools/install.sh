@@ -49,7 +49,6 @@ wp theme mod set bc_secondary_font          'Roboto' >/dev/null 2>&1 || true
 
 echo "→ plugin"
 wp plugin activate bho-ladder >/dev/null
-# Set after the pages exist, because the games page is referenced by id.
 
 PAGE=$(wp post list --post_type=page --name=ladder --field=ID --post_status=publish 2>/dev/null | head -1)
 if [ -z "$PAGE" ]; then
@@ -70,7 +69,7 @@ wp post update "$PAGE" --post_content='[bho_ladder]' >/dev/null
 wp post update "$GAMES" --post_content='[bho_all_games per="25"]' >/dev/null
 
 wp option update bho_ladder_settings --format=json \
-  "{\"api\":\"$BHO_API\",\"ttl\":5,\"games_page\":$GAMES,\"language\":\"en\"}" >/dev/null
+  "{\"api\":\"$BHO_API\",\"ttl\":5,\"language\":\"en\"}" >/dev/null
 
 # Overwritten every run rather than only at creation: a demo site that keeps a title from an earlier
 # version of this script is a demo site nobody trusts.

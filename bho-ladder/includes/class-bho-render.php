@@ -430,20 +430,32 @@ final class BHO_Render
      * its own drifted from the block in spacing, in what it showed and in how a score was drawn, and
      * two ways of printing one thing is one too many.
      */
-    public function allGames(int $perPage, int $page): string
+    /**
+     * Every game of the season, a page at a time.
+     *
+     * `$withBack` is set when this is `[bho_ladder]` showing its every-game view rather than a page
+     * of its own: the reader came from the standings on this very page and needs the way back, the
+     * same way the player view offers one.
+     */
+    public function allGames(int $perPage, int $page, bool $withBack = false): string
     {
+        $back = $withBack
+            ? '<p class="bho-back"><a href="' . esc_url(self::ladderUrl()) . '">'
+                . esc_html($this->t['back']) . '</a></p>'
+            : '';
+
         $data = $this->api->games($page, $perPage, $this->season);
 
         if (is_wp_error($data)) {
-            return $this->wrap($this->notice($this->t['unavailable'] . ' (' . $data->get_error_message() . ')'));
+            return $this->wrap($back . $this->notice($this->t['unavailable'] . ' (' . $data->get_error_message() . ')'));
         }
 
         $games = $data['games'] ?? [];
         if ($games === []) {
-            return $this->wrap($this->notice($this->t['empty']));
+            return $this->wrap($back . $this->notice($this->t['empty']));
         }
 
-        $html = '';
+        $html = $back;
         if ($this->api->servedStale()) {
             $html .= $this->notice($this->t['stale']);
         }
@@ -503,8 +515,11 @@ final class BHO_Render
             return '';
         }
 
+        // Built on the current URL rather than on the permalink: `[bho_ladder]`'s every-game view
+        // lives on a parameter, and a pager assembled from the bare page would drop it and hand back
+        // page two of the standings.
         $link = static function (int $to, string $label): string {
-            return '<a href="' . esc_url(add_query_arg(BHO_LADDER_PAGE_PARAM, $to, get_permalink()))
+            return '<a href="' . esc_url(add_query_arg(BHO_LADDER_PAGE_PARAM, $to))
                 . '">' . esc_html($label) . '</a>';
         };
 
@@ -517,16 +532,27 @@ final class BHO_Render
     }
 
     /** Only when a page has been named in the settings — otherwise there is nowhere to send anybody. */
+    /**
+     * "See every game" — on this page, in this season.
+     *
+     * A parameter on the page the block is already on, since 2026-09-02. It used to be a page id
+     * somebody picked in the settings, which was one page and therefore one season: the moment the
+     * club ran a second ladder, the 40k block's link led to Kill Team's games. Nothing to configure
+     * now, and nothing to get wrong.
+     */
     private function allGamesLink(): string
     {
-        $page = BHO_Settings::all()['games_page'];
-
-        if ($page <= 0 || !get_post($page)) {
-            return '';
-        }
-
-        return '<p class="bho-foot"><a href="' . esc_url((string) get_permalink($page)) . '">'
+        return '<p class="bho-foot"><a href="'
+            . esc_url(add_query_arg(BHO_LADDER_GAMES_PARAM, 1, get_permalink())) . '">'
             . esc_html($this->t['all_games']) . '</a></p>';
+    }
+
+    /** This page with none of the plugin's own parameters on it, which is the standings. */
+    private static function ladderUrl(): string
+    {
+        return (string) remove_query_arg(
+            [BHO_LADDER_GAMES_PARAM, BHO_LADDER_PAGE_PARAM, BHO_LADDER_PLAYER_PARAM],
+        );
     }
 
     /** The wrapper every entry point needs, so the CSS variables are in scope. */

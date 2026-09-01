@@ -53,6 +53,25 @@ where a change here needs a change there, the entry says so.
 
 ### Changed
 
+- **"See every game" stays on the page it was clicked on** and shows the season that block is
+  showing. It was a page id picked in the settings — one page, and therefore one season: the moment
+  the club ran a second ladder, the 40k block's link led to Kill Team's games. The setting is gone,
+  and with it the need for a second page at all.
+
+  `[bho_ladder]` now has three views on one address, the way the player page already worked:
+  `?bho_games=1` is every game, `?bho_player=…` is one player, neither is the standings. `per="25"`
+  sets the rows on that view.
+
+  `[bho_all_games]` stays for a site that wants every game as its own menu entry, and takes the same
+  `per` and `season`.
+
+### Removed
+
+- **The *Saisons* screen in the WordPress admin.** It listed what the ladder's own Seasons screen
+  lists, from the same endpoint, read-only — a second place to look that could only ever be as
+  correct as the first. The settings screen links straight to it instead, and the tab bar the two
+  screens shared goes with it.
+
 - The **provisional placings** note above the table is gone. It appeared for the whole of the several
   weeks a tournament runs, which is a paragraph people read past — and the panel right above it
   already announces the event that is still being played, which is the same fact in a form that says

@@ -43,6 +43,16 @@ define('BHO_LADDER_PLAYER_PARAM', 'bho_player');
 define('BHO_LADDER_PAGE_PARAM', 'bho_page');
 
 /**
+ * Set when `[bho_ladder]` should show every game of its season instead of the standings.
+ *
+ * The same trick as the player parameter, and for a better reason than convenience: the block knows
+ * which season it is showing, so the list it opens shows that season too. Before this, "see every
+ * game" led to a page somebody had configured in the settings — one page, one season, and therefore
+ * the wrong games as soon as the club ran a second ladder.
+ */
+define('BHO_LADDER_GAMES_PARAM', 'bho_games');
+
+/**
  * Which column the standings are sorted by, `-` for the other direction: `?bho_sort=-games`.
  *
  * In the URL rather than in a script, so a sorted table is a link somebody can send. It costs nothing
@@ -54,13 +64,10 @@ define('BHO_LADDER_SORT_PARAM', 'bho_sort');
 require_once BHO_LADDER_DIR . 'includes/strings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-api.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
-require_once BHO_LADDER_DIR . 'includes/nav.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-settings.php';
-require_once BHO_LADDER_DIR . 'includes/class-bho-overview.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-updates.php';
 
 BHO_Settings::boot();
-BHO_Overview::boot();
 BHO_Updates::boot();
 
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
@@ -80,12 +87,13 @@ add_shortcode('bho_all_games', 'bho_all_games_shortcode');
  *   limit="0"   rows in the table; 0 is all of them (use 10 for a front-page teaser)
  *   games="8"   how many recent games under it; 0 leaves them out
  *   rules="1"   the rules panel; "0" leaves it out
- *   season=""   which season, by id; empty is whichever one the ladder calls current
+ *   season=""   which season, by id; empty is the season the ladder marks as the default
+ *   per="25"    rows on the every-game view this block opens into
  */
 function bho_ladder_shortcode(array|string $atts = []): string
 {
     $atts = shortcode_atts(
-        ['limit' => '0', 'games' => '8', 'rules' => '1', 'season' => ''],
+        ['limit' => '0', 'games' => '8', 'rules' => '1', 'season' => '', 'per' => '25'],
         $atts,
         'bho_ladder',
     );
@@ -93,14 +101,22 @@ function bho_ladder_shortcode(array|string $atts = []): string
 
     $player = bho_ladder_player_in_url();
 
-    return ($player > 0
-        ? $render->player($player)
-        : $render->ladder(
+    // Three views, one shortcode and one page. Which one is in the URL, so every link between them
+    // stays on this page and keeps the season this block was given — see the parameter definitions.
+    if ($player > 0) {
+        $html = $render->player($player);
+    } elseif (bho_ladder_wants_every_game()) {
+        $html = $render->allGames(max((int) $atts['per'], 1), bho_ladder_page_in_url(), true);
+    } else {
+        $html = $render->ladder(
             (int) $atts['limit'],
             $atts['rules'] !== '0',
             bho_ladder_sort_in_url(),
             max((int) $atts['games'], 0),
-        )) . bho_ladder_version_line();
+        );
+    }
+
+    return $html . bho_ladder_version_line();
 }
 
 /**
@@ -109,9 +125,13 @@ function bho_ladder_shortcode(array|string $atts = []): string
  * Its own page because it is a lookup, not a summary: the block above lists the last few and links
  * here for the rest.
  *
+ * Kept for a site that wants every game in its own menu entry. `[bho_ladder]` opens the same list on
+ * its own page, which is where the block's "see every game" link goes — that one needs no second page
+ * and carries the season with it.
+ *
  * Attributes:
  *   per="25"    rows per page
- *   season=""   which season, by id; empty is whichever one the ladder calls current
+ *   season=""   which season, by id; empty is the season the ladder marks as the default
  */
 function bho_all_games_shortcode(array|string $atts = []): string
 {
@@ -199,6 +219,11 @@ function bho_ladder_player_in_url(): int
     return isset($_GET[BHO_LADDER_PLAYER_PARAM])
         ? absint(wp_unslash($_GET[BHO_LADDER_PLAYER_PARAM]))
         : 0;
+}
+
+function bho_ladder_wants_every_game(): bool
+{
+    return isset($_GET[BHO_LADDER_GAMES_PARAM]);
 }
 
 function bho_ladder_page_in_url(): int

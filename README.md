@@ -25,6 +25,12 @@ It runs through the whole block: table, latest games, and the player page behind
 one is the point — a player's page is their whole career across every game, so a 40k page would
 otherwise open onto somebody's Kill Team results.
 
+`[bho_ladder]` is one address with three views, chosen by a query parameter: the standings,
+`?bho_player=…` for one player, and `?bho_games=1` for every game of the season. "See every game"
+under the latest games goes to the third — on the same page, in the same season. It used to lead to a
+page picked in the settings, which was one page and therefore one season, so the link broke the day
+the club ran a second ladder.
+
 Two shortcodes, because there are two pages. `[bho_ladder]` is the standings, the last few games and
 the rules in one block: the table is what the page is for, the games say what just happened, and the
 rules are what a reader checks a row against. Above 960 pixels the games and the rules stand beside
@@ -143,16 +149,10 @@ engines and script blockers see it, and one answer is cached for everybody inste
 visitor. The ladder is recomputed from every game on each request over there, so that last one is not
 a detail.
 
-Both screens live under `Settings` and carry the same two tabs — *Einstellungen* and *Saisons* — so
-each one leads to the other. Without them they were reachable only by knowing the URL, which is not
-navigation.
-
-`Settings → BHO Saisons` shows which tournaments count towards which season, and names the ones
-counting towards nothing — a state somebody has to be able to notice rather than discover when a table
-looks short. It is **read-only**: assigning happens in the ladder's own admin area, and the screen
-links there. Two write paths to one dataset means the rules that hold it together — exactly one
-current season, one season per tournament — either live in two places or drift apart. It also spares
-this WordPress a credential with write access, which on shared hosting is the last place to keep one.
+There is one screen. A second one listed which tournaments counted towards which season, read-only
+from the same endpoint the blocks read — which is what the ladder's own Seasons screen shows, from
+the same data, with the buttons that change it. A second place to look could only ever be as correct
+as the first, and it was one more thing to keep in step; the settings screen links across instead.
 
 `Settings → BHO Ladder` holds the address of the ladder and how long an answer is kept (five minutes by
 default; the table only changes when somebody presses Import). If the ladder cannot be reached, the

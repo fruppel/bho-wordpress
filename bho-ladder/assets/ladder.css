@@ -317,7 +317,7 @@
 /* Inside the panel the legend needs no rule above it — the caption already separates it. */
 .bho-rules .bho-legend { margin: 0; padding: 0; border-top: 0; }
 
-/* ---------------------------------------------------------------- legend, notes, panels */
+/* ---------------------------------------------------------------- legend, notices, panels */
 
 .bho-legend {
   display: flex;

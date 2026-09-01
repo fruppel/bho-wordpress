@@ -53,6 +53,14 @@ where a change here needs a change there, the entry says so.
 
 ### Changed
 
+- The **provisional placings** note above the table is gone. It appeared for the whole of the several
+  weeks a tournament runs, which is a paragraph people read past — and the panel right above it
+  already announces the event that is still being played, which is the same fact in a form that says
+  when it ends and where to watch it.
+
+  `notes` is still read from the ladder and simply not rendered, so putting it back is a function
+  here rather than a change on both sides.
+
 - The season the ladder falls back to is called the **default** rather than the *current* one, in
   step with the ladder application. With several games run side by side there are several seasons
   being played at once, so "current" was a claim of uniqueness that no longer held; what is unique is

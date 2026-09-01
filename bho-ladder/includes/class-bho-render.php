@@ -582,9 +582,9 @@ final class BHO_Render
     /**
      * One game, from this player's side first.
      *
-     * The columns are the same eight the every-game list uses and the same the admin draws: day,
-     * event, round, the two sides with their kill teams, score, result, what it moved and where the
-     * rating stood.
+     * Six columns, the same the admin draws: the day, what kind of row it is, the event, what
+     * happened, and the two numbers. The round, the two sides, the score and the result are one
+     * description rather than four columns of their own — four columns a bonus row leaves empty.
      *
      * @param array<string,mixed> $game
      * @param array<string,mixed> $me
@@ -598,9 +598,11 @@ final class BHO_Render
 
         return '<li' . ($excluded ? ' class="bho-excluded"' : '') . '>'
             . $this->day($game['playedOn'] ?? $game['startDate'] ?? null)
-            . '<span class="bho-event">' . esc_html($event) . '</span>'
-            . '<span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
+            . '<span class="bho-kind">' . esc_html($this->t['row_match']) . '</span>'
+            . '<span class="bho-event">' . esc_html($event !== '' ? $event : '—') . '</span>'
             . '<span class="bho-match">'
+            . '<span class="bho-round">R' . esc_html((string) $game['round']) . '</span>'
+            . '<span class="bho-pair">'
             . '<span class="bho-party">' . $this->flag($me['country'] ?? null)
             . '<span class="bho-who">' . esc_html((string) $me['name']) . '</span>'
             . '<em>' . esc_html((string) ($game['killTeam'] ?? '—')) . '</em></span>'
@@ -610,10 +612,11 @@ final class BHO_Render
             . '">' . $this->flag($game['opponent']['country'] ?? null)
             . '<span class="bho-who">' . esc_html((string) $game['opponent']['name']) . '</span>'
             . '<em>' . esc_html((string) ($game['opponentKillTeam'] ?? '—')) . '</em></a>'
-            . ($excluded ? ' <em class="bho-tag">' . esc_html($this->t['not_counted']) . '</em>' : '')
             . '</span>'
             . $this->score($game['score'], $game['opponentScore'])
             . '<span class="bho-result bho-' . esc_attr($result) . '">' . esc_html($this->t[$result]) . '</span>'
+            . ($excluded ? '<em class="bho-tag">' . esc_html($this->t['not_counted']) . '</em>' : '')
+            . '</span>'
             . '<span class="bho-delta">' . $this->change($game['ratingChange']) . '</span>'
             . '<span class="bho-after">' . esc_html((string) ($game['ratingAfter'] ?? '')) . '</span>'
             . '</li>';
@@ -623,9 +626,7 @@ final class BHO_Render
      * One rating movement that is not a game: points given by hand, or the bonus a concluded
      * tournament pays for a placing.
      *
-     * It takes the width of the columns a game fills with an opponent, a score and a result, because
-     * it has none of the three — and leaving them empty is three gaps where a reader looks for
-     * numbers.
+     * The same six columns a game fills; its description is the reason rather than a match.
      *
      * @param array<string,mixed> $award
      */
@@ -633,8 +634,8 @@ final class BHO_Render
     {
         return '<li class="bho-award">'
             . $this->day($award['awardedOn'] ?? null)
-            . '<span class="bho-event">' . esc_html($event) . '</span>'
-            . '<span class="bho-round"></span>'
+            . '<span class="bho-kind">' . esc_html($this->t['row_bonus']) . '</span>'
+            . '<span class="bho-event">' . esc_html($event !== '' ? $event : '—') . '</span>'
             . '<span class="bho-match">' . esc_html($this->awardReason($award)) . '</span>'
             . '<span class="bho-delta">' . $this->change((int) $award['points']) . '</span>'
             . '<span class="bho-after">' . esc_html((string) ($award['ratingAfter'] ?? '')) . '</span>'

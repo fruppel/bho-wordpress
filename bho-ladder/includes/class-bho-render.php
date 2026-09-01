@@ -73,9 +73,22 @@ final class BHO_Render
         }
 
         $games = $data['games'] ?? [];
+        // Absent against a ladder that does not send them yet, which is the state this plugin has to
+        // survive: the application it reads is deployed separately from it.
+        $awards = $data['awards'] ?? [];
+
+        // The rating stands where the last award left it, not where the last game did — they are
+        // applied after every game of the season, whatever day they carry.
         $rated = array_values(array_filter($games, static fn(array $g): bool => $g['ratingAfter'] !== null));
-        $rating = $rated === [] ? null : end($rated)['ratingAfter'];
-        $swing = array_sum(array_map(static fn(array $g): int => (int) ($g['ratingChange'] ?? 0), $games));
+        $paid = array_values(array_filter($awards, static fn(array $a): bool => $a['ratingAfter'] !== null));
+        $rating = match (true) {
+            $paid !== [] => end($paid)['ratingAfter'],
+            $rated !== [] => end($rated)['ratingAfter'],
+            default => null,
+        };
+
+        $swing = array_sum(array_map(static fn(array $g): int => (int) ($g['ratingChange'] ?? 0), $games))
+            + array_sum(array_map(static fn(array $a): int => (int) $a['points'], $awards));
 
         // Only the games that counted for this player, so this line agrees with their row in the
         // table: a result taken out of the rating is out of the record with it.
@@ -114,7 +127,7 @@ final class BHO_Render
             count($counted),
         )) . '</p>';
 
-        if ($games === []) {
+        if ($games === [] && $awards === []) {
             return $html . $this->notice($this->t['no_games']) . '</div>';
         }
 
@@ -132,7 +145,65 @@ final class BHO_Render
             $html .= $this->game($game);
         }
 
-        return $html . '</ul></div>';
+        return $html . ($games === [] ? '' : '</ul>') . $this->awards($awards) . '</div>';
+    }
+
+    /**
+     * The points somebody was given by hand, under their games.
+     *
+     * Their own list rather than rows among the games: they have no opponent, no score and no
+     * result, so half of a game row would be empty for every one of them. They are printed all the
+     * same, and with the reason beside each one — this is the part of a rating that no game accounts
+     * for, and a number nobody can trace is one people argue about.
+     *
+     * They sit last because that is where they land in the rating: after every game of their season,
+     * whatever day they carry. The running total in the right-hand column therefore continues from
+     * the last game rather than restarting.
+     *
+     * @param array<int,array<string,mixed>> $awards
+     */
+    private function awards(array $awards): string
+    {
+        if ($awards === []) {
+            return '';
+        }
+
+        $html = '<h3 class="bho-group">' . esc_html($this->t['bonus_points']) . '</h3>'
+            . '<ul class="bho-games bho-awards">';
+
+        foreach ($awards as $award) {
+            $html .= '<li>'
+                . $this->day($award['awardedOn'] ?? null)
+                . '<span class="bho-reason">' . esc_html($this->awardReason($award)) . '</span>'
+                . '<span class="bho-delta">' . $this->change((int) $award['points']) . '</span>'
+                . '<span class="bho-after">' . esc_html((string) ($award['ratingAfter'] ?? '')) . '</span>'
+                . '</li>';
+        }
+
+        return $html . '</ul>';
+    }
+
+    /**
+     * Why, in the language the page is being read in.
+     *
+     * The API sends a code and the words beside it, never a finished sentence — the same arrangement
+     * as the ladder's findings, and for the same reason: this page is read in three languages and
+     * only it knows which. A code with no wording here falls back to the note, which is the honest
+     * answer when the application has added a reason before the plugin was updated. `other` always
+     * carries one; the three named reasons carry one only where somebody named the event.
+     *
+     * @param array<string,mixed> $award
+     */
+    private function awardReason(array $award): string
+    {
+        $label = $this->t['bonus_' . (string) ($award['reason'] ?? '')] ?? '';
+        $note = trim((string) ($award['note'] ?? ''));
+
+        if ($label === '') {
+            return $note !== '' ? $note : (string) ($award['reason'] ?? '');
+        }
+
+        return $note === '' ? $label : $label . ' — ' . $note;
     }
 
     /**

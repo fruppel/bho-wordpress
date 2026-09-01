@@ -48,6 +48,18 @@ the file it already had — which looked exactly like the change not having been
 On a player's own page the block renders nothing: that page is already a list of games, and this one
 underneath would be the same rows again, most of them about somebody else.
 
+A player's page also lists the **points the club gave out by hand** under their games, with the day,
+the reason and the running rating after each one — the part of a rating no game accounts for, and the
+one that would otherwise leave the arithmetic on that page not adding up. The ladder sends the reason
+as a code (`tournamentFirst`, `other`, …) and `includes/strings.php` writes it out in each of the
+three languages; a code with no wording there falls back to the note the organiser typed, so the
+application can add a reason before this plugin is updated.
+
+The **installed version** is printed in small print at the foot of any page this plugin drew on. Not
+on `wp_footer`, which is after the theme's container and therefore invisible on a theme that puts its
+background there rather than on `body` — inside the block, where the text colour is the one the
+ladder above it is being read in.
+
 `[bho_all_games]` is the same rows again, a page at a time, with previous/next paging. It was a table
 of its own until it drifted from the block in spacing, in what it showed and in how a score was drawn:
 two ways of printing one thing is one too many. Point the *Seite „Alle Spiele"* setting at the page

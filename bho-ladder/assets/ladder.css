@@ -541,6 +541,12 @@
 .bho-delta { width: 2.8rem; flex: none; text-align: right; }
 .bho-after { width: 3.2rem; flex: none; text-align: right; font-size: 0.8rem; color: var(--bho-faint); }
 
+/*
+ * The reason a bonus was given, in the column a game puts its opponent in — so the two lists line up
+ * under each other and the change and the running total stay in one pair of columns down the page.
+ */
+.bho-reason { flex: 1 1 0; min-width: 0; }
+
 /* Its own line: two kill team names and a "vs" cannot be a column next to anything else. */
 .bho-teams { flex: 1 0 100%; padding-left: 2.5rem; font-size: 0.78rem; color: var(--bho-quiet); }
 .bho-teams em { font-style: normal; color: var(--bho-faint); }
@@ -647,3 +653,18 @@
 .bho-pager a { color: inherit; }
 .bho-pager span { color: var(--bho-faint); }
 .bho-pager-of { margin-left: auto; }
+
+/*
+ * Which version of the plugin drew this, at the foot of the page.
+ *
+ * A sibling of the block rather than inside it, so it mixes its own grey instead of reading the
+ * variables — but still inside the theme's content, which is the only place the text colour is
+ * something this plugin can rely on. Small and faint on purpose: it is for whoever is debugging a
+ * site, not for whoever is reading a ladder.
+ */
+.bho-version {
+  margin: 2rem 0 0.5rem;
+  text-align: center;
+  font-size: 0.68rem;
+  color: color-mix(in srgb, currentColor 35%, transparent);
+}

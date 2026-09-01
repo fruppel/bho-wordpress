@@ -3,7 +3,7 @@
  * Plugin Name:       BHO Ladder
  * Plugin URI:        https://github.com/fruppel/bho-wordpress
  * Description:       Draws the Black Hydra Open ladder on a WordPress page, with a detail page per player. Reads the BHO API server-side and caches it.
- * Version:           0.5.0
+ * Version:           0.6.0
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Black Hydra Open
@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 
-define('BHO_LADDER_VERSION', '0.5.0');
+define('BHO_LADDER_VERSION', '0.6.0');
 define('BHO_LADDER_FILE', __FILE__);
 define('BHO_LADDER_DIR', plugin_dir_path(__FILE__));
 define('BHO_LADDER_URL', plugin_dir_url(__FILE__));
@@ -88,14 +88,14 @@ function bho_ladder_shortcode(array|string $atts = []): string
 
     $player = bho_ladder_player_in_url();
 
-    return $player > 0
+    return ($player > 0
         ? $render->player($player)
         : $render->ladder(
             (int) $atts['limit'],
             $atts['rules'] !== '0',
             bho_ladder_sort_in_url(),
             max((int) $atts['games'], 0),
-        );
+        )) . bho_ladder_version_line();
 }
 
 /**
@@ -111,7 +111,8 @@ function bho_all_games_shortcode(array|string $atts = []): string
 {
     $atts = shortcode_atts(['per' => '25'], $atts, 'bho_all_games');
 
-    return bho_ladder_renderer()->allGames((int) $atts['per'], bho_ladder_page_in_url());
+    return bho_ladder_renderer()->allGames((int) $atts['per'], bho_ladder_page_in_url())
+        . bho_ladder_version_line();
 }
 
 /** The stylesheet is loaded here rather than per shortcode: a page may hold several of them. */
@@ -120,6 +121,35 @@ function bho_ladder_renderer(): BHO_Render
     wp_enqueue_style('bho-ladder', BHO_LADDER_URL . 'assets/ladder.css', [], bho_ladder_style_version());
 
     return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings());
+}
+
+/**
+ * Which version is installed, in small print under the last thing this plugin drew.
+ *
+ * The site updates itself from a GitHub release, so "which one is actually on there" is otherwise a
+ * question that needs the plugins screen and an account allowed to open it. On the page, anybody
+ * looking at a table that seems wrong can read the answer out.
+ *
+ * **Appended to the shortcode's own output rather than hooked onto `wp_footer`**, which is where it
+ * started and where it is invisible: that prints after the theme's container, and a theme that puts
+ * its dark background on the container rather than on `body` leaves white text on a white strip. In
+ * here it inherits the colour the ladder above it is being read in, which is the only colour this
+ * plugin can be sure about.
+ *
+ * Once per request. Several shortcodes on one page is the normal arrangement, and the number
+ * repeated under each of them would be three copies of the same footnote.
+ */
+function bho_ladder_version_line(): string
+{
+    static $printed = false;
+
+    if ($printed) {
+        return '';
+    }
+
+    $printed = true;
+
+    return '<p class="bho-version">' . esc_html(sprintf('BHO Ladder %s', BHO_LADDER_VERSION)) . '</p>';
 }
 
 /**

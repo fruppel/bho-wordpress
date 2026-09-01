@@ -26,6 +26,37 @@ where a change here needs a change there, the entry says so.
   free-text announcements above are its replacement. `excludedGames`, the other finding the standings
   used to send, was never rendered here to begin with.
 
+## [0.6.0] — 2026-09-02
+
+### Added
+
+- **Bonus points on a player's page**, in a list under their games: the day, why, what it was worth
+  and where the rating stood afterwards. The club can now give points out by hand for what the ladder
+  cannot see on its own — a side event, a tournament whose results never reached Herald — and this is
+  the half of that which anybody can read. Their own list rather than rows among the games: a bonus
+  has no opponent, no score and no result, so half a game row would be empty for every one of them.
+
+  The reason arrives as a code and is written out here in all three languages — *Turnierbonus 1./2./3.
+  Platz* and *Sonstige*, with the words the organiser typed beside it. A reason this plugin has no
+  wording for falls back to those words rather than printing a key, so the ladder can add one before
+  the plugin is updated.
+
+  The rating in the head of the page now stands where the last bonus left it rather than where the
+  last game did — they are added after every game of their season, whatever day they carry.
+
+  Needs a ladder that sends `awards` on `/api/v1/players/{id}`; against one that does not, the list is
+  simply absent.
+
+- **The installed version, in small print at the foot of the page.** The site updates itself from a
+  GitHub release, so which one is actually on there otherwise needs the plugins screen and an account
+  allowed to open it — and "which version are you on" is the first question about a table that looks
+  wrong.
+
+  Under the block this plugin drew and not on `wp_footer`, which is where it was first put and where
+  it is invisible: that prints after the theme's container, and a theme carrying its dark background
+  on the container rather than on `body` leaves white text on a white strip. Printed once, however
+  many shortcodes a page holds, and not at all on the pages that hold none.
+
 ## [0.5.0] — 2026-08-29
 
 ### Added

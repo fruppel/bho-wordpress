@@ -100,6 +100,17 @@ final class BHO_Api
         return $this->get('/api/v1/players/' . $id);
     }
 
+    /**
+     * Free-text, coloured announcements — whatever an organiser wants said on the ladder page that is
+     * not one of the standings' own findings. Cached like everything else here.
+     *
+     * @return array<string,mixed>|WP_Error
+     */
+    public function notices(): array|WP_Error
+    {
+        return $this->get('/api/v1/notices');
+    }
+
     /** Whether the last answer came out of the stale copy rather than from the API. */
     public function servedStale(): bool
     {

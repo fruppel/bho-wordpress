@@ -37,6 +37,8 @@ final class BHO_Render
             $html .= $this->notice($this->t['stale']);
         }
 
+        $html .= $this->noticeBoxes();
+
         $html .= $this->meta($data['tournaments'] ?? [], $data['updatedAt'] ?? null);
 
         if ($entries === []) {
@@ -664,6 +666,49 @@ final class BHO_Render
         }
 
         return $html . '</p>';
+    }
+
+    /**
+     * Free-text, coloured announcements, grouped into one box per colour rather than one box per
+     * notice — several of the same colour are the normal case, and a stack of identical-looking boxes
+     * would say nothing a single one with two lines in it does not.
+     *
+     * A failure here is swallowed rather than shown: these are decoration on top of a table that works
+     * without them, and an ladder page that broke because an announcement could not be fetched would be
+     * the wrong way round.
+     */
+    private function noticeBoxes(): string
+    {
+        $data = $this->api->notices();
+        if (is_wp_error($data)) {
+            return '';
+        }
+
+        $byColor = [];
+        foreach ($data['notices'] ?? [] as $notice) {
+            $color = (string) ($notice['color'] ?? '');
+            if (!in_array($color, ['red', 'yellow', 'blue'], true)) {
+                continue;
+            }
+            $byColor[$color][] = (string) ($notice['message'] ?? '');
+        }
+
+        $html = '';
+        // Red first: whatever needs the most attention is what a visitor should read first.
+        foreach (['red', 'yellow', 'blue'] as $color) {
+            if (empty($byColor[$color])) {
+                continue;
+            }
+
+            $html .= '<div class="bho-announcement bho-announcement-' . $color . '">'
+                . implode('', array_map(
+                    static fn(string $message): string => '<p>' . esc_html($message) . '</p>',
+                    $byColor[$color],
+                ))
+                . '</div>';
+        }
+
+        return $html;
     }
 
     /**

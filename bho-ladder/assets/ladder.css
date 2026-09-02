@@ -317,7 +317,7 @@
 /* Inside the panel the legend needs no rule above it — the caption already separates it. */
 .bho-rules .bho-legend { margin: 0; padding: 0; border-top: 0; }
 
-/* ---------------------------------------------------------------- legend, notes, panels */
+/* ---------------------------------------------------------------- legend, notices, panels */
 
 .bho-legend {
   display: flex;
@@ -541,6 +541,41 @@
 .bho-delta { width: 2.8rem; flex: none; text-align: right; }
 .bho-after { width: 3.2rem; flex: none; text-align: right; font-size: 0.8rem; color: var(--bho-faint); }
 
+/*
+ * A player's page is one table across the season, so a game row and a bonus row have to line up:
+ * day, event, round, then the wide middle, then what it moved and where the rating stood. A bonus
+ * has no opponent, no score and no result, so its middle simply takes all three.
+ */
+/*
+ * The description holds a whole game: the round, the two sides, the score and the result. They have
+ * no headings of their own — a bonus row would leave four of them blank — but they still line up
+ * down the page, because a score that wanders left and right with the length of somebody's kill team
+ * is a column nobody can scan. Fixed at both ends, flexible in the middle.
+ */
+.bho-match { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.5rem; flex: 1 1 0; min-width: 0; }
+.bho-match .bho-round { width: 1.8rem; flex: none; }
+.bho-match .bho-pair { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.5rem; flex: 1 1 0; min-width: 0; }
+.bho-match .bho-score { width: 5.2rem; flex: none; margin: 0; justify-content: flex-end; }
+.bho-match .bho-result { width: 5.5rem; flex: none; text-align: left; }
+
+/* What kind of row this is — a game, or points somebody was given. */
+.bho-kind { width: 6.5rem; flex: none; font-size: 0.8rem; color: var(--bho-quiet); }
+.bho-party { display: flex; align-items: baseline; gap: 0.35rem; min-width: 0; color: inherit; text-decoration: none; }
+a.bho-party:hover .bho-who { text-decoration: underline; }
+.bho-match .bho-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.bho-match em { font-style: normal; font-size: 0.78rem; color: var(--bho-quiet); }
+.bho-match .bho-vs { color: var(--bho-faint); }
+
+/*
+ * On every row, so a line lifted out of the middle of the table still says which event it is from —
+ * and wide enough for a whole name, because these differ at the end: "… KILL TEAM — III" and "… —
+ * IV" cut to the same thing, and a column that cannot tell two tournaments apart is worse than none.
+ */
+.bho-games .bho-event { width: 13rem; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Nothing in the two columns a game fills with a score and a result. */
+.bho-award .bho-match { color: var(--bho-quiet); }
+
 /* Its own line: two kill team names and a "vs" cannot be a column next to anything else. */
 .bho-teams { flex: 1 0 100%; padding-left: 2.5rem; font-size: 0.78rem; color: var(--bho-quiet); }
 .bho-teams em { font-style: normal; color: var(--bho-faint); }
@@ -647,3 +682,35 @@
 .bho-pager a { color: inherit; }
 .bho-pager span { color: var(--bho-faint); }
 .bho-pager-of { margin-left: auto; }
+
+/*
+ * Which version of the plugin drew this, at the foot of the page.
+ *
+ * A sibling of the block rather than inside it, so it mixes its own grey instead of reading the
+ * variables — but still inside the theme's content, which is the only place the text colour is
+ * something this plugin can rely on. Small and faint on purpose: it is for whoever is debugging a
+ * site, not for whoever is reading a ladder.
+ */
+.bho-version {
+  margin: 2rem 0 0.5rem;
+  text-align: center;
+  font-size: 0.68rem;
+  color: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+/*
+ * A player's season on a phone.
+ *
+ * Eight columns do not fit 390 pixels and must not try: the two sides of the match take a line each
+ * under the day, and what the game was worth follows on a line of its own. The alternative is what
+ * this looked like first — a score box sitting on top of somebody's name.
+ */
+@media (max-width: 44rem) {
+  .bho-games li { row-gap: 0.25rem; padding: 0.6rem 0.1rem; }
+  .bho-games .bho-event { width: auto; flex: 0 1 auto; font-size: 0.78rem; }
+  .bho-kind { width: auto; flex: 0 1 auto; }
+  .bho-match { flex: 1 0 100%; padding-left: 2.6rem; }
+  .bho-match .bho-pair { flex: 1 0 100%; }
+  .bho-party { flex: 1 0 100%; }
+  .bho-match .bho-vs { display: none; }
+}

@@ -3,7 +3,7 @@
  * Plugin Name:       BHO Ladder
  * Plugin URI:        https://github.com/fruppel/bho-wordpress
  * Description:       Draws the Black Hydra Open ladder on a WordPress page, with a detail page per player. Reads the BHO API server-side and caches it.
- * Version:           0.5.0
+ * Version:           0.6.0
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Black Hydra Open
@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 
-define('BHO_LADDER_VERSION', '0.5.0');
+define('BHO_LADDER_VERSION', '0.6.0');
 define('BHO_LADDER_FILE', __FILE__);
 define('BHO_LADDER_DIR', plugin_dir_path(__FILE__));
 define('BHO_LADDER_URL', plugin_dir_url(__FILE__));
@@ -43,6 +43,16 @@ define('BHO_LADDER_PLAYER_PARAM', 'bho_player');
 define('BHO_LADDER_PAGE_PARAM', 'bho_page');
 
 /**
+ * Set when `[bho_ladder]` should show every game of its season instead of the standings.
+ *
+ * The same trick as the player parameter, and for a better reason than convenience: the block knows
+ * which season it is showing, so the list it opens shows that season too. Before this, "see every
+ * game" led to a page somebody had configured in the settings — one page, one season, and therefore
+ * the wrong games as soon as the club ran a second ladder.
+ */
+define('BHO_LADDER_GAMES_PARAM', 'bho_games');
+
+/**
  * Which column the standings are sorted by, `-` for the other direction: `?bho_sort=-games`.
  *
  * In the URL rather than in a script, so a sorted table is a link somebody can send. It costs nothing
@@ -54,13 +64,10 @@ define('BHO_LADDER_SORT_PARAM', 'bho_sort');
 require_once BHO_LADDER_DIR . 'includes/strings.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-api.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-render.php';
-require_once BHO_LADDER_DIR . 'includes/nav.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-settings.php';
-require_once BHO_LADDER_DIR . 'includes/class-bho-overview.php';
 require_once BHO_LADDER_DIR . 'includes/class-bho-updates.php';
 
 BHO_Settings::boot();
-BHO_Overview::boot();
 BHO_Updates::boot();
 
 add_shortcode('bho_ladder', 'bho_ladder_shortcode');
@@ -80,22 +87,36 @@ add_shortcode('bho_all_games', 'bho_all_games_shortcode');
  *   limit="0"   rows in the table; 0 is all of them (use 10 for a front-page teaser)
  *   games="8"   how many recent games under it; 0 leaves them out
  *   rules="1"   the rules panel; "0" leaves it out
+ *   season=""   which season, by id; empty is the season the ladder marks as the default
+ *   per="25"    rows on the every-game view this block opens into
  */
 function bho_ladder_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['limit' => '0', 'games' => '8', 'rules' => '1'], $atts, 'bho_ladder');
-    $render = bho_ladder_renderer();
+    $atts = shortcode_atts(
+        ['limit' => '0', 'games' => '8', 'rules' => '1', 'season' => '', 'per' => '25'],
+        $atts,
+        'bho_ladder',
+    );
+    $render = bho_ladder_renderer(bho_ladder_season_in($atts));
 
     $player = bho_ladder_player_in_url();
 
-    return $player > 0
-        ? $render->player($player)
-        : $render->ladder(
+    // Three views, one shortcode and one page. Which one is in the URL, so every link between them
+    // stays on this page and keeps the season this block was given — see the parameter definitions.
+    if ($player > 0) {
+        $html = $render->player($player);
+    } elseif (bho_ladder_wants_every_game()) {
+        $html = $render->allGames(max((int) $atts['per'], 1), bho_ladder_page_in_url(), true);
+    } else {
+        $html = $render->ladder(
             (int) $atts['limit'],
             $atts['rules'] !== '0',
             bho_ladder_sort_in_url(),
             max((int) $atts['games'], 0),
         );
+    }
+
+    return $html . bho_ladder_version_line();
 }
 
 /**
@@ -104,22 +125,82 @@ function bho_ladder_shortcode(array|string $atts = []): string
  * Its own page because it is a lookup, not a summary: the block above lists the last few and links
  * here for the rest.
  *
+ * Kept for a site that wants every game in its own menu entry. `[bho_ladder]` opens the same list on
+ * its own page, which is where the block's "see every game" link goes — that one needs no second page
+ * and carries the season with it.
+ *
  * Attributes:
- *   per="25"   rows per page
+ *   per="25"    rows per page
+ *   season=""   which season, by id; empty is the season the ladder marks as the default
  */
 function bho_all_games_shortcode(array|string $atts = []): string
 {
-    $atts = shortcode_atts(['per' => '25'], $atts, 'bho_all_games');
+    $atts = shortcode_atts(['per' => '25', 'season' => ''], $atts, 'bho_all_games');
 
-    return bho_ladder_renderer()->allGames((int) $atts['per'], bho_ladder_page_in_url());
+    return bho_ladder_renderer(bho_ladder_season_in($atts))
+        ->allGames((int) $atts['per'], bho_ladder_page_in_url())
+        . bho_ladder_version_line();
+}
+
+/**
+ * The season a shortcode was given, or null for the one the ladder calls current.
+ *
+ * **This is what lets one site carry several ladders.** The club runs more than one game, each with
+ * its own seasons, and the ladder application can only call one of them current — so a page that
+ * wants the other says which: `[bho_ladder season="12"]`. Left out, everything behaves as it always
+ * has, which is what the club's one existing page wants.
+ *
+ * An id and not a name, because a name is a thing somebody renames and a page that then shows an
+ * empty table gives no clue why. The ids are on the Seasons screen in the ladder's admin area.
+ *
+ * @param array<string,string> $atts
+ */
+function bho_ladder_season_in(array $atts): ?int
+{
+    $season = absint($atts['season'] ?? 0);
+
+    return $season > 0 ? $season : null;
 }
 
 /** The stylesheet is loaded here rather than per shortcode: a page may hold several of them. */
-function bho_ladder_renderer(): BHO_Render
+function bho_ladder_renderer(?int $season = null): BHO_Render
 {
     wp_enqueue_style('bho-ladder', BHO_LADDER_URL . 'assets/ladder.css', [], bho_ladder_style_version());
 
-    return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings());
+    return new BHO_Render(BHO_Api::fromSettings(), bho_ladder_strings(), $season);
+}
+
+/**
+ * Which version is installed, in small print under the last thing this plugin drew.
+ *
+ * The site updates itself from a GitHub release, so "which one is actually on there" is otherwise a
+ * question that needs the plugins screen and an account allowed to open it. On the page, anybody
+ * looking at a table that seems wrong can read the answer out.
+ *
+ * The number alone, without the plugin's name in front of it: it only ever appears under something
+ * this plugin drew, so the name was a word every reader had to skip past to reach the one thing the
+ * line is for.
+ *
+ * **Appended to the shortcode's own output rather than hooked onto `wp_footer`**, which is where it
+ * started and where it is invisible: that prints after the theme's container, and a theme that puts
+ * its dark background on the container rather than on `body` leaves white text on a white strip. In
+ * here it inherits the colour the ladder above it is being read in, which is the only colour this
+ * plugin can be sure about.
+ *
+ * Once per request. Several shortcodes on one page is the normal arrangement, and the number
+ * repeated under each of them would be three copies of the same footnote.
+ */
+function bho_ladder_version_line(): string
+{
+    static $printed = false;
+
+    if ($printed) {
+        return '';
+    }
+
+    $printed = true;
+
+    return '<p class="bho-version">' . esc_html('v' . BHO_LADDER_VERSION) . '</p>';
 }
 
 /**
@@ -142,6 +223,11 @@ function bho_ladder_player_in_url(): int
     return isset($_GET[BHO_LADDER_PLAYER_PARAM])
         ? absint(wp_unslash($_GET[BHO_LADDER_PLAYER_PARAM]))
         : 0;
+}
+
+function bho_ladder_wants_every_game(): bool
+{
+    return isset($_GET[BHO_LADDER_GAMES_PARAM]);
 }
 
 function bho_ladder_page_in_url(): int
@@ -167,6 +253,8 @@ add_filter('document_title_parts', static function (array $parts): array {
     $player = bho_ladder_player_in_url();
 
     if ($player > 0) {
+        // No season here, and it costs nothing: this reads a name, and a player has one name in
+        // every season. Asking for a particular one would be a second cached copy of the same answer.
         $history = BHO_Api::fromSettings()->player($player);
         if (!is_wp_error($history) && isset($history['player']['name'])) {
             $parts['title'] = (string) $history['player']['name'];

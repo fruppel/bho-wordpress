@@ -28,7 +28,7 @@ final class BHO_Settings
     /** The wording the blocks are rendered in. `site` follows the WordPress locale. */
     public const LANGUAGES = ['en' => 'English', 'de' => 'Deutsch', 'es' => 'Español', 'site' => 'Wie die Seite'];
 
-    /** @return array{api: string, ttl: int, games_page: int, language: string} */
+    /** @return array{api: string, ttl: int, language: string} */
     public static function all(): array
     {
         $stored = get_option(self::OPTION, []);
@@ -36,9 +36,6 @@ final class BHO_Settings
         return [
             'api' => untrailingslashit((string) ($stored['api'] ?? '')),
             'ttl' => max(1, (int) ($stored['ttl'] ?? 5)),
-            // Which page holds `[bho_all_games]`, so the latest-games block can link to it. Zero
-            // means no link rather than a link to nowhere.
-            'games_page' => max(0, (int) ($stored['games_page'] ?? 0)),
             // English by default, and not the site's locale: blackhydra.org is an English page, and a
             // German WordPress behind it would otherwise put a German table on it.
             'language' => self::language($stored['language'] ?? null),
@@ -58,13 +55,13 @@ final class BHO_Settings
         register_setting('bho_ladder', self::OPTION, [
             'type' => 'array',
             'sanitize_callback' => [self::class, 'sanitize'],
-            'default' => ['api' => '', 'ttl' => 5, 'games_page' => 0, 'language' => 'en'],
+            'default' => ['api' => '', 'ttl' => 5, 'language' => 'en'],
         ]);
     }
 
     /**
      * @param mixed $input
-     * @return array{api: string, ttl: int, games_page: int, language: string}
+     * @return array{api: string, ttl: int, language: string}
      */
     public static function sanitize($input): array
     {
@@ -75,7 +72,6 @@ final class BHO_Settings
             // request, so it has to be a URL or nothing.
             'api' => untrailingslashit(esc_url_raw((string) ($input['api'] ?? ''))),
             'ttl' => min(1440, max(1, (int) ($input['ttl'] ?? 5))),
-            'games_page' => max(0, (int) ($input['games_page'] ?? 0)),
             'language' => self::language($input['language'] ?? null),
         ];
     }
@@ -116,8 +112,6 @@ final class BHO_Settings
         ?>
         <div class="wrap">
             <h1>BHO Ladder</h1>
-
-            <?php bho_ladder_tabs('bho-ladder'); ?>
 
             <form method="post" action="options.php">
                 <?php settings_fields('bho_ladder'); ?>
@@ -161,24 +155,6 @@ final class BHO_Settings
                             </p>
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row"><label for="bho-games-page">Seite „Alle Spiele"</label></th>
-                        <td>
-                            <?php
-                            wp_dropdown_pages([
-                                'id' => 'bho-games-page',
-                                'name' => esc_attr(self::OPTION) . '[games_page]',
-                                'selected' => $settings['games_page'],
-                                'show_option_none' => '— keine —',
-                                'option_none_value' => '0',
-                            ]);
-                            ?>
-                            <p class="description">
-                                Die Seite mit <code>[bho_all_games]</code>. Der Block mit den letzten
-                                Spielen verlinkt dorthin; ohne Auswahl bleibt der Link weg.
-                            </p>
-                        </td>
-                    </tr>
                 </table>
 
                 <?php submit_button(); ?>
@@ -198,12 +174,33 @@ final class BHO_Settings
                 dreht die Richtung um. Die sortierte Ansicht ist damit ein Link, den man verschicken kann.
             </p>
             <p>
-                <code>[bho_all_games]</code> — alle Spiele der Saison, seitenweise, in denselben
-                Zeilen wie der Block oben. Gehört auf die oben gewählte Seite.
+                „Alle Spiele ansehen" unter den letzten Spielen bleibt auf derselben Seite und hängt
+                <code>?<?php echo esc_html(BHO_LADDER_GAMES_PARAM); ?>=1</code> an. Es zeigt alle
+                Spiele <em>der Saison, die dieser Block zeigt</em> — es braucht dafür also weder eine
+                zweite Seite noch eine Einstellung.
+            </p>
+            <p>
+                <code>[bho_all_games]</code> gibt es weiterhin, für eine eigene Seite im Menü. Sie
+                nimmt dieselben Attribute <code>per</code> und <code>season</code>.
             </p>
             <p>
                 Weniger auf einmal, etwa für die Startseite:
                 <code>[bho_ladder limit="10" games="3" rules="0"]</code>.
+            </p>
+
+            <h2>Mehrere Ladders auf einer Seite</h2>
+            <p>
+                Ohne Angabe zeigen beide Shortcodes die Saison, die in der Ladder-Anwendung als
+                <em>Standard</em> markiert ist. Läuft mehr als ein Spiel parallel, sagt die Seite,
+                welche Saison sie meint: <code>[bho_ladder season="12"]</code> und
+                <code>[bho_all_games season="12"]</code>. Die Nummern stehen im
+                <a href="<?php echo esc_url(BHO_Api::fromSettings()->appUrl('/admin/seasons')); ?>"
+                   target="_blank" rel="noopener">Ladder-Adminbereich unter Seasons ↗</a>.
+            </p>
+            <p>
+                Die Angabe zieht sich durch: Tabelle, letzte Spiele und die Spielerseite dahinter
+                zeigen dieselbe Saison. Ohne sie listet die Spielerseite alle Spiele einer Person
+                über alle Spiele hinweg — was auf einer Seite über eine einzelne Ladder falsch wäre.
             </p>
         </div>
         <?php

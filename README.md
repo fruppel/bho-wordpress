@@ -11,8 +11,25 @@ plugin: a breaking change over there means `/api/v2/` and a plugin update, in th
 ```
 [bho_ladder]                                the page: standings, latest games, rules
 [bho_ladder limit="10" games="3" rules="0"] less of it, for a front page
+[bho_ladder season="12"]                    a season other than the current one
 [bho_all_games per="25"]                    every game of the season, paginated
 ```
+
+Without `season` a block shows whichever season the ladder application marks as the **default**,
+which is what one club running one game wants. Naming one is how a site carries **several ladders at once**: the
+club runs more than one game, each with its own seasons, and only one of them can be current over
+there. The id is on the Seasons screen in the ladder's admin area — an id and not a name, because a
+name is a thing somebody renames and a page that then shows an empty table gives no clue why.
+
+It runs through the whole block: table, latest games, and the player page behind a click. That last
+one is the point — a player's page is their whole career across every game, so a 40k page would
+otherwise open onto somebody's Kill Team results.
+
+`[bho_ladder]` is one address with three views, chosen by a query parameter: the standings,
+`?bho_player=…` for one player, and `?bho_games=1` for every game of the season. "See every game"
+under the latest games goes to the third — on the same page, in the same season. It used to lead to a
+page picked in the settings, which was one page and therefore one season, so the link broke the day
+the club ran a second ladder.
 
 Two shortcodes, because there are two pages. `[bho_ladder]` is the standings, the last few games and
 the rules in one block: the table is what the page is for, the games say what just happened, and the
@@ -47,6 +64,20 @@ the file it already had — which looked exactly like the change not having been
 
 On a player's own page the block renders nothing: that page is already a list of games, and this one
 underneath would be the same rows again, most of them about somebody else.
+
+A player's page also lists the **points the club gave out by hand** under their games, with the day,
+the reason and the running rating after each one — the part of a rating no game accounts for, and the
+one that would otherwise leave the arithmetic on that page not adding up. A bonus given at a
+tournament leads with that event and then the placing (*BLACKHYDRA OPEN KILL TEAM - I · 1. Platz*),
+because the placing alone says nothing about which weekend. The ladder sends the reason as a code
+(`tournamentFirst`, `other`, …) and `includes/strings.php` writes it out in each of the three
+languages; a code with no wording there falls back to the note the organiser typed, so the
+application can add a reason before this plugin is updated.
+
+The **installed version** is printed in small print at the foot of any page this plugin drew on. Not
+on `wp_footer`, which is after the theme's container and therefore invisible on a theme that puts its
+background there rather than on `body` — inside the block, where the text colour is the one the
+ladder above it is being read in.
 
 `[bho_all_games]` is the same rows again, a page at a time, with previous/next paging. It was a table
 of its own until it drifted from the block in spacing, in what it showed and in how a score was drawn:
@@ -118,16 +149,10 @@ engines and script blockers see it, and one answer is cached for everybody inste
 visitor. The ladder is recomputed from every game on each request over there, so that last one is not
 a detail.
 
-Both screens live under `Settings` and carry the same two tabs — *Einstellungen* and *Saisons* — so
-each one leads to the other. Without them they were reachable only by knowing the URL, which is not
-navigation.
-
-`Settings → BHO Saisons` shows which tournaments count towards which season, and names the ones
-counting towards nothing — a state somebody has to be able to notice rather than discover when a table
-looks short. It is **read-only**: assigning happens in the ladder's own admin area, and the screen
-links there. Two write paths to one dataset means the rules that hold it together — exactly one
-current season, one season per tournament — either live in two places or drift apart. It also spares
-this WordPress a credential with write access, which on shared hosting is the last place to keep one.
+There is one screen. A second one listed which tournaments counted towards which season, read-only
+from the same endpoint the blocks read — which is what the ladder's own Seasons screen shows, from
+the same data, with the buttons that change it. A second place to look could only ever be as correct
+as the first, and it was one more thing to keep in step; the settings screen links across instead.
 
 `Settings → BHO Ladder` holds the address of the ladder and how long an answer is kept (five minutes by
 default; the table only changes when somebody presses Import). If the ladder cannot be reached, the

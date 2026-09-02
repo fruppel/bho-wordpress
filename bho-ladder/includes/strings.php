@@ -2,9 +2,17 @@
 /**
  * The wording, in the three languages the ladder application itself speaks.
  *
- * Not gettext, deliberately. The strings here have to stay in step with `frontend/src/i18n/*.ts` in
- * the application — the same table under the same headings — and keeping them side by side in one
- * readable file is what makes that possible to check. A .po/.mo pair would put the German in a
+ * Not gettext, deliberately. The strings here are the only wording the ladder has: the application
+ * sends codes and numbers — a rank class, a finding, the reason somebody was given points by hand —
+ * and this file is where each becomes a sentence. Keeping the three languages side by side in one
+ * readable file is what makes a missing one visible.
+ *
+ * A `bonus_*` key is named after the code the API sends, so BHO_Render looks one up rather than
+ * matching on a list it holds itself; a code with no key here falls back to the note beside it.
+ *
+ * The three placings are worded short — "1. Platz", not "Turnierbonus 1. Platz" — because the event
+ * is printed in front of them and the block they sit in is already headed "Bonuspunkte". Saying
+ * "Turnierbonus" between those two would be the third time. A .po/.mo pair would put the German in a
  * compiled binary and add a build step to a plugin that otherwise has none.
  *
  * English unless the setting says otherwise — blackhydra.org is an English page, and following the
@@ -60,7 +68,7 @@ function bho_ladder_strings(): array
             'rank_then' => 'Rangklasse bei diesem Spiel: %s',
             'no_games' => 'Noch keine Spiele.',
             'no_player' => 'Diesen Spieler gibt es nicht.',
-            'from_1100' => 'von 1100',
+            'from_start' => 'von %d',
             'here' => 'hier',
             'games_count' => '%1$s aus %2$d Spielen',
             'win' => 'Sieg',
@@ -73,6 +81,15 @@ function bho_ladder_strings(): array
             'first' => 'Erster Platz',
             'second' => 'Zweiter Platz',
             'third' => 'Dritter Platz',
+            'row_match' => 'Spiel',
+            'row_bonus' => 'Bonuspunkte',
+            'bonus_reason' => 'Grund',
+            'bonus_tournamentFirst' => '1. Platz',
+            'bonus_tournamentSecond' => '2. Platz',
+            'bonus_tournamentThird' => '3. Platz',
+            'bonus_tournamentOther' => 'Turnierbonus',
+            'bonus_tournamentPlacing' => 'Turnierwertung',
+            'bonus_other' => 'Sonstige',
         ],
         'en' => [
             'all_games' => 'See every game →',
@@ -114,7 +131,7 @@ function bho_ladder_strings(): array
             'rank_then' => 'Class when this game was played: %s',
             'no_games' => 'No games yet.',
             'no_player' => 'No such player.',
-            'from_1100' => 'from 1100',
+            'from_start' => 'from %d',
             'here' => 'here',
             'games_count' => '%1$s across %2$d games',
             'win' => 'Win',
@@ -127,6 +144,15 @@ function bho_ladder_strings(): array
             'first' => 'First place',
             'second' => 'Second place',
             'third' => 'Third place',
+            'row_match' => 'Match',
+            'row_bonus' => 'Bonus points',
+            'bonus_reason' => 'Reason',
+            'bonus_tournamentFirst' => '1st place',
+            'bonus_tournamentSecond' => '2nd place',
+            'bonus_tournamentThird' => '3rd place',
+            'bonus_tournamentOther' => 'Tournament bonus',
+            'bonus_tournamentPlacing' => 'Tournament result',
+            'bonus_other' => 'Other',
         ],
         'es' => [
             'all_games' => 'Ver todas las partidas →',
@@ -168,7 +194,7 @@ function bho_ladder_strings(): array
             'rank_then' => 'Clase al jugar esta partida: %s',
             'no_games' => 'Aún no hay partidas.',
             'no_player' => 'Ese jugador no existe.',
-            'from_1100' => 'desde 1100',
+            'from_start' => 'desde %d',
             'here' => 'aquí',
             'games_count' => '%1$s en %2$d partidas',
             'win' => 'Victoria',
@@ -181,6 +207,15 @@ function bho_ladder_strings(): array
             'first' => 'Primer puesto',
             'second' => 'Segundo puesto',
             'third' => 'Tercer puesto',
+            'row_match' => 'Partida',
+            'row_bonus' => 'Puntos extra',
+            'bonus_reason' => 'Motivo',
+            'bonus_tournamentFirst' => '1.º puesto',
+            'bonus_tournamentSecond' => '2.º puesto',
+            'bonus_tournamentThird' => '3.º puesto',
+            'bonus_tournamentOther' => 'Bonus de torneo',
+            'bonus_tournamentPlacing' => 'Resultado del torneo',
+            'bonus_other' => 'Otros',
         ],
     ];
 

@@ -2,9 +2,14 @@
 /**
  * The BHO API, cached.
  *
- * Three endpoints, all public and all answering without a token: the whole table, one player's games,
- * and which tournaments count towards which season. Nothing here writes; the application on the other
- * end owns the data and has its own admin area for it.
+ * Three endpoints, all public and all answering without a token: the whole table, one page of games,
+ * and one player's games. Nothing here writes; the application on the other end owns the data and has
+ * its own admin area for it — which is also where `/api/v1/seasons` is read now that this plugin has
+ * no screen listing them.
+ *
+ * Every read takes an optional season, and the cache follows for free: the key is the path and the
+ * path carries the season, so two ladders on one site are two cached answers rather than one that
+ * keeps being overwritten.
  *
  * They live under `/api/v1/`, and that prefix exists because of this file: the application can change
  * the shape of anything its own screens read in the same commit, but not of what a site it does not
@@ -68,20 +73,6 @@ final class BHO_Api
     }
 
     /**
-     * Every season and what counts towards it. Read-only, like everything here.
-     *
-     * Changing the assignment stays in the ladder's own admin area: it would need a credential with
-     * write access sitting in this database, and this is a WordPress on shared hosting — the most
-     * attacked software in the whole arrangement — for a job somebody does five times a year.
-     *
-     * @return array<string,mixed>|WP_Error
-     */
-    public function seasons(): array|WP_Error
-    {
-        return $this->get('/api/v1/seasons');
-    }
-
-    /**
      * One page of games, newest first.
      *
      * Its own endpoint rather than a field of the standings, which is what lets `[bho_all_games]` page
@@ -89,15 +80,31 @@ final class BHO_Api
      *
      * @return array<string,mixed>|WP_Error
      */
-    public function games(int $page = 1, int $perPage = 25): array|WP_Error
+    public function games(int $page = 1, int $perPage = 25, ?int $season = null): array|WP_Error
     {
-        return $this->get(sprintf('/api/v1/games?page=%d&perPage=%d', max($page, 1), max($perPage, 1)));
+        $query = ['page' => max($page, 1), 'perPage' => max($perPage, 1)];
+
+        if ($season !== null) {
+            $query['season'] = $season;
+        }
+
+        return $this->get('/api/v1/games?' . http_build_query($query));
     }
 
-    /** @return array<string,mixed>|WP_Error */
-    public function player(int $id): array|WP_Error
+    /**
+     * One player's games, all of them or one season's worth.
+     *
+     * The season matters since the club runs several games side by side: a whole history is then a
+     * mixture, and the page behind the 40k standings would list somebody's Kill Team games under
+     * them. A block that was told which season it shows passes it on.
+     *
+     * @return array<string,mixed>|WP_Error
+     */
+    public function player(int $id, int|string|null $season = null): array|WP_Error
     {
-        return $this->get('/api/v1/players/' . $id);
+        // The literal `default` is the ladder's own word for "whichever season is the default one",
+        // which is what a block that was given no id is showing.
+        return $this->get('/api/v1/players/' . $id . ($season === null ? '' : '?season=' . rawurlencode((string) $season)));
     }
 
     /**

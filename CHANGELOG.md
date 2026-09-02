@@ -12,19 +12,131 @@ where a change here needs a change there, the entry says so.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.6.0] — 2026-09-02
+
 ### Added
+
+- **A `season` attribute on both shortcodes**, which is what lets one site carry more than one
+  ladder: `[bho_ladder season="12"]` and `[bho_all_games season="12"]`. The club runs several games
+  side by side, each with its own seasons, and the ladder application can only call one of them
+  current — so a page that wants another one says which. Left out, everything behaves as before.
+
+  It runs through the whole block: the table, the latest games under it and the player page a click
+  opens all show the same season. That last one is the reason it exists — a player's page is their
+  whole career across every game, so the page behind the 40k standings would otherwise list their
+  Kill Team games under them. Needs a ladder that accepts `?season=` on `/api/v1/players/{id}`.
+
+  An id rather than a name, because a name is a thing somebody renames, and a page that then shows an
+  empty table gives no clue why. The ids are on the Seasons screen in the ladder's admin area. An id
+  that does not exist says so rather than quietly falling back to the current season.
+
+  Two blocks on one page get two cached answers, not one that keeps being overwritten: the cache key
+  is the request path, and the path carries the season.
 
 - **Free-text, coloured announcements**, shown above the standings and grouped into one box per
   colour — yellow, red or blue. Written and posted from the ladder application's own admin area, so a
   one-off message no longer needs a plugin update to say something new; the sentence comes from the
   API exactly as an organiser wrote it. Needs a ladder that answers `GET /api/v1/notices`.
 
+- The **Saisons** screen now prints each season's `season="…"` beside its name, so a page can be set
+  up without leaving WordPress to look the number up, and a **Spiel** column beside every tournament
+  — a list covering several games is otherwise one nobody can read.
+
+### Changed
+
+- **A player's page is one table across the whole season.** Every game and every bonus in the order
+  the ladder replayed them, oldest first, so the rating in the last column can be followed from the
+  first row to the last. It was grouped per tournament with the bonuses in a block underneath, which
+  put a bonus for the first event under the last one.
+
+  Six columns, the same the admin draws: the day, whether the row is a match or a bonus, the event,
+  what happened, what it moved and where the rating stood. The round, both sides with their kill
+  teams, the score and the result are one description inside the fourth column rather than four
+  columns of their own — four columns every bonus row would leave empty. The event stands on every
+  row, so a row read on its own still says which weekend it belongs to.
+
+  The ladder's own +75/+50/+25 for a placing is a row here too — it moves a rating, and without it
+  the column jumped by a hundred beside a bonus saying +75.
+
+  On a phone the two sides of a match take a line each. Needs a ladder that sends `sequence` on both
+  kinds of row; against one that does not, the page falls back to games first and bonuses after.
+
+- **The line under a player's rating names the season's own starting number**, not 1100. A season
+  sets what everybody starts on now, and "from 1100" above a table that began at 1500 is a page
+  arguing with itself. Against a ladder that does not send `startingRating`, it stays 1100.
+
+- **A block that names no season now asks for the default one explicitly.** The player page behind it
+  was showing a career spanning every game the club runs, under standings covering one of them —
+  the season only reached it when the shortcode named an id.
+
+- **"See every game" stays on the page it was clicked on** and shows the season that block is
+  showing. It was a page id picked in the settings — one page, and therefore one season: the moment
+  the club ran a second ladder, the 40k block's link led to Kill Team's games. The setting is gone,
+  and with it the need for a second page at all.
+
+  `[bho_ladder]` now has three views on one address, the way the player page already worked:
+  `?bho_games=1` is every game, `?bho_player=…` is one player, neither is the standings. `per="25"`
+  sets the rows on that view.
+
+  `[bho_all_games]` stays for a site that wants every game as its own menu entry, and takes the same
+  `per` and `season`.
+
 ### Removed
 
-- The `provisionalPlacings` note this plugin knew how to render. The ladder application dropped the
-  tournament bonus and the finding that came with it, so the code could never arrive here again; the
-  free-text announcements above are its replacement. `excludedGames`, the other finding the standings
-  used to send, was never rendered here to begin with.
+- **The *Saisons* screen in the WordPress admin.** It listed what the ladder's own Seasons screen
+  lists, from the same endpoint, read-only — a second place to look that could only ever be as
+  correct as the first. The settings screen links straight to it instead, and the tab bar the two
+  screens shared goes with it.
+
+- The **provisional placings** note above the table, and the `notes` handling behind it. It appeared
+  for the whole of the several weeks a tournament runs, which is a paragraph people read past — and
+  the panel right above it already announces the event that is still being played, which is the same
+  fact in a form that says when it ends and where to watch it. The free-text announcements are what
+  says something the standings cannot now. `excludedGames`, the other finding the ladder sends, was
+  never rendered here to begin with.
+
+- The season the ladder falls back to is called the **default** rather than the *current* one, in
+  step with the ladder application. With several games run side by side there are several seasons
+  being played at once, so "current" was a claim of uniqueness that no longer held; what is unique is
+  which season a block gets that names none.
+
+  Against a ladder that still sends the old `isCurrent`, the Saisons screen reads that instead, so a
+  site updated before the ladder still marks the right row.
+
+- **Bonus points on a player's page**, in a list under their games: the day, why, what it was worth
+  and where the rating stood afterwards. The club can now give points out by hand for what the ladder
+  cannot see on its own — a side event, a tournament whose results never reached Herald — and this is
+  the half of that which anybody can read. Their own list rather than rows among the games: a bonus
+  has no opponent, no score and no result, so half a game row would be empty for every one of them.
+
+  A tournament bonus leads with **the event it was given at**, then the placing: *BLACKHYDRA OPEN
+  KILL TEAM - I · 1. Platz*. The event is a field on the award rather than something somebody typed
+  into a note, so the same tournament cannot end up spelt two ways down the list — and "1. Platz" on
+  its own says nothing about which weekend.
+
+  The reason arrives as a code and is written out here in all three languages, with whatever the
+  organiser typed beside it. The placings are worded short, because the event is in front of them and
+  the block is already headed *Bonuspunkte*; saying *Turnierbonus* between the two would be the third
+  time. A reason this plugin has no wording for falls back to the organiser's words rather than
+  printing a key, so the ladder can add one before the plugin is updated.
+
+  The rating in the head of the page now stands where the last bonus left it rather than where the
+  last game did — they are added after every game of their season, whatever day they carry.
+
+  Needs a ladder that sends `awards` on `/api/v1/players/{id}`; against one that does not, the list is
+  simply absent.
+
+- **The installed version, in small print at the foot of the page** — just `v0.6.0`, since it only
+  ever appears under something this plugin drew. The site updates itself from a GitHub release, so
+  which one is actually on there otherwise needs the plugins screen and an account allowed to open
+  it — and "which version are you on" is the first question about a table that looks wrong.
+
+  Under the block this plugin drew and not on `wp_footer`, which is where it was first put and where
+  it is invisible: that prints after the theme's container, and a theme carrying its dark background
+  on the container rather than on `body` leaves white text on a white strip. Printed once, however
+  many shortcodes a page holds, and not at all on the pages that hold none.
 
 ## [0.5.0] — 2026-08-29
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The plugin's own tests, with no WordPress in sight.
+
+  WordPress is a handful of escaping and URL helpers here, and tests/bootstrap.php stands in for them
+  honestly rather than as identity functions — see its own note. Booting a real WordPress would buy a
+  slower suite and the ability to test the two things that already have a person in the loop: whether
+  a shortcode is registered, and whether a page renders. What it would not buy is what these tests are
+  for, which is the arithmetic and the wording between the API's answer and the HTML.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         failOnWarning="true"
+         failOnNotice="true"
+         failOnDeprecation="true"
+         beStrictAboutOutputDuringTests="true">
+    <testsuites>
+        <testsuite name="plugin">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

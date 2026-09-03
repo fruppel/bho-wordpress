@@ -1,0 +1,29 @@
+# The plugin's own tests. No WordPress and no database — see phpunit.xml.dist for why.
+name: Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor the plugin header promises, and the version the club's host actually runs. A
+        # plugin that only builds on the newer one is one that breaks on the site it ships to.
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+
+      - run: composer test

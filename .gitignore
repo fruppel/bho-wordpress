@@ -1,3 +1,5 @@
 .DS_Store
 *.log
 bho-ladder-*.zip
+/vendor/
+.phpunit.result.cache

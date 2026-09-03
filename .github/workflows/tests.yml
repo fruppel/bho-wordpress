@@ -14,7 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         # The floor the plugin header promises, and the version the club's host actually runs. A
-        # plugin that only builds on the newer one is one that breaks on the site it ships to.
+        # plugin that only builds on the newer one is one that breaks on the site it ships to — which
+        # is also why the dev dependency is PHPUnit 10: 11 needs PHP 8.2 and cannot reach the floor.
         php: ['8.1', '8.3']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

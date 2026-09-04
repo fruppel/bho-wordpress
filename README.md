@@ -168,6 +168,7 @@ repository), then:
 make up        # WordPress on http://localhost:8087, installed and filled in
 make down      # stop it, keep the database
 make reset     # throw the site away and start over
+make test      # the plugin's own tests; needs neither of the above
 ```
 
 `make up` prints the two addresses you want. The admin is `admin` / `admin`.
@@ -194,21 +195,27 @@ Copy `bho-ladder/` into `wp-content/plugins/`, activate it, set the address unde
 ## What is in here
 
 ```
-bho-ladder/
-  bho-ladder.php              plugin header, shortcode, page title and canonical link
-  includes/class-bho-api.php  the two endpoints, cached, with a stale fallback
-  includes/class-bho-render.php  all the HTML, everything escaped on the way out
-  includes/class-bho-settings.php  the settings page
-  includes/class-bho-overview.php  the read-only seasons screen in wp-admin
-  includes/nav.php            the tab bar the two admin screens share
-  includes/strings.php        German, English and Spanish
-  assets/ladder.css           only what a theme cannot know: rank tints, podium, flag frame
-  assets/flags/               271 country flags (flag-icons, MIT)
+bho-ladder/                          everything that ships; the zip is built from this folder alone
+  bho-ladder.php                     plugin header, the shortcodes, the three views and their URLs
+  includes/class-bho-api.php         the endpoints, cached, with a stale fallback
+  includes/class-bho-render.php      all the HTML, everything escaped on the way out
+  includes/class-bho-settings.php    the settings page
+  includes/class-bho-updates.php     finding out there is a newer release, and installing it
+  includes/strings.php               German, English and Spanish
+  assets/ladder.css                  only what a theme cannot know: rank tints, podium, flag frame
+  assets/flags/                      271 country flags (flag-icons, MIT)
+tests/                               `make test` — no WordPress, no database
+  bootstrap.php                      the handful of WordPress functions the plugin uses
 ```
 
 The flags ship with the plugin rather than being fetched from the ladder's server: a country code is
 two letters, so the file name is derivable, and every page view would otherwise put a handful of
 requests on somebody's private machine.
+
+The tests run on plain PHP: WordPress is a handful of escaping and URL helpers here, and
+`tests/bootstrap.php` stands in for them honestly rather than as identity functions — an `esc_html()`
+that returned its argument would turn every escaping test into a test of nothing. They load the real
+plugin file, so its constants and shortcodes cannot drift away from what is being tested.
 
 `strings.php` is not gettext, deliberately: three languages side by side in one readable file can be
 checked against each other, where a compiled .mo pair would add a build step to a plugin that has

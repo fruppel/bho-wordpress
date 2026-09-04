@@ -1,0 +1,23 @@
+{
+    "name": "fruppel/bho-ladder",
+    "description": "The Black Hydra Open ladder, as a WordPress plugin",
+    "license": "MIT",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BHO\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --colors=never"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

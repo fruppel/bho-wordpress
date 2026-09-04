@@ -31,6 +31,9 @@ final class BHO_Updates
 
     private const CACHE = 'bho_ladder_latest_release';
 
+    /** What is cached when GitHub could not be read, so the next check does not ask again. */
+    private const NOTHING = 'none';
+
     /** The action behind the link in the plugin's row, and the word its answer comes back as. */
     private const ACTION = 'bho_ladder_check_updates';
     private const NOTICE = 'bho_ladder_checked';
@@ -194,6 +197,13 @@ final class BHO_Updates
     {
         $cached = get_transient(self::CACHE);
 
+        // The marker a failed read leaves behind, and the reason this line exists: it was written and
+        // never looked at, so the sixty-an-hour limit the write is there to protect was being spent
+        // on every update check anyway.
+        if ($cached === self::NOTHING) {
+            return null;
+        }
+
         if (is_array($cached) && count($cached) === 2) {
             return $cached;
         }
@@ -212,7 +222,7 @@ final class BHO_Updates
         if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
             // Cached as nothing for a while: a repository that is private, renamed or without a
             // release would otherwise be asked again on every single update check.
-            set_transient(self::CACHE, 'none', HOUR_IN_SECONDS);
+            set_transient(self::CACHE, self::NOTHING, HOUR_IN_SECONDS);
 
             return null;
         }
@@ -229,7 +239,7 @@ final class BHO_Updates
         }
 
         if ($version === '' || $package === '') {
-            set_transient(self::CACHE, 'none', HOUR_IN_SECONDS);
+            set_transient(self::CACHE, self::NOTHING, HOUR_IN_SECONDS);
 
             return null;
         }

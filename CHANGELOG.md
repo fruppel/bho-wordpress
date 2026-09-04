@@ -12,7 +12,25 @@ where a change here needs a change there, the entry says so.
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- **A GitHub that cannot be read is no longer asked again on every update check.** The failure path
+  cached a marker saying "nothing to offer" and the read never looked at it, so a repository that is
+  private, renamed, momentarily down or simply out of anonymous requests was asked afresh every time
+  WordPress checked for updates — spending the sixty-an-hour limit the marker exists to protect, on
+  an address a whole host may share. Found by the tests below, which is what they are for.
+
+### Added
+
+- **The plugin has tests.** `make test`, and every push runs them on PHP 8.1 and 8.3 — the floor the
+  header promises and the version the site actually runs.
+
+  No WordPress and no database: WordPress is a handful of escaping and URL helpers here, and
+  `tests/bootstrap.php` stands in for them honestly rather than as identity functions. What that
+  covers is what could be wrong without anybody noticing — the order a player's season is drawn in
+  and what happens when the ladder sends no `sequence`, the cache key that lets two ladders live on
+  one site, the sorting a URL can ask for, the words in all three languages having the same keys and
+  the same placeholders, and what a name typed on Tabletop Herald turns into on the club's page.
 
 ## [0.6.0] — 2026-09-02
 

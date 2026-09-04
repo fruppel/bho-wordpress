@@ -3,7 +3,7 @@
  * Plugin Name:       BHO Ladder
  * Plugin URI:        https://github.com/fruppel/bho-wordpress
  * Description:       Draws the Black Hydra Open ladder on a WordPress page, with a detail page per player. Reads the BHO API server-side and caches it.
- * Version:           0.6.0
+ * Version:           0.6.1
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Black Hydra Open
@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 defined('ABSPATH') || exit;
 
-define('BHO_LADDER_VERSION', '0.6.0');
+define('BHO_LADDER_VERSION', '0.6.1');
 define('BHO_LADDER_FILE', __FILE__);
 define('BHO_LADDER_DIR', plugin_dir_path(__FILE__));
 define('BHO_LADDER_URL', plugin_dir_url(__FILE__));

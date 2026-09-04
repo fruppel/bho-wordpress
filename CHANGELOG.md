@@ -12,6 +12,10 @@ where a change here needs a change there, the entry says so.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.6.1] — 2026-09-04
+
 ### Fixed
 
 - **A GitHub that cannot be read is no longer asked again on every update check.** The failure path
@@ -266,7 +270,9 @@ commit rather than to a release.
   a light one.
 - A Dockerised demo site to look at it in (`make up`).
 
-[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/fruppel/bho-wordpress/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/fruppel/bho-wordpress/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/fruppel/bho-wordpress/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/fruppel/bho-wordpress/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fruppel/bho-wordpress/compare/v0.2.0...v0.3.0

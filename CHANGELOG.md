@@ -14,6 +14,26 @@ where a change here needs a change there, the entry says so.
 
 Nothing yet.
 
+## [0.6.2] — 2026-09-09
+
+### Fixed
+
+- **A player's season reads properly on a phone, and no longer breaks on a tablet.** The mobile row
+  had drifted into a shape nobody had drawn on purpose: the round marker sat alone on its own line
+  with nothing beside it, and the rating change sat on a line of its own that no longer lined up with
+  anything above it. Both are one line each now — the round beside the day and the event, and the
+  result, the rating change and the rating after together, pinned to the right.
+
+  The two sides no longer take a line apiece either. The flag sits beside two lines of its own, the
+  name over the kill team, so both players and the score share one line without an ellipsis eating
+  either name.
+
+  The breakpoint this switched on was also too narrow for what sits in front of it: around 800px wide
+  — a small laptop, or a tablet held upright — "Match", the event and the day between them left too
+  little room for the single desktop line, and a name would collapse to nothing while the kill team
+  overlapped the score box. Moved from 44rem to 60rem, the same breakpoint the standings already
+  switch on.
+
 ## [0.6.1] — 2026-09-04
 
 ### Fixed
@@ -270,7 +290,8 @@ commit rather than to a release.
   a light one.
 - A Dockerised demo site to look at it in (`make up`).
 
-[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/fruppel/bho-wordpress/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/fruppel/bho-wordpress/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/fruppel/bho-wordpress/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/fruppel/bho-wordpress/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/fruppel/bho-wordpress/compare/v0.4.0...v0.5.0

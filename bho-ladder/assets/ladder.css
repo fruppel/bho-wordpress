@@ -544,19 +544,22 @@
 /*
  * A player's page is one table across the season, so a game row and a bonus row have to line up:
  * day, event, round, then the wide middle, then what it moved and where the rating stood. A bonus
- * has no opponent, no score and no result, so its middle simply takes all three.
+ * has no opponent and no score, so its middle is just the reason it was given.
  */
 /*
- * The description holds a whole game: the round, the two sides, the score and the result. They have
- * no headings of their own — a bonus row would leave four of them blank — but they still line up
- * down the page, because a score that wanders left and right with the length of somebody's kill team
- * is a column nobody can scan. Fixed at both ends, flexible in the middle.
+ * The description holds the two sides and the score — what was played. They have no headings of
+ * their own — a bonus row would leave both blank — but they still line up down the page, because a
+ * score that wanders left and right with the length of somebody's kill team is a column nobody can
+ * scan. Fixed at both ends, flexible in the middle.
+ *
+ * The result, the rating change and the rating after are `bho-outcome`, a second group beside it —
+ * what the game did, kept apart from what was played so a phone can put it on a line of its own.
  */
 .bho-match { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.5rem; flex: 1 1 0; min-width: 0; }
-.bho-match .bho-round { width: 1.8rem; flex: none; }
 .bho-match .bho-pair { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.5rem; flex: 1 1 0; min-width: 0; }
 .bho-match .bho-score { width: 5.2rem; flex: none; margin: 0; justify-content: flex-end; }
-.bho-match .bho-result { width: 5.5rem; flex: none; text-align: left; }
+.bho-outcome { display: flex; align-items: baseline; gap: 0.2rem 0.5rem; flex: none; }
+.bho-outcome .bho-result { width: 5.5rem; flex: none; text-align: left; }
 
 /* What kind of row this is — a game, or points somebody was given. */
 .bho-kind { width: 6.5rem; flex: none; font-size: 0.8rem; color: var(--bho-quiet); }
@@ -699,18 +702,51 @@ a.bho-party:hover .bho-who { text-decoration: underline; }
 }
 
 /*
- * A player's season on a phone.
+ * A player's season below 60rem: three lines a row, nothing indented under anything else.
  *
- * Eight columns do not fit 390 pixels and must not try: the two sides of the match take a line each
- * under the day, and what the game was worth follows on a line of its own. The alternative is what
- * this looked like first — a score box sitting on top of somebody's name.
+ * Wider than the phone breakpoint used everywhere else on this page, because this row has more fixed
+ * text in front of it than any other — the day, "Match", the event and the round all refuse to
+ * shrink, and on a narrow laptop or a tablet in portrait they alone can leave the single desktop line
+ * too little room for two names: the name collapses to nothing and the kill team overlaps the score
+ * box rather than wrapping. Below 60rem this row never gets that squeeze in the first place.
+ *
+ * 1. Day, kind, event and round — metadata, wraps if it must.
+ * 2. Both sides and the score, kept to one line: the flag sits beside two lines of its own, the name
+ *    over the kill team, rather than beside one long line the two of them had to share room on.
+ * 3. `bho-outcome` — the result, the rating change and the rating after — pinned to the right of a
+ *    line of its own, a little further from the description above it than the row's other lines are
+ *    from each other, because a verdict is read on its own line, not chased across the row.
  */
-@media (max-width: 44rem) {
+@media (max-width: 60rem) {
   .bho-games li { row-gap: 0.25rem; padding: 0.6rem 0.1rem; }
   .bho-games .bho-event { width: auto; flex: 0 1 auto; font-size: 0.78rem; }
   .bho-kind { width: auto; flex: 0 1 auto; }
-  .bho-match { flex: 1 0 100%; padding-left: 2.6rem; }
-  .bho-match .bho-pair { flex: 1 0 100%; }
-  .bho-party { flex: 1 0 100%; }
-  .bho-match .bho-vs { display: none; }
+
+  .bho-match { flex: 1 0 100%; }
+  .bho-match .bho-pair { flex: 1 1 0; flex-wrap: nowrap; min-width: 0; }
+
+  /* The flag spans both text rows; the name sits over the kill team instead of beside it. */
+  .bho-party {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.35rem;
+    row-gap: 0;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .bho-party .bho-flag { grid-row: 1 / 3; }
+  .bho-party .bho-who { grid-column: 2; grid-row: 1; }
+  .bho-party em {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bho-match .bho-vs { flex: none; align-self: center; font-size: 0.7rem; }
+
+  .bho-outcome { flex: 1 0 100%; justify-content: flex-end; margin-top: 0.3rem; }
+  .bho-outcome .bho-result { width: auto; flex: none; }
 }
